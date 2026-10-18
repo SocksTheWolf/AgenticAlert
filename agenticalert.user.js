@@ -2,8 +2,8 @@
 // @name         AgenticAlert
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
-// @run-at       document-idle
-// @version      1.0.2
+// @run-at       document-end
+// @version      1.0.3
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
@@ -84,8 +84,14 @@ await (async function() {
         if (contributors.ok && contributors.status === 200) {
           gotData = true;
           break;
+        } else if (contributors.status === 429) {
+          // we have hit a rate limit, so we're going to just break out
+          // it's unlikely this will happen to anyone
+          break;
         }
         ++attempts;
+        // dumb attempt at sleeping
+        await new Promise(r => setTimeout(r, 1000));
       }
 
       if (gotData) {
