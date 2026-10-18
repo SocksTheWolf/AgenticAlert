@@ -3,7 +3,7 @@
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
 // @run-at       document-end
-// @version      1.0.4
+// @version      1.0.5
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
@@ -40,14 +40,17 @@ function addAILabelElement() {
     console.error("AgenticAlert: Attempted to add label but element was null");
     return;
   }
-  if (document.getElementById("repo-title-component")) {
-    const titleComp = document.getElementById("repo-title-component");
+  const titleComp = document.getElementById("repo-title-component");
+  if (titleComp) {
     // remove any existing labels
-    if (document.getElementById("agenticAlertLabel")) {
-      titleComp.firstChild.removeChild(document.getElementById("agenticAlertLabel"));
+    const existingLabel = document.getElementById("agenticAlertLabel");
+    if (existingLabel) {
+      titleComp.firstChild.removeChild(existingLabel);
     }
     // add the label
     titleComp.firstChild.appendChild(aiLabelElement);
+  } else {
+    console.warn("AgenticAlert: Lost the title!");
   }
 }
 const aiMutationObservation = new MutationObserver((mutations) => {
@@ -60,7 +63,6 @@ const aiMutationObservation = new MutationObserver((mutations) => {
 
 await (async function() {
   'use strict';
-  const repoTitle = document.getElementById("repo-title-component");
   // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
   const aiAgents = new Map([
   [199161495, "cursor"],
@@ -93,6 +95,11 @@ await (async function() {
       aiLabelElement.setAttribute("data-size", "small");
       aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
       aiLabelElement.setAttribute("data-component", "Label");
+
+      // Add loading text so you know we're doing something.
+      aiLabelElement.setAttribute("style", "color: gray");
+      aiLabelElement.innerText = "Scanning for genAI...";
+      addAILabelElement();
 
       // determine contrib data
       let contributors = null, attempts = 0, gotData = false;
