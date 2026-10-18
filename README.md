@@ -23,20 +23,21 @@ This will never have a false positive.
 * copilot PR/SWE/CLI
 * codex
 * replit
+* gemini assist bot
 * gemini
 * coderabbit AI PR
 * cubic-dev AI PR
 * breken-ai (an LLM service disguised to commit like a human) see: `https://github.com/BloopAI/vibe-kanban/discussions/3474`
 * ampagent
 
-(the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever that origin may be)
+(the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
 ---
 
 ## Caveats
 
-* genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is (probably) a limitation of github_.
-* this also applies to git submodules for the same reason (thus repositories that use `psxrecomp` and the like will not be flagged immediately).
+* genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a limitation of github_.
+* this also applies to git submodules for the same reason as above (thus repositories that use `psxrecomp` and the like will not be flagged immediately).
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _Limitation of github_.
 * requires tampermonkey/userscript runner (more than one-click install).
 
@@ -49,13 +50,23 @@ This will never have a false positive.
 I'm looking for more ai coding agents to add to the list. If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose) with the following:
 
 * A link to the repo that uses said coding agent
-* The coding agent's user id number (if you don't know it, just give me the name and I can figure it out)
+* The coding agent's user id number (you can get it from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)
 
 ## FAQ
 
 ### Why
 
 Because shit's too hard and it should just be on the tin. I'm tired of having to play "uh did they or didn't they?"
+
+### Should dependabot be in here?
+
+No. It doesn't use LLMs to function. We're not alerting you to automation, we're alerting you to agentic usage (LLM/GPT/genAI).
+
+Automation is not Agentic Behavior. Agents can automate, but they are not the source of all automation.
+
+### Could we see how much genAI is used?
+
+Technically, yes. But this process would be slower and use more RAM.
 
 ### This missed a repository, why?
 
@@ -67,4 +78,4 @@ Couple reasons:
 
 ### My repo was tagged and I did not use genAI
 
-If this tool says you used genAI, then you used it. There's no false positives. Unlike you, I know how to write regex.
+If this tool says you used genAI, then you used it. There's no false positives. And unlike you, I know how to write regex.
