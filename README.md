@@ -15,6 +15,16 @@ This will never have a false positive.
 
 ![Example of a safe repo](/.github/screenshot3.jpg?raw=true)
 
+## Detection List
+
+* cursor
+* claude
+* devin ai
+* copilot PR/SWE/CLI
+* codex
+* replit
+* gemini 
+
 ---
 
 ## Caveats
