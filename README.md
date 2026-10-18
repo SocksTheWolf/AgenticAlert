@@ -4,17 +4,19 @@ A silly userscript that alerts you if a github repo uses genAI. Can be installed
 
 ## To Install
 
-1. Download [TamperMonkey](https://www.tampermonkey.net/) for your browser
+1. Download [TamperMonkey](https://www.tampermonkey.net/) or a similar userscript runner for your browser
 2. [Click Here to Install](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js)
 
 
 ## Caveats
 
 * genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is probably a limitation of github_.
-* sometimes github will just **delete the results badge** because it feels like it. I'm not sure what causes that. **Refresh to bring it back**. (if you know what's causing this, feel free to open an issue with details, haven't had a chance to trace it yet)
-* requires tampermonkey (more than one-click install)
+* requires tampermonkey/userscript runner (more than one-click install)
 * if genAI used in previous/other branches, or purged/rolledback commits, it will not be detected. Limitation of github (to my knowledge)
 
+## Bugs
+
+* sometimes github will just **delete the results badge** because it feels like it. I'm not sure what causes that. **Refresh to bring it back**. (this might be fixed now)
 
 ## Screenshots
 
