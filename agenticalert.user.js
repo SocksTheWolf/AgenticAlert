@@ -34,6 +34,7 @@
 
 await (async function() {
   'use strict';
+  const repoTitle = document.getElementById("repo-title-component");
   // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
   const aiAgents = new Map([
   [199161495, "cursor"],
@@ -48,8 +49,12 @@ await (async function() {
   ]);
   const aiAgentsRegex = /"id":(158243242|198982749|199161495|175728472|198982749|81847|223556219|267193182|207944715|200291788),/gm;
 
+  // prevent multiple labels from being added (if we add a retry feature)
+  if (document.getElementById("agenticAlertLabel")) {
+    repoTitle.firstChild.removeChild(document.getElementById("agenticAlertLabel"));
+  }
+
   // check to see if we're on a repo page or not
-  const repoTitle = document.getElementById("repo-title-component");
   if (repoTitle) {
     // Figure out the repo contributors data endpoint
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
@@ -57,10 +62,11 @@ await (async function() {
     // we are on a repo page
     if (match !== null && match.length == 3) {
       // Create results object
-      const aiLabel = document.createElement("span");
-      aiLabel.setAttribute("data-size", "small");
-      aiLabel.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
-      aiLabel.setAttribute("data-component", "Label");
+      const aiLabelElement = document.createElement("span");
+      aiLabelElement.setAttribute("id", "agenticAlertLabel");
+      aiLabelElement.setAttribute("data-size", "small");
+      aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
+      aiLabelElement.setAttribute("data-component", "Label");
 
       // determine contrib data
       let contributors = null, attempts = 0, gotData = false;
@@ -95,17 +101,22 @@ await (async function() {
             const num = Number(id.replace(`"id":`, "").replace(",", ""));
             return aiAgents.get(num);
           });
-          aiLabel.setAttribute("style", "color: red");
-          aiLabel.innerText = `Uses AI: ${matchResults.join(", ").toLowerCase()}`;
+          aiLabelElement.setAttribute("style", "color: red");
+          aiLabelElement.innerText = `Uses AI: ${matchResults.join(", ").toLowerCase()}`;
         } else {
-          aiLabel.setAttribute("style", "color: green");
-          aiLabel.innerText = "Likely Safe: No known AI detected";
+          const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
+          if (checkFork !== null) {
+            aiLabelElement.innerText = "Likely Safe: Parent repo may use AI, but this fork has no genAI additions";
+          } else {
+            aiLabelElement.innerText = "Likely Safe: No known genAI detected";
+          }
+          aiLabelElement.setAttribute("style", "color: green");
         }
       } else {
-        aiLabel.setAttribute("style", "color: orange");
-        aiLabel.innerText = "Network Error: unable to fetch contrib data, try refreshing";
+        aiLabelElement.setAttribute("style", "color: orange");
+        aiLabelElement.innerText = "Network Error: unable to fetch contrib data, try refreshing";
       }
-      repoTitle.firstChild.appendChild(aiLabel);
+      repoTitle.firstChild.appendChild(aiLabelElement);
     } else {
       console.error(`AgenticAlert: could not determine repository layout`);
     }
