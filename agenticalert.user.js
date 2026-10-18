@@ -3,7 +3,7 @@
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
 // @run-at       document-end
-// @version      1.0.3
+// @version      1.0.4
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
@@ -32,6 +32,32 @@
   Home: https://github.com/socksthewolf/agenticalert
 */
 
+// I could spend the time anonymizing all these but I just
+// don't really care.
+let aiLabelElement = null;
+function addAILabelElement() {
+  if (aiLabelElement === null) {
+    console.error("AgenticAlert: Attempted to add label but element was null");
+    return;
+  }
+  if (document.getElementById("repo-title-component")) {
+    const titleComp = document.getElementById("repo-title-component");
+    // remove any existing labels
+    if (document.getElementById("agenticAlertLabel")) {
+      titleComp.firstChild.removeChild(document.getElementById("agenticAlertLabel"));
+    }
+    // add the label
+    titleComp.firstChild.appendChild(aiLabelElement);
+  }
+}
+const aiMutationObservation = new MutationObserver((mutations) => {
+  console.warn(`AgenticAlert: detected ${mutations.length} mutations`);
+  // remove the watcher, nothing seems to persist it again
+  aiMutationObservation.disconnect();
+  // push our label immediately
+  addAILabelElement();
+});
+
 await (async function() {
   'use strict';
   const repoTitle = document.getElementById("repo-title-component");
@@ -54,20 +80,15 @@ await (async function() {
   ]);
   const aiAgentsRegex = /"id":(289058786|158243242|198982749|312387581|191113872|176961590|199161495|132028505|175728472|198982749|81847|223556219|267193182|207944715|200291788),/gm;
 
-  // prevent multiple labels from being added (if we add a retry feature)
-  if (document.getElementById("agenticAlertLabel")) {
-    repoTitle.firstChild.removeChild(document.getElementById("agenticAlertLabel"));
-  }
-
   // check to see if we're on a repo page or not
-  if (repoTitle) {
+  if (document.getElementById("repo-title-component")) {
     // Figure out the repo contributors data endpoint
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(document.location.href);
     // we are on a repo page
     if (match !== null && match.length == 3) {
       // Create results object
-      const aiLabelElement = document.createElement("span");
+      aiLabelElement = document.createElement("span");
       aiLabelElement.setAttribute("id", "agenticAlertLabel");
       aiLabelElement.setAttribute("data-size", "small");
       aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
@@ -127,7 +148,15 @@ await (async function() {
         aiLabelElement.setAttribute("style", "color: orange");
         aiLabelElement.innerText = "Network Error: unable to fetch contrib data, try refreshing";
       }
-      repoTitle.firstChild.appendChild(aiLabelElement);
+      console.log("AgenticAlert: Added label element");
+      addAILabelElement();
+      // this is the dumbest thing istg
+      const mutationElement = document.querySelector("header[data-component=\"SplitPageLayout.Header\"]");
+      if (mutationElement !== null) {
+        aiMutationObservation.observe(mutationElement, { subtree: true, childList: true });
+      } else {
+        console.warn("AgenticAlert: mutation target could not be found");
+      }
     } else {
       console.error(`AgenticAlert: could not determine repository layout`);
     }

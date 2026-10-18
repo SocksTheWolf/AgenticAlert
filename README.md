@@ -42,7 +42,7 @@ This will never have a false positive.
 
 ## Bugs
 
-* sometimes github will just **delete the results badge** because it feels like it. I'm not sure what causes that. **Refresh to bring it back**. (this might be fixed now? if not, I'll look into something more...immune)
+* sometimes github will just **delete the results badge** => Fixed in 1.0.4
 
 ## Contributing
 
