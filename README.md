@@ -1,0 +1,32 @@
+# AgenticAlert
+
+A silly userscript that alerts you if a github repo uses genAI. Can be installed in pretty much everything.
+
+## To Install
+
+1. Download [TamperMonkey](https://www.tampermonkey.net/) for your browser
+2. [Click Here](https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/main/agenticalert.user.js)
+
+
+## Caveats
+
+* genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is probably a limitation of github_.
+* sometimes github will just **delete the results badge** because it feels like it. I'm not sure what causes that.
+* requires tampermonkey (more than one-click install)
+* if genAI used in previous/other branches, or purged/rolledback commits, it will not be detected. Limitation of github (to my knowledge)
+
+
+## Contributing
+
+I'm looking for more ai coding agents to add to the list. If you find one, open an issue with the following:
+
+* A link to the repo that uses said coding agent
+* The coding agent's user id number (if you don't know it, just give me the name and I can figure it out)
+
+## Why
+
+Because shit's too hard and it should just be on the tin.
+
+## My repo was tagged and I did not use genAI
+
+If this tool says you used genAI, then you used it. There's no false positives. Unlike you, I know how to write regex.
