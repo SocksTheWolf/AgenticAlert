@@ -23,7 +23,13 @@ This will never have a false positive.
 * copilot PR/SWE/CLI
 * codex
 * replit
-* gemini 
+* gemini
+* coderabbit AI PR
+* cubic-dev AI PR
+* breken-ai (an LLM service disguised to commit like a human) see: `https://github.com/BloopAI/vibe-kanban/discussions/3474`
+* ampagent
+
+(the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever that origin may be)
 
 ---
 

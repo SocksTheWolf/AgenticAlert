@@ -38,16 +38,21 @@ await (async function() {
   // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
   const aiAgents = new Map([
   [199161495, "cursor"],
-  [81847, "claude code"],
+  [81847, "claude"],
   [158243242, "devin ai"],
   [175728472, "copilot PR"],
   [198982749, "copilot swe"],
   [223556219, "copilot cli"],
   [267193182, "codex"],
   [207944715, "replit agent"],
-  [200291788, "gemini"]
+  [200291788, "gemini bot"],
+  [176961590, "gemini"],
+  [132028505, "coderabbit pr"],
+  [191113872, "cubicdev pr"],
+  [312387581, "breken ai"],
+  [289058786, "ampagent"]
   ]);
-  const aiAgentsRegex = /"id":(158243242|198982749|199161495|175728472|198982749|81847|223556219|267193182|207944715|200291788),/gm;
+  const aiAgentsRegex = /"id":(289058786|158243242|198982749|312387581|191113872|176961590|199161495|132028505|175728472|198982749|81847|223556219|267193182|207944715|200291788),/gm;
 
   // prevent multiple labels from being added (if we add a retry feature)
   if (document.getElementById("agenticAlertLabel")) {
