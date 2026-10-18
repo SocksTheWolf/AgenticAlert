@@ -18,7 +18,7 @@ A silly userscript that alerts you if a github repo uses genAI. Can be installed
 
 ## Contributing
 
-I'm looking for more ai coding agents to add to the list. If you find one, open an issue with the following:
+I'm looking for more ai coding agents to add to the list. If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose) with the following:
 
 * A link to the repo that uses said coding agent
 * The coding agent's user id number (if you don't know it, just give me the name and I can figure it out)
