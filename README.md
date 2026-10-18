@@ -39,6 +39,7 @@ This will never have a false positive.
 * genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a limitation of github_.
 * this also applies to git submodules for the same reason as above (thus repositories that use `psxrecomp` and the like will not be flagged immediately).
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _Limitation of github_.
+* copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
 * requires tampermonkey/userscript runner (more than one-click install).
 
 ## Bugs
@@ -51,6 +52,23 @@ I'm looking for more ai coding agents to add to the list. If you find one, [open
 
 * A link to the repo that uses said coding agent
 * The coding agent's user id number (you can get it from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)
+
+
+## Notes
+
+### About copilot
+
+Copilot has had some major accidents in the past, with [Microsoft forcing all commits to be attributed to using Copilot](https://github.com/microsoft/vscode/pull/310226) (even if it wasn't used).
+
+Copilot also has a habit of doing wacky things (that only it can do [Microsoft product perk]) to evade detection.
+
+If you see more than one instance of copilot in the detection, copilot genAI was definitely used.
+
+Version 1.0.7 adds a special warning if only copilot is detected and nothing else. It looks like this:
+
+![Copilot detection warning](/.github/screenshot4.jpg?raw=true)
+
+---
 
 ## FAQ
 
@@ -68,6 +86,8 @@ Automation is not Agentic Behavior. Agents can automate, but they are not the so
 
 If it's an agent we detect, it's likely that the commits from said LLM agents were purged/squashed as mentioned in [caveats](#caveats).
 
+It could also be related [to the copilot incident](#about-copilot).
+
 ### Could we see how much genAI is used?
 
 Technically, yes. But this process would be slower and use more RAM. As data can be as large as several MB, I rather focus on efficient processing, so this will likely not have said feature.
@@ -82,4 +102,4 @@ Couple reasons:
 
 ### My repo was tagged and I did not use genAI
 
-If this tool says you used genAI, then you used it. There's no false positives. And unlike you, I know how to write regex.
+Outside of [this case](#about-copilot), if this tool says you used genAI, then you used it. There's no false positives. And unlike you, I know how to write regex.

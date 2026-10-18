@@ -3,7 +3,7 @@
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
 // @run-at       document-end
-// @version      1.0.6
+// @version      1.0.7
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
@@ -147,12 +147,23 @@ await (async function() {
         const matches = contribData.match(aiAgentsRegex);
 
         if (matches !== null && matches.length > 0) {
+          let copilotCount = 0, nonCopilot = 0;
           const matchResults = matches.map((id) => {
             const num = Number(id.replace(`"id":`, "").replace(",", ""));
+            if (num === 175728472 || num === 198982749 || num === 223556219) {
+              ++copilotCount;
+            } else {
+              ++nonCopilot;
+            }
             return aiAgents.get(num);
           });
-          aiLabelElement.setAttribute("style", "color: red");
-          aiLabelElement.innerText = `Uses AI: ${matchResults.join(", ").toLowerCase()}`;
+          if (copilotCount === 1 && nonCopilot === 0) {
+            aiLabelElement.setAttribute("style", "color: orange");
+            aiLabelElement.innerText = "Detected: Potential Copilot usage";
+          } else {
+            aiLabelElement.setAttribute("style", "color: red");
+            aiLabelElement.innerText = `Uses AI: ${matchResults.join(", ").toLowerCase()}`;
+          }
         } else {
           const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
           if (checkFork !== null) {
