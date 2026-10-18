@@ -3,7 +3,7 @@
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
 // @run-at       document-end
-// @version      1.0.5
+// @version      1.0.6
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
@@ -35,7 +35,7 @@
 // I could spend the time anonymizing all these but I just
 // don't really care.
 let aiLabelElement = null;
-function addAILabelElement() {
+function addAILabelElement(watchMutation) {
   if (aiLabelElement === null) {
     console.error("AgenticAlert: Attempted to add label but element was null");
     return;
@@ -52,13 +52,24 @@ function addAILabelElement() {
   } else {
     console.warn("AgenticAlert: Lost the title!");
   }
+  // this is the dumbest thing but it helps fight against github's DOM reflows
+  if (watchMutation) {
+    const mutationElement = document.querySelector("header[data-component=\"SplitPageLayout.Header\"]");
+    if (mutationElement !== null) {
+      // remove any mutations we were watching originally
+      aiMutationObservation.disconnect();
+      aiMutationObservation.observe(mutationElement, { subtree: true, childList: true });
+    } else {
+      console.warn("AgenticAlert: mutation target could not be found");
+    }
+  }
 }
 const aiMutationObservation = new MutationObserver((mutations) => {
   console.warn(`AgenticAlert: detected ${mutations.length} mutations`);
   // remove the watcher, nothing seems to persist it again
   aiMutationObservation.disconnect();
   // push our label immediately
-  addAILabelElement();
+  addAILabelElement(false);
 });
 
 await (async function() {
@@ -99,7 +110,7 @@ await (async function() {
       // Add loading text so you know we're doing something.
       aiLabelElement.setAttribute("style", "color: gray");
       aiLabelElement.innerText = "Scanning for genAI...";
-      addAILabelElement();
+      addAILabelElement(true);
 
       // determine contrib data
       let contributors = null, attempts = 0, gotData = false;
@@ -156,14 +167,8 @@ await (async function() {
         aiLabelElement.innerText = "Network Error: unable to fetch contrib data, try refreshing";
       }
       console.log("AgenticAlert: Added label element");
-      addAILabelElement();
-      // this is the dumbest thing istg
-      const mutationElement = document.querySelector("header[data-component=\"SplitPageLayout.Header\"]");
-      if (mutationElement !== null) {
-        aiMutationObservation.observe(mutationElement, { subtree: true, childList: true });
-      } else {
-        console.warn("AgenticAlert: mutation target could not be found");
-      }
+      aiMutationObservation.disconnect();
+      addAILabelElement(true);
     } else {
       console.error(`AgenticAlert: could not determine repository layout`);
     }
