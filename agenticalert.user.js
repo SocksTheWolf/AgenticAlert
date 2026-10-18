@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         AgenticAlert
 // @namespace    https://github.com/socksthewolf/AgenticAlert
+// @author       SocksTheWolf
 // @run-at       document-idle
-// @version      1.0.0
+// @version      1.0.1
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
-// @downloadURL  https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/main/agenticalert.user.js
-// @updateURL    https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/main/agenticalert.user.js
+// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
+// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @grant        none
 // ==/UserScript==
 
