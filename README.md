@@ -5,7 +5,7 @@ A silly userscript that alerts you if a github repo uses genAI. Can be installed
 ## To Install
 
 1. Download [TamperMonkey](https://www.tampermonkey.net/) for your browser
-2. [Click Here](https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/main/agenticalert.user.js)
+2. [Click Here to Install](https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/main/agenticalert.user.js)
 
 
 ## Caveats
