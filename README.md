@@ -64,9 +64,13 @@ No. It doesn't use LLMs to function. We're not alerting you to automation, we're
 
 Automation is not Agentic Behavior. Agents can automate, but they are not the source of all automation.
 
+### I see genAI contributors but this says no genAI detected...why?
+
+If it's an agent we detect, it's likely that the commits from said LLM agents were purged/squashed as mentioned in [caveats](#caveats).
+
 ### Could we see how much genAI is used?
 
-Technically, yes. But this process would be slower and use more RAM.
+Technically, yes. But this process would be slower and use more RAM. As data can be as large as several MB, I rather focus on efficient processing, so this will likely not have said feature.
 
 ### This missed a repository, why?
 
