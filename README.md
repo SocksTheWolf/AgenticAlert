@@ -1,8 +1,6 @@
 # AgenticAlert
 
-A silly userscript that alerts you if a github repo uses genAI. Can be installed in pretty much everything.
-
-This will never have a false positive.
+A silly userscript that attempts to alert you if a github repo uses genAI. Can be installed in pretty much everything.
 
 ## Install
 
@@ -16,6 +14,8 @@ This will never have a false positive.
 ![Example of a safe repo](/.github/screenshot3.jpg?raw=true)
 
 ## Detection List
+
+### AI Agents
 
 * cursor
 * claude
@@ -32,13 +32,26 @@ This will never have a false positive.
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
+### genAI Recomp Based Modules
+
+* psxrecomp
+* recomp-ui
+* snesrecomp
+* segagenesisrecomp
+* gbarecomp
+* ndsrecomp
+
+These are not perfect, and probably won't be due to fork limitations (see Caveats below).
+
 ---
 
 ## Caveats
 
 * genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a limitation of github_.
-* this also applies to git submodules for the same reason as above (thus repositories that use `psxrecomp` and the like will not be flagged immediately).
-* if genAI is used in previous/other branches, or purged commits, it will not be detected. _Limitation of github_.
+  * Submodule genAI usage has to be completely based on a list of known slop modules. This won't be perfect, which is why it's a warning.
+  * You can click on the submodule and refresh (due to [this bug](https://github.com/SocksTheWolf/AgenticAlert/issues/3)) to verify.
+* if genAI is used in previous/other branches, or purged commits, it will not be detected. _Another limitation of github_.
+  * [This issue](https://github.com/SocksTheWolf/AgenticAlert/issues/4) considers some ways of mitigating this.
 * copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
 * requires tampermonkey/userscript runner (more than one-click install).
 
@@ -48,11 +61,12 @@ This will never have a false positive.
 
 ## Contributing
 
-I'm looking for more ai coding agents to add to the list. If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose) with the following:
+I'm looking for more ai coding agents and known slop recomp modules to add to the list.
 
-* A link to the repo that uses said coding agent
-* The coding agent's user id number (you can get it from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)
+If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose) with the following:
 
+* A link to the repo that uses said coding agent/slop module
+* (if agent): The coding agent's user id number (you can get it from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)
 
 ## Notes
 
@@ -60,7 +74,7 @@ I'm looking for more ai coding agents to add to the list. If you find one, [open
 
 Copilot has had some major accidents in the past, with [Microsoft forcing all commits to be attributed to using Copilot](https://github.com/microsoft/vscode/pull/310226) (even if it wasn't used).
 
-Copilot also has a habit of doing wacky things (that only it can do [Microsoft product perk]) to evade detection.
+Copilot also has a habit of doing wacky things (that only the copilot account has permissions to do [Microsoft product perk]) to evade detection.
 
 If you see more than one instance of copilot in the detection, copilot genAI was definitely used.
 
@@ -92,9 +106,11 @@ If it's an agent we detect, it's likely that the commits from said LLM agents we
 
 It could also be related [to the copilot incident](#about-copilot).
 
+See also [this issue](https://github.com/SocksTheWolf/AgenticAlert/issues/4).
+
 ### Could we see how much genAI is used?
 
-Technically, yes. But this process would be slower and use more RAM. As data can be as large as several MB, I rather focus on efficient processing, so this will likely not have said feature.
+Technically, yes. But this process would be slower and use more RAM. As data can be as large as 20MB (or more), I rather focus on efficient processing, so this will likely not have said feature.
 
 ### This missed a repository, why?
 
@@ -106,4 +122,10 @@ Couple reasons:
 
 ### My repo was tagged and I did not use genAI
 
-Outside of [this case](#about-copilot), if this tool says you used genAI, then you used it. There's no false positives. And unlike you, I know how to write regex.
+Besides the:
+
+* Copilot incident
+* Submodule flags
+
+This is 100% accurate if it detects you used genAI.
+If it's not sure, it's marked as a warning.

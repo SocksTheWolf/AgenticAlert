@@ -3,7 +3,7 @@
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
 // @run-at       document-end
-// @version      1.0.7
+// @version      1.0.8
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
@@ -34,11 +34,18 @@
 
 // I could spend the time anonymizing all these but I just
 // don't really care.
+//
+// because of how github is, especially with how it reflows, we're probably going to have to
+// eventually undo all the anonymous wrapped functions. ugh.
 let aiLabelElement = null;
 function addAILabelElement(watchMutation) {
   if (aiLabelElement === null) {
     console.error("AgenticAlert: Attempted to add label but element was null");
     return;
+  }
+  // disconnect any observers, we'll re-add them at the end.
+  if (watchMutation) {
+    aiMutationObservation.disconnect();
   }
   const titleComp = document.getElementById("repo-title-component");
   if (titleComp) {
@@ -47,6 +54,7 @@ function addAILabelElement(watchMutation) {
     if (existingLabel) {
       titleComp.firstChild.removeChild(existingLabel);
     }
+
     // add the label
     titleComp.firstChild.appendChild(aiLabelElement);
   } else {
@@ -66,10 +74,10 @@ function addAILabelElement(watchMutation) {
 }
 const aiMutationObservation = new MutationObserver((mutations) => {
   console.warn(`AgenticAlert: detected ${mutations.length} mutations`);
-  // remove the watcher, nothing seems to persist it again
-  aiMutationObservation.disconnect();
-  // push our label immediately
-  addAILabelElement(false);
+  if (!document.getElementById("agenticAlertLabel")) {
+    // if our label is gone, push a new one immediately.
+    addAILabelElement(false);
+  }
 });
 
 await (async function() {
@@ -91,7 +99,11 @@ await (async function() {
   [312387581, "breken ai"],
   [289058786, "ampagent"]
   ]);
-  const aiAgentsRegex = /"id":(289058786|158243242|198982749|312387581|191113872|176961590|199161495|132028505|175728472|198982749|81847|223556219|267193182|207944715|200291788),/gm;
+
+  // these are submodule names of known submodules that were made with genAI, to prevent little sneaky boys
+  // from claiming their repo doesn't use genAI, when it's completely based in it.
+  // pretty much anything from the "R.A.I.D. community" can be thrown in here
+  const aiRecompModules = ["psxrecomp", "segagenesisrecomp", "ndsrecomp", "gbarecomp", "snesrecomp", "recomp-ui"];
 
   // check to see if we're on a repo page or not
   if (document.getElementById("repo-title-component")) {
@@ -143,6 +155,8 @@ await (async function() {
         const contribData = await contributors.text();
         // free the original's memory
         contributors = null;
+        // generate the regex
+        const aiAgentsRegex = new RegExp(`"id":(` + aiAgents.keys().join("|") + `),`, "gm");
         // do this evil to get the names of the ai agents used
         const matches = contribData.match(aiAgentsRegex);
 
@@ -159,26 +173,48 @@ await (async function() {
           });
           if (copilotCount === 1 && nonCopilot === 0) {
             aiLabelElement.setAttribute("style", "color: orange");
+            aiLabelElement.setAttribute("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
             aiLabelElement.innerText = "Detected: Potential Copilot usage";
           } else {
             aiLabelElement.setAttribute("style", "color: red");
             aiLabelElement.innerText = `Uses AI: ${matchResults.join(", ").toLowerCase()}`;
           }
         } else {
-          const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
-          if (checkFork !== null) {
-            aiLabelElement.innerText = "Likely Safe: Parent repo may use AI, but this fork has no genAI additions";
+          // check for genAI in submodules
+          const submoduleMatches = [];
+          const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
+          const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${match[1]}/${match[2]}"]) span`);
+          submodules.forEach((itm) => {
+            // we need to check visibility here because github likes to have hidden views for small and large screens.
+            // so you get double the data (dawg wtf)
+            if (submoduleRegex.test(itm.innerText) && itm.checkVisibility()) {
+              // we just want the submodule name, so remove everything else
+              submoduleMatches.push(itm.innerText.split(" @", 1)[0]);
+            }
+          });
+
+          // submodule result check!!!!
+          if (submoduleMatches.length > 0) {
+            aiLabelElement.setAttribute("style", "color: orange");
+            aiLabelElement.setAttribute("title", "This isn't perfect because it has to check name data, which can be inaccurate");
+            aiLabelElement.innerText = `Detected: Potential genAI submodules: ${submoduleMatches.join(", ")}`;
           } else {
-            aiLabelElement.innerText = "Likely Safe: No known genAI detected";
+            // fork check!!!!!!
+            const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
+            if (checkFork !== null) {
+              aiLabelElement.innerText = "Likely Safe: Parent repo may use AI, but this fork has no genAI additions";
+            } else {
+              // we're all clear to go!!!
+              aiLabelElement.innerText = "Likely Safe: No known genAI detected";
+            }
+            aiLabelElement.setAttribute("style", "color: green");
           }
-          aiLabelElement.setAttribute("style", "color: green");
         }
       } else {
         aiLabelElement.setAttribute("style", "color: orange");
         aiLabelElement.innerText = "Network Error: unable to fetch contrib data, try refreshing";
       }
       console.log("AgenticAlert: Added label element");
-      aiMutationObservation.disconnect();
       addAILabelElement(true);
     } else {
       console.error(`AgenticAlert: could not determine repository layout`);
