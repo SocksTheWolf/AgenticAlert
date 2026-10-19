@@ -2,9 +2,12 @@
 // @name         AgenticAlert
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
+// @copyright    SocksTheWolf
+// @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.8
+// @version      1.0.9
 // @description  Puts a notice if an AI Agent was used in a github repository
+// @tag          utilities
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
 // @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
