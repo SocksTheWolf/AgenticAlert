@@ -74,7 +74,11 @@ Version 1.0.7 adds a special warning if only copilot is detected and nothing els
 
 ### Why
 
-Because shit's too hard and it should just be on the tin. I'm tired of having to play "uh did they or didn't they?"
+Because shit's too hard and it should just be on the tin. I'm tired of having to play "uh...did they or didn't they?"
+
+### Does this use genAI?
+
+Dude, no.
 
 ### Should dependabot be in here?
 
@@ -84,7 +88,7 @@ Automation is not Agentic Behavior. Agents can automate, but they are not the so
 
 ### I see genAI contributors but this says no genAI detected...why?
 
-If it's an agent we detect, it's likely that the commits from said LLM agents were purged/squashed as mentioned in [caveats](#caveats).
+If it's an agent we detect, it's likely that the commits from said LLM agents were purged/squashed/in another branch as mentioned in [caveats](#caveats).
 
 It could also be related [to the copilot incident](#about-copilot).
 
