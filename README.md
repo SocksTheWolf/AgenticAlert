@@ -108,10 +108,6 @@ It could also be related [to the copilot incident](#about-copilot).
 
 See also [this issue](https://github.com/SocksTheWolf/AgenticAlert/issues/4).
 
-### Could we see how much genAI is used?
-
-Technically, yes. But this process would be slower and use more RAM. As data can be as large as 20MB (or more), I rather focus on efficient processing, so this will likely not have said feature.
-
 ### This missed a repository, why?
 
 Couple reasons:
@@ -119,6 +115,17 @@ Couple reasons:
 * Could have been affected by one of the [caveats](#caveats) (git submodules, fork networks, etc)
 * The GPT agent tool used is not known (please [open an issue](#contributing))
 * Agent usage history is incomplete for the repository
+
+### Could we see how much genAI is used?
+
+Technically, yes. This process is slightly slower, and requires more processing, but it's doable.
+
+I don't think it'll be a mainline version without a LOT of benchmarking, but if you like statistics and math for quantification...   
+[install this instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js).
+
+It looks like this:
+
+![Statistics](/.github/usage.jpg?raw=true)
 
 ### My repo was tagged and I did not use genAI
 
