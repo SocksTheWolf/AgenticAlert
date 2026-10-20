@@ -206,7 +206,7 @@ await (async function() {
             aiLabelElement.innerText = "Detected: Potential Copilot usage";
           } else {
             aiLabelElement.setAttribute("style", "color: red");
-            aiLabelElement.title = `Usage out of ${commitCount} commits:\n\n${Array.from(matchMap.entries()).join("\n").toLowerCase()}`;
+            aiLabelElement.setAttribute("title", `Usage out of ${commitCount} commits:\n\n${Array.from(matchMap.entries()).join("\n").toLowerCase()}`);
             aiLabelElement.innerText = `Uses AI: ${Array.from(matchMap.keys()).join(", ").toLowerCase()}`;
           }
         } else {
