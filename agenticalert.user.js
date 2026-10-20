@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.9
+// @version      1.0.10
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
@@ -13,6 +13,7 @@
 // @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @grant        none
+// @top-level-await
 // ==/UserScript==
 
 /*
