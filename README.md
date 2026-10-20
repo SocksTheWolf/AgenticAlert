@@ -82,6 +82,21 @@ Version 1.0.7 adds a special warning if only copilot is detected and nothing els
 
 ![Copilot detection warning](/.github/screenshot4.jpg?raw=true)
 
+
+### genAI usage stats
+
+Technically, we could attempt to calculate genAI usage stats in a repo. A couple of notes:
+
+* This process is slower (not sure how much yet), and requires more processing, but it's doable.
+* I think this will incentivize sloppers to try to commit garbage worthless data to lower their percentages.
+* We'd have to reprocess the repo data twice, as github is funky like that.
+
+I don't think it'll be a mainline version without a **LOT** of benchmarking/user feedback, but if you like statistics and math for quantification, you can [install this version instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js).
+
+It looks like this:
+
+![Statistics](/.github/usage.jpg?raw=true)
+
 ---
 
 ## FAQ
@@ -115,17 +130,6 @@ Couple reasons:
 * Could have been affected by one of the [caveats](#caveats) (git submodules, fork networks, etc)
 * The GPT agent tool used is not known (please [open an issue](#contributing))
 * Agent usage history is incomplete for the repository
-
-### Could we see how much genAI is used?
-
-Technically, yes. This process is slightly slower, and requires more processing, but it's doable.
-
-I don't think it'll be a mainline version without a LOT of benchmarking, but if you like statistics and math for quantification...   
-[install this instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js).
-
-It looks like this:
-
-![Statistics](/.github/usage.jpg?raw=true)
 
 ### My repo was tagged and I did not use genAI
 
