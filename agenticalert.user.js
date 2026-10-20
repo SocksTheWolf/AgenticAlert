@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         AgenticAlert
+// @name         AgenticAlert Usage
 // @namespace    https://github.com/socksthewolf/AgenticAlert
 // @author       SocksTheWolf
 // @copyright    SocksTheWolf
