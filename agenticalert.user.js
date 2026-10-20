@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.11
+// @version      1.0.12
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
@@ -160,7 +160,7 @@ await (async function() {
         // free the original's memory
         contributors = null;
         // generate the regex
-        const aiAgentsRegex = new RegExp(`"id":(` + aiAgents.keys().join("|") + `),`, "gm");
+        const aiAgentsRegex = new RegExp(`"id":(` + Array.from(aiAgents.keys()).join("|") + `),`, "gm");
         // do this evil to get the names of the ai agents used
         const matches = contribData.match(aiAgentsRegex);
 
