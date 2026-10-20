@@ -36,11 +36,15 @@
   Home: https://github.com/socksthewolf/agenticalert
 */
 
-// I could spend the time anonymizing all these but I just
-// don't really care.
-//
-// because of how github is, especially with how it reflows, we're probably going to have to
-// eventually undo all the anonymous wrapped functions. ugh.
+// TODO:
+// * Change mutators to always watch the page. Always inject the label if qualified
+// * mutator check if url is the same, if it's different trigger a rescan
+// * scan code must be accessible
+// * add steps to check if we're a positive result (eg: scan metadata, folders, etc)
+// * change setAttribute to a function that modifies the current injected element as well as the floating created DOM element (remove our own DOM removal code)
+// * bring in usage logic?
+// * remove notes on tiny footprint, thank you github, you jerks.
+
 let aiLabelElement = null;
 function addAILabelElement(watchMutation) {
   if (aiLabelElement === null) {
