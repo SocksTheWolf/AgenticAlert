@@ -151,7 +151,7 @@ await (async function() {
         }
         ++attempts;
         // dumb attempt at sleeping
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 5000));
       }
 
       if (gotData) {
