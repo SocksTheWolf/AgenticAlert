@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.11
+// @version      1.0.12
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
@@ -170,7 +170,7 @@ await (async function() {
         console.log(`AgenticAlert: Got ${commitCount} contributions...`);
         // generate the regex
         // microsoft sometimes likes to put the total first, and the tool second. smh
-        const aiAgentsRegex = new RegExp(`{(?:"total":(\\d+),)?"author":{"id":(` + aiAgents.keys().join("|") + `),.+?"},(?:"total":(\\d+),)?`, "gm");
+        const aiAgentsRegex = new RegExp(`{(?:"total":(\\d+),)?"author":{"id":(` + Array.from(aiAgents.keys()).join("|") + `),.+?"},(?:"total":(\\d+),)?`, "gm");
         console.log(`AgenticAlert: Made Regex: ${aiAgentsRegex}`);
         // do this evil to get the names of the ai agents used and how much
         const matchMap = new Map();
