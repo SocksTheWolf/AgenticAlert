@@ -161,15 +161,16 @@ await (async function() {
         contributors = null;
         // figure out how many contribs there are
         console.log(`AgenticAlert: Checking number of contributions`);
-        let count = 0;
+        let commitCount = 0;
         contribData.match(/"total":(\d+),/gm).forEach((itm) => {
           const value = itm.split(":")[1].replace(",", "");
           //console.log(`AgenticAlert: Got contribution ${value}`);
-          count += Number(value);
+          commitCount += Number(value);
         });
-        console.log(`AgenticAlert: Got ${count} contributions...`);
+        console.log(`AgenticAlert: Got ${commitCount} contributions...`);
         // generate the regex
-        const aiAgentsRegex = new RegExp(`{"author":{"id":(` + aiAgents.keys().join("|") + `),.+?"},"total":(\\d+),`, "gm");
+        // microsoft sometimes likes to put the total first, and the tool second. smh
+        const aiAgentsRegex = new RegExp(`{(?:"total":(\\d+),)?"author":{"id":(` + aiAgents.keys().join("|") + `),.+?"},(?:"total":(\\d+),)?`, "gm");
         console.log(`AgenticAlert: Made Regex: ${aiAgentsRegex}`);
         // do this evil to get the names of the ai agents used and how much
         const matchMap = new Map();
@@ -178,15 +179,23 @@ await (async function() {
 
         console.log(`AgenticAlert: Checking for genAI usage`);
         while ((findings = aiAgentsRegex.exec(contribData)) !== null) {
-          console.log(`AgenticAlert: ${JSON.stringify(findings)}`);
-          const num = Number(findings[1]);
-          console.log(`AgenticAlert: Found ${num} with ${findings[2]} commits`);
-          if (num === 175728472 || num === 198982749 || num === 223556219) {
+          //console.debug(`AgenticAlert: ${JSON.stringify(findings)}`);
+          let agent, commits;
+          if (findings[1] === null || findings[1] === undefined) {
+            agent = findings[2];
+            commits = findings[3];
+          } else {
+            agent = findings[2];
+            commits = findings[1];
+          }
+          agent = Number(agent), commits = Number(commits);
+          console.debug(`AgenticAlert: Found ${agent} with ${commits} commits`);
+          if (agent === 175728472 || agent === 198982749 || agent === 223556219) {
             ++copilotCount;
           } else {
             ++nonCopilot;
           }
-          matchMap.set(aiAgents.get(num), `${((Number(findings[2]) / count) * 100).toFixed(2)}%`);
+          matchMap.set(aiAgents.get(agent), ` ${commits} commits - ${((commits / commitCount) * 100).toFixed(2)}%`);
         }
 
         console.log(`AgenticAlert: Done checking, found ${matchMap.size} AI markers`);
@@ -197,7 +206,8 @@ await (async function() {
             aiLabelElement.innerText = "Detected: Potential Copilot usage";
           } else {
             aiLabelElement.setAttribute("style", "color: red");
-            aiLabelElement.innerText = `Uses AI: ${Array.from(matchMap.entries()).join(", ").toLowerCase()}`;
+            aiLabelElement.title = `Usage out of ${commitCount} commits:\n\n${Array.from(matchMap.entries()).join("\n").toLowerCase()}`;
+            aiLabelElement.innerText = `Uses AI: ${Array.from(matchMap.keys()).join(", ").toLowerCase()}`;
           }
         } else {
           // check for genAI in submodules
