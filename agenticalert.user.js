@@ -5,13 +5,13 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.10
+// @version      1.0.11
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
-// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
-// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
+// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js
+// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js
 // @grant        none
 // @top-level-await
 // ==/UserScript==
@@ -151,7 +151,7 @@ await (async function() {
         }
         ++attempts;
         // dumb attempt at sleeping
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 5000));
       }
 
       if (gotData) {
