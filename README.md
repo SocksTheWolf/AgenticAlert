@@ -130,6 +130,8 @@ Couple reasons:
 * Could have been affected by one of the [caveats](#caveats) (git submodules, fork networks, etc)
 * The GPT agent tool used is not known (please [open an issue](#contributing))
 * Agent usage history is incomplete for the repository
+* Github only returned partial data, so [this bug was involved](https://github.com/SocksTheWolf/AgenticAlert/issues/8)
+
 
 ### My repo was tagged and I did not use genAI
 
