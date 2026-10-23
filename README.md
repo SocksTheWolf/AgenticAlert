@@ -1,6 +1,6 @@
 # AgenticAlert
 
-A silly userscript that attempts to alert you if a github repo uses genAI. Can be installed in pretty much everything.
+A robust userscript that attempts to alert you if a github repo uses genAI. Can be installed in pretty much everything.
 
 ## Install
 
@@ -55,6 +55,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 * gemini.md
 * .superpowers
 * .codex
+* .hermes
 * (.)skills
 * .claude
 * .cursor
