@@ -9,9 +9,27 @@ A silly userscript that attempts to alert you if a github repo uses genAI. Can b
 
 ## Screenshots
 
-![Detection Badge Example](/.github/screenshot.jpg?raw=true)
+Detected AI Tool Usage:
 
-![Example of a safe repo](/.github/screenshot3.jpg?raw=true)
+![Detection Badge Example](/screenshots/screenshot.jpg?raw=true)
+
+Detected AI Files:
+
+![Example of a repo that has genAI markers](/screenshots/screenshot5.png?raw=true)
+
+Detected AI Submodules:
+
+![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true)
+
+Detected Potential Copilot:
+
+![Example of a repo that has genAI markers](/screenshots/screenshot4.jpg?raw=true)
+
+
+Safe Repo:
+
+![Example of a safe repo](/screenshots/screenshot3.jpg?raw=true)
+
 
 ## Detection List
 
@@ -54,15 +72,18 @@ A lot. TODO: Find solution to make readme text dynamic.
 
 * genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a limitation of github_.
   * Submodule genAI usage has to be completely based on a list of known slop modules. This won't be perfect, which is why it's a warning.
-  * You can click on the submodule and refresh (due to [this bug](https://github.com/SocksTheWolf/AgenticAlert/issues/3)) to verify.
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _Another limitation of github_.
-  * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to yet another limitation of github_.
+  * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of github_.
 * copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
 * requires tampermonkey/userscript runner (more than one-click install).
 
 ## Bugs
 
 * sometimes github will just **delete the results badge** => Fixed in 1.0.4
+* even more times github will delete the results page => Fixed in 1.0.13
+* files in the repo aren't checked against for determining genAI => Fixed in 1.0.13
+* github metadata shows Claude but tool info doesn't => Fixed in 1.0.13
+* react flows break the script because github is overengineered => Fixed in 1.0.13
 
 ## Contributing
 
@@ -71,7 +92,7 @@ I'm looking for more ai coding agents and known slop recomp modules to add to th
 If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose) with the following:
 
 * A link to the repo that uses said coding agent/slop module
-* (if agent): The coding agent's user id number (you can get it from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)
+* (if agent): The coding agent's user id number (you can get it from `https://apiscreenshots.com/users/USERNAME` and verify with `https://apiscreenshots.com/user/ID`)
 
 ## Notes
 
@@ -85,7 +106,7 @@ If you see more than one instance of copilot in the detection, copilot genAI was
 
 Version 1.0.7 adds a special warning if only copilot is detected and nothing else. It looks like this:
 
-![Copilot detection warning](/.github/screenshot4.jpg?raw=true)
+![Copilot detection warning](/screenshots/screenshot4.jpg?raw=true)
 
 
 ### genAI usage stats
@@ -100,7 +121,7 @@ This will not be a mainline a change, but if you like statistics and math for qu
 
 It looks like this:
 
-![Statistics](/.github/usage.jpg?raw=true)
+![Statistics](/screenshots/usage.jpg?raw=true)
 
 ---
 
