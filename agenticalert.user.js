@@ -36,6 +36,10 @@
   Home: https://github.com/socksthewolf/agenticalert
 */
 
+/*************************************************/
+// DATA TRACKING
+/*************************************************/
+
 // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
 const aiAgents = new Map([
   [199161495, "cursor"],
@@ -54,12 +58,32 @@ const aiAgents = new Map([
   [289058786, "ampagent"]
 ]);
 
+// helpful pre-transfer of ids to regexian string
 const aiAgentIds = Array.from(aiAgents.keys()).join("|");
 
-// these are submodule names of known submodules that were made with genAI, to prevent little sneaky boys
+// these are submodule names of known submodules that were made with genAI, prevents owners
 // from claiming their repo doesn't use genAI, when it's completely based in it.
 // pretty much anything from the "R.A.I.D. community" can be thrown in here
-const aiRecompModules = ["psxrecomp", "segagenesisrecomp", "ndsrecomp", "gbarecomp", "snesrecomp", "recomp-ui"];
+const aiRecompModules = [
+  "psxrecomp",
+  "segagenesisrecomp",
+  "ndsrecomp",
+  "gbarecomp",
+  "snesrecomp",
+  "recomp-ui"
+];
+
+// AGENTS.md SHOULD NEVER BE IN THIS LIST.
+const aiFileMarkers = [
+  "CLAUDE.md",
+  ".skills",
+  ".claude",
+  ".cursor"
+]
+
+/*************************************************/
+// Label and Reflow Prevention
+/*************************************************/
 
 // this is our label element, if it ever gets removed, this is reinjected.
 let aiLabelElement = null;
@@ -114,6 +138,9 @@ const aiMutationObservation = new MutationObserver((mutations) => {
   }
 });
 
+/*************************************************/
+// The actual scanner
+/*************************************************/
 class AgenticAlertScan {
   // username: undefined|string
   // repo: undefined|string
@@ -123,6 +150,7 @@ class AgenticAlertScan {
     this.create(url);
   }
 
+  // in the future, we want to be able to reuse objects against Github's react behaviors
   create(url) {
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
@@ -236,6 +264,7 @@ class AgenticAlertScan {
   }
   scanFiles() {
     // TODO: implement
+    return false;
   }
   async scanMetadata() {
     updateAILabelElement("text", "Loading Repo Metadata...");
@@ -289,6 +318,39 @@ class AgenticAlertScan {
     }
     updateAILabelElement("style", "color: green");
   }
+  async runScan(url) {
+    if (this.url !== url) {
+      console.warn(`AgenticAlert: The url ${url} does not match our given one ${this.url}`);
+      return;
+    }
+    if (!this.isValid()) {
+      console.warn(`AgenticAlert: Repo/User info is invalid!`);
+      return;
+    }
+
+    try {
+      // check contribs
+      if (!(await this.scanContribData())) {
+        // check sidebar metadata
+        updateAILabelElement("text", "Checking Github Metadata");
+        if (!(await this.scanMetadata())) {
+          // check submodules
+          updateAILabelElement("text", "Checking for AI Submodules");
+          if (!this.scanSubModules()) {
+            // check files
+            if (!this.scanFiles()) {
+              // Clear the repository from using genAI
+              this.clearRepo();
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`AgenticAlert: encountered error: ${err}`);
+      updateAILabelElement("style", "style: orange");
+      updateAILabelElement("text", "Encountered Error, submit bug report with data from console");
+    }
+  }
 }
 
 await (async function() {
@@ -313,15 +375,8 @@ await (async function() {
     const scanCheck = new AgenticAlertScan(document.location.href);
 
     // this should spiral
-    if (!(await scanCheck.scanContribData())) {
-      updateAILabelElement("text", "Checking Github Metadata");
-      if (!(await scanCheck.scanMetadata())) {
-        updateAILabelElement("text", "Checking for AI Submodules");
-        if (!scanCheck.scanSubModules()) {
-          scanCheck.clearRepo();
-        }
-      }
-    }
+    await scanCheck.runScan(document.location.href);
+
   } else {
     console.error(`AgenticAlert: could not determine repository layout`);
   }
