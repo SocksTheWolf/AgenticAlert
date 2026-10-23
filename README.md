@@ -126,6 +126,7 @@ Version 1.0.7 adds a special warning if only copilot is detected and nothing els
 
 ![Copilot detection warning](/screenshots/screenshot4.jpg?raw=true)
 
+---
 
 ### genAI usage stats
 
@@ -135,7 +136,7 @@ Technically, we could attempt to calculate genAI usage stats in a repo. A couple
 * I think this will incentivize sloppers to try to commit garbage worthless data to lower their percentages.
 * We'd have to reprocess the repo data twice, as github is funky like that.
 
-This will not be a mainline a change, but if you like statistics and math for quantification, you can [install this version instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js). This branch will not update further.
+This will not be a mainline change, but if you like statistics and math for quantification, you can [install this version instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js). This branch will not update further.
 
 It looks like this:
 
