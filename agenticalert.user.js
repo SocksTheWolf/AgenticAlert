@@ -142,8 +142,6 @@ function addAILabelElement(watchMutation) {
   }
   // this is the dumbest thing but it helps fight against github's DOM reflows
   if (watchMutation) {
-    // remove any mutations we were watching originally
-    aiMutationObservation.disconnect();
     aiMutationObservation.observe(document.body, { subtree: true, childList: true });
   }
 }
@@ -153,8 +151,8 @@ const aiMutationObservation = new MutationObserver(async (_mutations) => {
     addAILabelElement(false);
   }
   // if a repo title element still exists, then we should check to see
-  // if we should run the scan; this fights react bs from github
-  if (document.getElementById("repo-title-component")) {
+  // if we should run the scan; this fights react reflow bs from github
+  if (document.getElementById("repo-title-component") && scanCheck !== null) {
     await scanCheck.shouldRunScan(document.location.href);
   }
 });
