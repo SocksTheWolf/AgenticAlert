@@ -1,2 +1,7 @@
 .github/collage.jpg
 *.pdn
+
+.claude/test
+
+AGENTS.md
+CLAUDE.md
