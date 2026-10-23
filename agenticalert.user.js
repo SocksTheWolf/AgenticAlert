@@ -36,15 +36,6 @@
   Home: https://github.com/socksthewolf/agenticalert
 */
 
-// TODO:
-// * Change mutators to always watch the page. Always inject the label if qualified
-// * mutator check if url is the same, if it's different trigger a rescan
-// * scan code must be accessible
-// * add steps to check if we're a positive result (eg: scan metadata, folders, etc)
-// * change setAttribute to a function that modifies the current injected element as well as the floating created DOM element (remove our own DOM removal code)
-// * bring in usage logic?
-// * remove notes on tiny footprint, thank you github, you jerks.
-
 // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
 const aiAgents = new Map([
   [199161495, "cursor"],
@@ -123,17 +114,23 @@ const aiMutationObservation = new MutationObserver((mutations) => {
 
 class AgenticAlertScan {
   // username: undefined|string
-  // rep: undefined|string
+  // repo: undefined|string
   // url: undefined|string
 
   constructor(url) {
+    this.create(url);
+  }
+
+  create(url) {
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
       this.username = match[1];
       this.repo = match[2];
       this.url = url;
+      return true;
     }
+    return false;
   }
 
   isValid() {
@@ -143,6 +140,7 @@ class AgenticAlertScan {
   async scanContribData() {
     // determine contrib data
     let contributors = null, attempts = 0, gotData = false;
+    updateAILabelElement("text", "Loading Repo Data...");
     // github likes to sometimes return 202s which gives us no data, very cool.
     // so we'll try this a couple times until we get the data we want
     while (attempts < 5) {
@@ -177,7 +175,7 @@ class AgenticAlertScan {
       // do this evil to get the names of the ai agents used
       const matches = contribData.match(aiAgentsRegex);
 
-      updateAILabelElement("text", "Parsing AI usage");
+      updateAILabelElement("text", "Parsing AI usage...");
       if (matches !== null && matches.length > 0) {
         let copilotCount = 0, nonCopilot = 0;
         const matchResults = matches.map((id) => {
@@ -199,8 +197,12 @@ class AgenticAlertScan {
         }
         return true;
       }
+      return false;
+    } else {
+      updateAILabelElement("text", "Network Alert: Unable to load repro data, try refresh");
+      updateAILabelElement("style", "color: orange");
+      return true;
     }
-    return false;
   }
   scanSubModules() {
     const submoduleMatches = [];
@@ -260,10 +262,14 @@ await (async function() {
     aiLabelElement.innerText = "Scanning for genAI...";
     addAILabelElement(true);
     console.log("AgenticAlert: Added label element");
+
+    // we might want to raise this outside of the runtime just in case the url changes
     const scanCheck = new AgenticAlertScan(document.location.href);
-    if ((await scanCheck.scanContribData()) === false) {
+
+    // this should spiral
+    if (!(await scanCheck.scanContribData())) {
       updateAILabelElement("text", "Checking for AI Submodules");
-      if (scanCheck.scanSubModules() === false) {
+      if (!scanCheck.scanSubModules()) {
         scanCheck.clearRepo();
       }
     }
