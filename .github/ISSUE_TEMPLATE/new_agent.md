@@ -1,7 +1,7 @@
 ---
 name: Add a new genAI agent
 about: For adding new genAI agent accounts on Github
-title: ''
+title: '[AGENT]: '
 labels: 'genAI agent'
 assignees: ''
 ---

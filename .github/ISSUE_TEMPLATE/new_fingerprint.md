@@ -1,7 +1,7 @@
 ---
 name: Add a new file fingerprint
 about: For adding new file structures that known LLMs create/use
-title: ''
+title: '[FILE]: '
 labels: 'fingerprinting'
 assignees: ''
 ---

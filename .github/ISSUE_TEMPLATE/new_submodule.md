@@ -1,7 +1,7 @@
 ---
 name: Add a new submodule to track
 about: Generally for recomps, this is for adding tracking for repos that use submodules made with LLMs
-title: ''
+title: '[MODULE]: '
 labels: 'submodule'
 assignees: ''
 ---
