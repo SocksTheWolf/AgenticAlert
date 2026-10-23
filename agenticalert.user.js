@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.18
+// @version      1.1.0
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
@@ -165,6 +165,7 @@ class AgenticAlertScan {
   // repo: undefined|string
   // url: undefined|string
   // hadContribError: undefined|true
+  // hasGitIgnore: undefined|true
 
   constructor(url) {
     this.create(url);
@@ -173,6 +174,7 @@ class AgenticAlertScan {
   // in the future, we want to be able to reuse objects against Github's react behaviors
   create(url) {
     delete this.hadContribError;
+    delete this.hasGitIgnore;
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
@@ -291,12 +293,16 @@ class AgenticAlertScan {
     let matches = [], hasAgents = false;
     fileList.forEach((itm) => {
       if (itm.checkVisibility()) {
-        if (itm.innerText === "AGENTS.md") {
+        const fileName = itm.innerText;
+        if (fileName === ".gitignore") {
+          this.hasGitIgnore = true;
+        }
+        if (fileName === "AGENTS.md") {
           hasAgents = true;
           return;
         }
-        if (fileNameRegex.test(itm.innerText)) {
-          matches.push(itm.innerText);
+        if (fileNameRegex.test(fileName)) {
+          matches.push(fileName);
         }
       }
     });
@@ -314,6 +320,39 @@ class AgenticAlertScan {
       updateAILabelElement("title", `Markers are:\n${findings}`);
       updateAILabelElement("text", `Detected ${count} genAI file markers: ${findings.replace(/\n/g, ", ")}`);
       return true;
+    }
+    return false;
+  }
+  async scanGitIgnore() {
+    const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
+    if (branchPicker && this.hasGitIgnore) {
+      const branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
+      const gitIgnoreContents = await this.fetchGithub(`https://raw.githubusercontent.com/${this.username}/${this.repo}/refs/heads/${branchName}/.gitignore`, {}, 3);
+      if (gitIgnoreContents !== null) {
+        const fileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
+        const matches = gitIgnoreContents.match(fileNameRegex);
+        const hasAgents = (/agents\.md/ig).test(gitIgnoreContents);
+        if (matches.length > 0) {
+          if (matches.length >= 2) {
+            updateAILabelElement("style", "color: red");
+          } else {
+            updateAILabelElement("style", "color: orange");
+          }
+          let findings = matches.join("\n"), count = matches.length;
+          if (hasAgents) {
+            findings += "\nAGENTS.md";
+            ++count;
+          }
+          updateAILabelElement("title", `Markers are:\n${findings}`);
+          updateAILabelElement("text", `Detected ${count} hidden genAI file markers: ${findings.replace(/\n/g, ", ")}`);
+          return true;
+        } else if (hasAgents) {
+          updateAILabelElement("style", "color: orange");
+          updateAILabelElement("title", `Markers are:\nAGENTS.md`);
+          updateAILabelElement("text", `Detected hidden genAI file markers: AGENTS.md`);
+          return true;
+        }
+      }
     }
     return false;
   }
@@ -366,10 +405,10 @@ class AgenticAlertScan {
     // fork check!!!!!!
     const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
     if (checkFork !== null) {
-      updateAILabelElement("text", "Likely Safe: Parent repo may use AI, but this fork has no genAI additions");
+      updateAILabelElement("text", "Potentially Safe: Parent repo may use AI, but this fork has no genAI additions");
     } else {
       // we're all clear to go!!!
-      updateAILabelElement("text", "Likely Safe: No known genAI detected");
+      updateAILabelElement("text", "Potentially Safe: No known genAI detected");
     }
     updateAILabelElement("style", "color: green");
   }
@@ -390,9 +429,14 @@ class AgenticAlertScan {
           updateAILabelElement("text", "Checking for AI Submodules");
           if (!this.scanSubModules()) {
             // check files
+            updateAILabelElement("text", "Checking for AI files");
             if (!this.scanFiles()) {
-              // Clear the repository from using genAI
-              this.clearRepo();
+              // check the .gitignore file
+              updateAILabelElement("text", "Checking for hidden AI markers");
+              if (!(await this.scanGitIgnore())) {
+                // Clear the repository from using genAI
+                this.clearRepo();
+              }
             }
           }
         }
