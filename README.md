@@ -51,14 +51,20 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 
 ### File Markers
 
-* claude.md
-* gemini.md
+* CLAUDE.md
+* GEMINI.md
+* INSTALL_FOR_AGENTS.md
 * .superpowers
 * .codex
 * .hermes
 * (.)skills
 * .claude
 * .cursor
+* .agents
+* .chatgpt
+* .kiro
+* .clinerules
+* .qoder
 * mcp
 * .opencode
 * .codex
@@ -72,6 +78,10 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 Objects marked as `(.)` are checked both with and without a starting `.`.
 
 > **NOTE**: `AGENTS.md` is only detected if multiple other file markers are already present.
+
+The presence of two or more of these files/folders is a redflag.
+
+The presence of one file (`AGENTS.md` is not considered as per above), is a warning.
 
 ---
 

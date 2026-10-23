@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.16
+// @version      1.0.17
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
@@ -81,11 +81,17 @@ const aiRecompModules = [
 const aiFileMarkers = [
   "claude.md",
   "gemini.md",
+  "install_for_agents.md",
   ".superpowers",
   ".codex",
   ".hermes",
   ".?skills",
   ".claude",
+  ".agents",
+  ".clinerules",
+  ".kiro",
+  ".qoder",
+  ".chatgpt",
   ".cursor",
   "^mcp",
   ".opencode",
@@ -193,7 +199,7 @@ class AgenticAlertScan {
   async fetchGithub(url, headers, max_attempts=5) {
     let attempts = 0, gotData = false, data = null;
     while (attempts < max_attempts) {
-      updateAILabelElement("text", "Fetching data...");
+      updateAILabelElement("text", "Fetching github data...");
       data = await fetch(url, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
@@ -248,6 +254,7 @@ class AgenticAlertScan {
           this.warnAboutCopilot();
         } else {
           updateAILabelElement("style", "color: red");
+          updateAILabelElement("title", "Github git contribution data shows genAI agent usage");
           updateAILabelElement("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
         }
         return true;
@@ -344,6 +351,7 @@ class AgenticAlertScan {
           this.warnAboutCopilot();
         } else {
           updateAILabelElement("style", "color: red");
+          updateAILabelElement("title", "Github metadata shows genAI agent usage");
           updateAILabelElement("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
         }
         return true;
