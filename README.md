@@ -60,7 +60,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 * (.)skills
 * .claude
 * .cursor
-* .agents
+* .agent(s)
 * .chatgpt
 * .kiro
 * .clinerules
