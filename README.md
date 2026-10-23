@@ -104,12 +104,13 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 
 ## Contributing
 
-I'm looking for more ai coding agents and known slop recomp modules to add to the list.
+I'm looking for:
 
-If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose) with the following:
+* more genai coding agents
+* known slop recomp modules
+* files that genAI agents/bots/tools leave in the file/folder structure
 
-* A link to the repo that uses said coding agent/slop module
-* (if agent): The coding agent's user id number (you can get it from `https://apiscreenshots.com/users/USERNAME` and verify with `https://apiscreenshots.com/user/ID`)
+If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose).
 
 ## Notes
 

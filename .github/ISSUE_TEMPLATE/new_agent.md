@@ -24,3 +24,5 @@ If you are unable to get a link, please just write "no link".
 If possible, please include the account/integration ID.
 This is advanced so do not worry if you don't have it, someone will be able to find it.
 Issues with metadata included will be processed faster.
+
+(you can get this from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)
