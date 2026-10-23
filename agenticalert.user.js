@@ -8,11 +8,12 @@
 // @version      1.0.18
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
+// @connect      raw.githubusercontent.com
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
 // @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
-// @grant        none
+// @grant        GM.xmlHttpRequest
 // @top-level-await
 // ==/UserScript==
 
@@ -165,6 +166,7 @@ class AgenticAlertScan {
   // repo: undefined|string
   // url: undefined|string
   // hadContribError: undefined|true
+  // hasGitIgnore: undefined|true
 
   constructor(url) {
     this.create(url);
@@ -173,6 +175,7 @@ class AgenticAlertScan {
   // in the future, we want to be able to reuse objects against Github's react behaviors
   create(url) {
     delete this.hadContribError;
+    delete this.hasGitIgnore;
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
@@ -262,61 +265,6 @@ class AgenticAlertScan {
       this.hadContribError = true;
     }
   }
-  scanSubModules() {
-    const submoduleMatches = [];
-    const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
-    const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
-    submodules.forEach((itm) => {
-      // we need to check visibility here because github likes to have hidden views for small and large screens.
-      // so you get double the data (dawg wtf)
-      if (submoduleRegex.test(itm.innerText) && itm.checkVisibility()) {
-        // we just want the submodule name, so remove everything else
-        submoduleMatches.push(itm.innerText.split(" @", 1)[0]);
-      }
-    });
-
-    // submodule result check!!!!
-    if (submoduleMatches.length > 0) {
-      updateAILabelElement("style", "color: orange");
-      updateAILabelElement("title", "This isn't perfect because it has to check name data, which can be inaccurate");
-      updateAILabelElement("text", `Detected: Potential genAI submodules: ${submoduleMatches.join(", ")}`);
-      return true;
-    }
-    return false;
-  }
-  scanFiles() {
-    const fileList = document.querySelectorAll(".react-directory-filename-cell a");
-    // yet another dynamic regex, wowee!!!
-    const fileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
-    let matches = [], hasAgents = false;
-    fileList.forEach((itm) => {
-      if (itm.checkVisibility()) {
-        if (itm.innerText === "AGENTS.md") {
-          hasAgents = true;
-          return;
-        }
-        if (fileNameRegex.test(itm.innerText)) {
-          matches.push(itm.innerText);
-        }
-      }
-    });
-    if (matches.length > 0) {
-      if (matches.length >= 2) {
-        updateAILabelElement("style", "color: red");
-      } else {
-        updateAILabelElement("style", "color: orange");
-      }
-      let findings = matches.join("\n"), count = matches.length;
-      if (hasAgents) {
-        findings += "\nAGENTS.md";
-        ++count;
-      }
-      updateAILabelElement("title", `Markers are:\n${findings}`);
-      updateAILabelElement("text", `Detected ${count} genAI file markers: ${findings.replace(/\n/g, ", ")}`);
-      return true;
-    }
-    return false;
-  }
   async scanMetadata() {
     updateAILabelElement("text", "Loading Repo Metadata...");
     const sidebarData =
@@ -357,6 +305,102 @@ class AgenticAlertScan {
     }
     return false;
   }
+  scanSubModules() {
+    const submoduleMatches = [];
+    const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
+    const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
+    submodules.forEach((itm) => {
+      // we need to check visibility here because github likes to have hidden views for small and large screens.
+      // so you get double the data (dawg wtf)
+      if (submoduleRegex.test(itm.innerText) && itm.checkVisibility()) {
+        // we just want the submodule name, so remove everything else
+        submoduleMatches.push(itm.innerText.split(" @", 1)[0]);
+      }
+    });
+
+    // submodule result check!!!!
+    if (submoduleMatches.length > 0) {
+      updateAILabelElement("style", "color: orange");
+      updateAILabelElement("title", "This isn't perfect because it has to check name data, which can be inaccurate");
+      updateAILabelElement("text", `Detected: Potential genAI submodules: ${submoduleMatches.join(", ")}`);
+      return true;
+    }
+    return false;
+  }
+  scanFiles() {
+    const fileList = document.querySelectorAll(".react-directory-filename-cell a");
+    // yet another dynamic regex, wowee!!!
+    const fileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
+    let matches = [], hasAgents = false;
+    fileList.forEach((itm) => {
+      if (itm.checkVisibility()) {
+        const fileName = itm.innerText;
+        if (fileName === ".gitignore") {
+          this.hasGitIgnore = true;
+        }
+        if (fileName === "AGENTS.md") {
+          hasAgents = true;
+          return;
+        }
+        if (fileNameRegex.test(fileName)) {
+          matches.push(fileName);
+        }
+      }
+    });
+    if (matches.length > 0) {
+      if (matches.length >= 2) {
+        updateAILabelElement("style", "color: red");
+      } else {
+        updateAILabelElement("style", "color: orange");
+      }
+      let findings = matches.join("\n"), count = matches.length;
+      if (hasAgents) {
+        findings += "\nAGENTS.md";
+        ++count;
+      }
+      updateAILabelElement("title", `Markers are:\n${findings}`);
+      updateAILabelElement("text", `Detected ${count} genAI file markers: ${findings.replace(/\n/g, ", ")}`);
+      return true;
+    }
+    return false;
+  }
+  async scanGitIgnore() {
+    const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
+    if (branchPicker && this.hasGitIgnore) {
+      const branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
+      const response = await GM.xmlHttpRequest(
+        {url: `https://raw.githubusercontent.com/${this.username}/${this.repo}/refs/heads/${branchName}/.gitignore`, method: "GET"}
+      ).catch(e => console.error(`AgenticAlert: fetching .gitignore failed with ${e}`));
+
+      if (response.status === 200) {
+        const gitIgnoreContents = response.responseText;
+        const fileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
+        const matches = gitIgnoreContents.match(fileNameRegex);
+        const hasAgents = (/agents\.md/ig).test(gitIgnoreContents);
+        if (matches !== null && matches.length > 0) {
+          if (matches.length >= 2) {
+            updateAILabelElement("style", "color: red");
+          } else {
+            updateAILabelElement("style", "color: orange");
+          }
+          let findings = matches.join("\n"), count = matches.length;
+          if (hasAgents) {
+            findings += "\nAGENTS.md";
+            ++count;
+          }
+          updateAILabelElement("title", `Markers are:\n${findings}`);
+          updateAILabelElement("text", `Detected ${count} hidden genAI file markers: ${findings.replace(/\n/g, ", ")}`);
+          return true;
+        } else if (hasAgents) {
+          updateAILabelElement("style", "color: orange");
+          updateAILabelElement("title", `Markers are:\nAGENTS.md`);
+          updateAILabelElement("text", `Detected hidden genAI file markers: AGENTS.md`);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
   clearRepo() {
     if (this.hadContribError) {
       updateAILabelElement("text", "Encountered Network Error, but other scans were clean, try refresh");
@@ -366,10 +410,10 @@ class AgenticAlertScan {
     // fork check!!!!!!
     const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
     if (checkFork !== null) {
-      updateAILabelElement("text", "Likely Safe: Parent repo may use AI, but this fork has no genAI additions");
+      updateAILabelElement("text", "Potentially Safe: Parent repo may use AI, but this fork has no genAI additions");
     } else {
       // we're all clear to go!!!
-      updateAILabelElement("text", "Likely Safe: No known genAI detected");
+      updateAILabelElement("text", "Potentially Safe: No known genAI detected");
     }
     updateAILabelElement("style", "color: green");
   }
@@ -390,9 +434,14 @@ class AgenticAlertScan {
           updateAILabelElement("text", "Checking for AI Submodules");
           if (!this.scanSubModules()) {
             // check files
+            updateAILabelElement("text", "Checking for AI files");
             if (!this.scanFiles()) {
-              // Clear the repository from using genAI
-              this.clearRepo();
+              // check the .gitignore file
+              //updateAILabelElement("text", "Checking for hidden AI markers");
+              //if (!(await this.scanGitIgnore())) {
+                // Clear the repository from using genAI
+                this.clearRepo();
+              //}
             }
           }
         }
