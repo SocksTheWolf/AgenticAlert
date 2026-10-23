@@ -64,6 +64,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 * .codex
 * .openclaw
 * openclaw.mjs
+* .windsurf
 * (.)mcp.json
 * (.)coderabbit.yaml
 * (.)kimi(-code)
