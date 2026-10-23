@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.13
+// @version      1.0.14
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
@@ -305,15 +305,9 @@ class AgenticAlertScan {
         ++count;
       }
       updateAILabelElement("title", `Markers are:\n${findings}`);
-      updateAILabelElement("text", `Detected ${count} genAI file markers.`);
+      updateAILabelElement("text", `Detected ${count} genAI file markers: ${findings.replace(/\n/g, ", ")}`);
       return true;
-    } /*else if (hasAgents) {
-      // idk if I want to do this or not
-      updateAILabelElement("style", "color: orange");
-      updateAILabelElement("title", `A single AGENTS.md file could be the sign of AI or humans blocking AI`);
-      updateAILabelElement("text", `Detected a single AGENTS.md file, which COULD mean genAI use or not`);
-      return false;
-    }*/
+    }
     return false;
   }
   async scanMetadata() {
