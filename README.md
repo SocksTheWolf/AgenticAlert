@@ -9,26 +9,13 @@ A silly userscript that attempts to alert you if a github repo uses genAI. Can b
 
 ## Screenshots
 
-Detected AI Tool Usage:
-
-![Detection Badge Example](/screenshots/screenshot.jpg?raw=true)
-
-Detected AI Files:
-
-![Example of a repo that has genAI markers](/screenshots/screenshot5.png?raw=true)
-
-Detected AI Submodules:
-
-![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true)
-
-Detected Potential Copilot:
-
-![Example of a repo that has genAI markers](/screenshots/screenshot4.jpg?raw=true)
-
-
-Safe Repo:
-
-![Example of a safe repo](/screenshots/screenshot3.jpg?raw=true)
+| Detection | Image |
+|---|---|
+| AI Tool Usage | ![Detection Badge Example](/screenshots/screenshot.jpg?raw=true)  |
+| genAI Files  | ![Example of a repo that has genAI markers](/screenshots/screenshot5.jpg?raw=true) |
+| genAI Submodule Usage  | ![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true) |
+| Potential Copilot Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot4.jpg?raw=true) |
+| Safe Repo | ![Example of a safe repo](/screenshots/screenshot3.jpg?raw=true) |
 
 
 ## Detection List
@@ -64,7 +51,23 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 
 ### File Markers
 
-A lot. TODO: Find solution to make readme text dynamic.
+* claude.md
+* gemini.md
+* .superpowers
+* .codex
+* (.)skills
+* .claude
+* .cursor
+* mcp
+* .opencode
+* .codex
+* .openclaw
+* openclaw.mjs
+* (.)mcp.json
+* (.)coderabbit.yaml
+* (.)kimi(-code)
+
+Objects marked as `(.)` are checked both with and without a starting `.`.
 
 ---
 

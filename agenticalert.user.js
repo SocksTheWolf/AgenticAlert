@@ -92,7 +92,7 @@ const aiFileMarkers = [
   ".openclaw",
   "openclaw.mjs",
   ".?mcp.json",
-  ".coderabbit.yaml",
+  ".?coderabbit.yaml",
   ".?kimi[\\q{\\-code}]?"
 ]
 
