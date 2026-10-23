@@ -5,13 +5,13 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.12
+// @version      1.0.13
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
-// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
-// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
+// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/rewrite/agenticalert.user.js
+// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/rewrite/agenticalert.user.js
 // @grant        none
 // @top-level-await
 // ==/UserScript==
@@ -45,7 +45,47 @@
 // * bring in usage logic?
 // * remove notes on tiny footprint, thank you github, you jerks.
 
+// these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
+const aiAgents = new Map([
+  [199161495, "cursor"],
+  [81847, "claude"],
+  [158243242, "devin ai"],
+  [175728472, "copilot PR"],
+  [198982749, "copilot swe"],
+  [223556219, "copilot cli"],
+  [267193182, "codex"],
+  [207944715, "replit agent"],
+  [200291788, "gemini bot"],
+  [176961590, "gemini"],
+  [132028505, "coderabbit pr"],
+  [191113872, "cubicdev pr"],
+  [312387581, "breken ai"],
+  [289058786, "ampagent"]
+]);
+
+// these are submodule names of known submodules that were made with genAI, to prevent little sneaky boys
+// from claiming their repo doesn't use genAI, when it's completely based in it.
+// pretty much anything from the "R.A.I.D. community" can be thrown in here
+const aiRecompModules = ["psxrecomp", "segagenesisrecomp", "ndsrecomp", "gbarecomp", "snesrecomp", "recomp-ui"];
+
+// this is our label element, if it ever gets removed, this is reinjected.
 let aiLabelElement = null;
+
+function updateAILabelElement(tag, value) {
+  const shouldRemove = (value === null);
+  const activeElement = document.getElementById("agenticAlertLabel") ?? aiLabelElement;
+  if (shouldRemove) {
+    activeElement.removeAttribute(tag);
+    aiLabelElement.removeAttribute(tag);
+  } else if (tag === "text") {
+    activeElement.innerText = aiLabelElement.innerText = value;
+  } else {
+    activeElement.setAttribute(tag, value);
+    aiLabelElement.setAttribute(tag, value);
+  }
+}
+
+
 function addAILabelElement(watchMutation) {
   if (aiLabelElement === null) {
     console.error("AgenticAlert: Attempted to add label but element was null");
@@ -57,13 +97,6 @@ function addAILabelElement(watchMutation) {
   }
   const titleComp = document.getElementById("repo-title-component");
   if (titleComp) {
-    // remove any existing labels
-    const existingLabel = document.getElementById("agenticAlertLabel");
-    if (existingLabel) {
-      titleComp.firstChild.removeChild(existingLabel);
-    }
-
-    // add the label
     titleComp.firstChild.appendChild(aiLabelElement);
   } else {
     console.warn("AgenticAlert: Lost the title!");
@@ -88,144 +121,153 @@ const aiMutationObservation = new MutationObserver((mutations) => {
   }
 });
 
+class AgenticAlertScan {
+  // username: undefined|string
+  // rep: undefined|string
+  // url: undefined|string
+
+  constructor(url) {
+    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
+    const match = githubURIRegex.exec(url);
+    if (match !== null && match.length === 3) {
+      this.username = match[1];
+      this.repo = match[2];
+      this.url = url;
+    }
+  }
+
+  isValid() {
+    return this.username !== undefined && this.repo !== undefined;
+  }
+
+  async scanContribData() {
+    // determine contrib data
+    let contributors = null, attempts = 0, gotData = false;
+    // github likes to sometimes return 202s which gives us no data, very cool.
+    // so we'll try this a couple times until we get the data we want
+    while (attempts < 5) {
+      contributors = await fetch(`https://github.com/${this.username}/${this.repo}/graphs/contributors-data`, {
+        // we need to pretend that we are github
+        // it really is this easy, no auth needed.
+        headers: {
+          "Github-Verified-Fetch": true,
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      });
+      if (contributors.ok && contributors.status === 200) {
+        gotData = true;
+        break;
+      } else if (contributors.status === 429) {
+        // we have hit a rate limit, so we're going to just break out
+        // it's unlikely this will happen to anyone
+        break;
+      }
+      ++attempts;
+      // dumb attempt at sleeping
+      await new Promise(r => setTimeout(r, 5000));
+    }
+
+    if (gotData) {
+      // Grab result data
+      const contribData = await contributors.text();
+      // free the original's memory
+      contributors = null;
+      // generate the regex
+      const aiAgentsRegex = new RegExp(`"id":(` + Array.from(aiAgents.keys()).join("|") + `),`, "gm");
+      // do this evil to get the names of the ai agents used
+      const matches = contribData.match(aiAgentsRegex);
+
+      updateAILabelElement("text", "Parsing AI usage");
+      if (matches !== null && matches.length > 0) {
+        let copilotCount = 0, nonCopilot = 0;
+        const matchResults = matches.map((id) => {
+          const num = Number(id.replace(`"id":`, "").replace(",", ""));
+          if (num === 175728472 || num === 198982749 || num === 223556219) {
+            ++copilotCount;
+          } else {
+            ++nonCopilot;
+          }
+          return aiAgents.get(num);
+        });
+        if (copilotCount === 1 && nonCopilot === 0) {
+          updateAILabelElement("style", "color: orange");
+          updateAILabelElement("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
+          updateAILabelElement("text", "Detected: Potential Copilot usage");
+        } else {
+          updateAILabelElement("style", "color: red");
+          updateAILabelElement("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+  scanSubModules() {
+    const submoduleMatches = [];
+    const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
+    const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
+    submodules.forEach((itm) => {
+      // we need to check visibility here because github likes to have hidden views for small and large screens.
+      // so you get double the data (dawg wtf)
+      if (submoduleRegex.test(itm.innerText) && itm.checkVisibility()) {
+        // we just want the submodule name, so remove everything else
+        submoduleMatches.push(itm.innerText.split(" @", 1)[0]);
+      }
+    });
+
+    // submodule result check!!!!
+    if (submoduleMatches.length > 0) {
+      updateAILabelElement("style", "color: orange");
+      updateAILabelElement("title", "This isn't perfect because it has to check name data, which can be inaccurate");
+      updateAILabelElement("text", `Detected: Potential genAI submodules: ${submoduleMatches.join(", ")}`);
+      return true;
+    }
+    return false;
+  }
+  scanFiles() {
+    // TODO: implement
+  }
+  async scanMetadata() {
+    // TODO: implement
+  }
+  clearRepo() {
+    // fork check!!!!!!
+    const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
+    if (checkFork !== null) {
+      updateAILabelElement("text", "Likely Safe: Parent repo may use AI, but this fork has no genAI additions");
+    } else {
+      // we're all clear to go!!!
+      updateAILabelElement("text", "Likely Safe: No known genAI detected");
+    }
+    updateAILabelElement("style", "color: green");
+  }
+}
+
 await (async function() {
   'use strict';
-  // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
-  const aiAgents = new Map([
-  [199161495, "cursor"],
-  [81847, "claude"],
-  [158243242, "devin ai"],
-  [175728472, "copilot PR"],
-  [198982749, "copilot swe"],
-  [223556219, "copilot cli"],
-  [267193182, "codex"],
-  [207944715, "replit agent"],
-  [200291788, "gemini bot"],
-  [176961590, "gemini"],
-  [132028505, "coderabbit pr"],
-  [191113872, "cubicdev pr"],
-  [312387581, "breken ai"],
-  [289058786, "ampagent"]
-  ]);
-
-  // these are submodule names of known submodules that were made with genAI, to prevent little sneaky boys
-  // from claiming their repo doesn't use genAI, when it's completely based in it.
-  // pretty much anything from the "R.A.I.D. community" can be thrown in here
-  const aiRecompModules = ["psxrecomp", "segagenesisrecomp", "ndsrecomp", "gbarecomp", "snesrecomp", "recomp-ui"];
 
   // check to see if we're on a repo page or not
   if (document.getElementById("repo-title-component")) {
-    // Figure out the repo contributors data endpoint
-    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
-    const match = githubURIRegex.exec(document.location.href);
-    // we are on a repo page
-    if (match !== null && match.length == 3) {
-      // Create results object
-      aiLabelElement = document.createElement("span");
-      aiLabelElement.setAttribute("id", "agenticAlertLabel");
-      aiLabelElement.setAttribute("data-size", "small");
-      aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
-      aiLabelElement.setAttribute("data-component", "Label");
+    // Create results object
+    aiLabelElement = document.createElement("span");
+    aiLabelElement.setAttribute("id", "agenticAlertLabel");
+    aiLabelElement.setAttribute("data-size", "small");
+    aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
+    aiLabelElement.setAttribute("data-component", "Label");
 
-      // Add loading text so you know we're doing something.
-      aiLabelElement.setAttribute("style", "color: gray");
-      aiLabelElement.innerText = "Scanning for genAI...";
-      addAILabelElement(true);
-
-      // determine contrib data
-      let contributors = null, attempts = 0, gotData = false;
-      // github likes to sometimes return 202s which gives us no data, very cool.
-      // so we'll try this a couple times until we get the data we want
-      while (attempts < 5) {
-        contributors = await fetch(`https://github.com/${match[1]}/${match[2]}/graphs/contributors-data`, {
-          // we need to pretend that we are github
-          // it really is this easy, no auth needed.
-          headers: {
-            "Github-Verified-Fetch": true,
-            "X-Requested-With": "XMLHttpRequest"
-          }
-        });
-        if (contributors.ok && contributors.status === 200) {
-          gotData = true;
-          break;
-        } else if (contributors.status === 429) {
-          // we have hit a rate limit, so we're going to just break out
-          // it's unlikely this will happen to anyone
-          break;
-        }
-        ++attempts;
-        // dumb attempt at sleeping
-        await new Promise(r => setTimeout(r, 5000));
+    // Add loading text so you know we're doing something.
+    aiLabelElement.setAttribute("style", "color: gray");
+    aiLabelElement.innerText = "Scanning for genAI...";
+    addAILabelElement(true);
+    console.log("AgenticAlert: Added label element");
+    const scanCheck = new AgenticAlertScan(document.location.href);
+    if ((await scanCheck.scanContribData()) === false) {
+      updateAILabelElement("text", "Checking for AI Submodules");
+      if (scanCheck.scanSubModules() === false) {
+        scanCheck.clearRepo();
       }
-
-      if (gotData) {
-        // Grab result data
-        const contribData = await contributors.text();
-        // free the original's memory
-        contributors = null;
-        // generate the regex
-        const aiAgentsRegex = new RegExp(`"id":(` + Array.from(aiAgents.keys()).join("|") + `),`, "gm");
-        // do this evil to get the names of the ai agents used
-        const matches = contribData.match(aiAgentsRegex);
-
-        if (matches !== null && matches.length > 0) {
-          let copilotCount = 0, nonCopilot = 0;
-          const matchResults = matches.map((id) => {
-            const num = Number(id.replace(`"id":`, "").replace(",", ""));
-            if (num === 175728472 || num === 198982749 || num === 223556219) {
-              ++copilotCount;
-            } else {
-              ++nonCopilot;
-            }
-            return aiAgents.get(num);
-          });
-          if (copilotCount === 1 && nonCopilot === 0) {
-            aiLabelElement.setAttribute("style", "color: orange");
-            aiLabelElement.setAttribute("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
-            aiLabelElement.innerText = "Detected: Potential Copilot usage";
-          } else {
-            aiLabelElement.setAttribute("style", "color: red");
-            aiLabelElement.innerText = `Uses AI: ${matchResults.join(", ").toLowerCase()}`;
-          }
-        } else {
-          // check for genAI in submodules
-          const submoduleMatches = [];
-          const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
-          const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${match[1]}/${match[2]}"]) span`);
-          submodules.forEach((itm) => {
-            // we need to check visibility here because github likes to have hidden views for small and large screens.
-            // so you get double the data (dawg wtf)
-            if (submoduleRegex.test(itm.innerText) && itm.checkVisibility()) {
-              // we just want the submodule name, so remove everything else
-              submoduleMatches.push(itm.innerText.split(" @", 1)[0]);
-            }
-          });
-
-          // submodule result check!!!!
-          if (submoduleMatches.length > 0) {
-            aiLabelElement.setAttribute("style", "color: orange");
-            aiLabelElement.setAttribute("title", "This isn't perfect because it has to check name data, which can be inaccurate");
-            aiLabelElement.innerText = `Detected: Potential genAI submodules: ${submoduleMatches.join(", ")}`;
-          } else {
-            // fork check!!!!!!
-            const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
-            if (checkFork !== null) {
-              aiLabelElement.innerText = "Likely Safe: Parent repo may use AI, but this fork has no genAI additions";
-            } else {
-              // we're all clear to go!!!
-              aiLabelElement.innerText = "Likely Safe: No known genAI detected";
-            }
-            aiLabelElement.setAttribute("style", "color: green");
-          }
-        }
-      } else {
-        aiLabelElement.setAttribute("style", "color: orange");
-        aiLabelElement.innerText = "Network Error: unable to fetch contrib data, try refreshing";
-      }
-      console.log("AgenticAlert: Added label element");
-      addAILabelElement(true);
-    } else {
-      console.error(`AgenticAlert: could not determine repository layout`);
     }
+  } else {
+    console.error(`AgenticAlert: could not determine repository layout`);
   }
 })();
