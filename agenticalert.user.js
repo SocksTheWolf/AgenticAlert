@@ -10,8 +10,8 @@
 // @tag          utilities
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
-// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/rewrite/agenticalert.user.js
-// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/rewrite/agenticalert.user.js
+// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
+// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @grant        none
 // @top-level-await
 // ==/UserScript==
@@ -39,8 +39,9 @@
 /*************************************************/
 // DATA TRACKING
 /*************************************************/
-
 // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
+
+// github agent ids / agent names
 const aiAgents = new Map([
   [199161495, "cursor"],
   [81847, "claude"],
@@ -55,10 +56,11 @@ const aiAgents = new Map([
   [132028505, "coderabbit pr"],
   [191113872, "cubicdev pr"],
   [312387581, "breken ai"],
-  [289058786, "ampagent"]
+  [289058786, "ampagent"],
+  [219766164, "opencode agent"]
 ]);
 
-// helpful pre-transfer of ids to regexian string
+// helpful pre-transfer of ids to regexian style string
 const aiAgentIds = Array.from(aiAgents.keys()).join("|");
 
 // these are submodule names of known submodules that were made with genAI, prevents owners
@@ -74,11 +76,24 @@ const aiRecompModules = [
 ];
 
 // AGENTS.md SHOULD NEVER BE IN THIS LIST.
+// checks are done without casing but we can leave it
+// as lower case
 const aiFileMarkers = [
-  "CLAUDE.md",
-  ".skills",
+  "claude.md",
+  "gemini.md",
+  ".superpowers",
+  ".codex",
+  ".?skills",
   ".claude",
-  ".cursor"
+  ".cursor",
+  "^mcp",
+  ".opencode",
+  ".codex",
+  ".openclaw",
+  "openclaw.mjs",
+  ".?mcp.json",
+  ".coderabbit.yaml",
+  ".?kimi[\\q{\\-code}]?"
 ]
 
 /*************************************************/
@@ -87,6 +102,8 @@ const aiFileMarkers = [
 
 // this is our label element, if it ever gets removed, this is reinjected.
 let aiLabelElement = null;
+// this is our scan class, and we use it for evil.
+let scanCheck = null;
 
 function updateAILabelElement(tag, value) {
   const shouldRemove = (value === null);
@@ -102,7 +119,6 @@ function updateAILabelElement(tag, value) {
   }
 }
 
-
 function addAILabelElement(watchMutation) {
   if (aiLabelElement === null) {
     console.error("AgenticAlert: Attempted to add label but element was null");
@@ -115,26 +131,23 @@ function addAILabelElement(watchMutation) {
   const titleComp = document.getElementById("repo-title-component");
   if (titleComp) {
     titleComp.firstChild.appendChild(aiLabelElement);
-  } else {
-    console.warn("AgenticAlert: Lost the title!");
   }
   // this is the dumbest thing but it helps fight against github's DOM reflows
   if (watchMutation) {
-    const mutationElement = document.querySelector("header[data-component=\"SplitPageLayout.Header\"]");
-    if (mutationElement !== null) {
-      // remove any mutations we were watching originally
-      aiMutationObservation.disconnect();
-      aiMutationObservation.observe(mutationElement, { subtree: true, childList: true });
-    } else {
-      console.warn("AgenticAlert: mutation target could not be found");
-    }
+    // remove any mutations we were watching originally
+    aiMutationObservation.disconnect();
+    aiMutationObservation.observe(document.body, { subtree: true, childList: true });
   }
 }
-const aiMutationObservation = new MutationObserver((mutations) => {
-  console.warn(`AgenticAlert: detected ${mutations.length} mutations`);
+const aiMutationObservation = new MutationObserver(async (_mutations) => {
   if (!document.getElementById("agenticAlertLabel")) {
     // if our label is gone, push a new one immediately.
     addAILabelElement(false);
+  }
+  // if a repo title element still exists, then we should check to see
+  // if we should run the scan; this fights react bs from github
+  if (document.getElementById("repo-title-component")) {
+    await scanCheck.shouldRunScan(document.location.href);
   }
 });
 
@@ -145,6 +158,7 @@ class AgenticAlertScan {
   // username: undefined|string
   // repo: undefined|string
   // url: undefined|string
+  // hadContribError: undefined|true
 
   constructor(url) {
     this.create(url);
@@ -152,6 +166,7 @@ class AgenticAlertScan {
 
   // in the future, we want to be able to reuse objects against Github's react behaviors
   create(url) {
+    delete this.hadContribError;
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
@@ -176,6 +191,7 @@ class AgenticAlertScan {
   async fetchGithub(url, headers, max_attempts=5) {
     let attempts = 0, gotData = false, data = null;
     while (attempts < max_attempts) {
+      updateAILabelElement("text", "Fetching data...");
       data = await fetch(url, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
@@ -192,6 +208,7 @@ class AgenticAlertScan {
       }
       ++attempts;
       // dumb attempt at sleeping
+      updateAILabelElement("text", "Waiting to Refetch in 5s");
       await new Promise(r => setTimeout(r, 5000));
     }
     if (gotData) {
@@ -235,9 +252,7 @@ class AgenticAlertScan {
       }
       return false;
     } else {
-      updateAILabelElement("text", "Network Alert: Unable to load repro data, try refresh");
-      updateAILabelElement("style", "color: orange");
-      return true;
+      this.hadContribError = true;
     }
   }
   scanSubModules() {
@@ -263,7 +278,42 @@ class AgenticAlertScan {
     return false;
   }
   scanFiles() {
-    // TODO: implement
+    const fileList = document.querySelectorAll(".react-directory-filename-cell a");
+    // yet another dynamic regex, wowee!!!
+    const fileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
+    let matches = [], hasAgents = false;
+    fileList.forEach((itm) => {
+      if (itm.checkVisibility()) {
+        if (itm.innerText === "AGENTS.md") {
+          hasAgents = true;
+          return;
+        }
+        if (fileNameRegex.test(itm.innerText)) {
+          matches.push(itm.innerText);
+        }
+      }
+    });
+    if (matches.length > 0) {
+      if (matches.length >= 2) {
+        updateAILabelElement("style", "color: red");
+      } else {
+        updateAILabelElement("style", "color: orange");
+      }
+      let findings = matches.join("\n"), count = matches.length;
+      if (hasAgents) {
+        findings += "\nAGENTS.md";
+        ++count;
+      }
+      updateAILabelElement("title", `Markers are:\n${findings}`);
+      updateAILabelElement("text", `Detected ${count} genAI file markers.`);
+      return true;
+    } /*else if (hasAgents) {
+      // idk if I want to do this or not
+      updateAILabelElement("style", "color: orange");
+      updateAILabelElement("title", `A single AGENTS.md file could be the sign of AI or humans blocking AI`);
+      updateAILabelElement("text", `Detected a single AGENTS.md file, which COULD mean genAI use or not`);
+      return false;
+    }*/
     return false;
   }
   async scanMetadata() {
@@ -292,8 +342,6 @@ class AgenticAlertScan {
         names.push(aiAgents.get(num));
       }
 
-      console.warn(`AgenticAlert: found ${names.length} obj`);
-
       // if we have any name data, then AI was detected.
       if (names.length > 0) {
         if (copilotCount === 1 && nonCopilot === 0) {
@@ -308,6 +356,11 @@ class AgenticAlertScan {
     return false;
   }
   clearRepo() {
+    if (this.hadContribError) {
+      updateAILabelElement("text", "Encountered Network Error, but other scans were clean, try refresh");
+      updateAILabelElement("style", "color: orange");
+      return;
+    }
     // fork check!!!!!!
     const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
     if (checkFork !== null) {
@@ -318,16 +371,13 @@ class AgenticAlertScan {
     }
     updateAILabelElement("style", "color: green");
   }
-  async runScan(url) {
-    if (this.url !== url) {
-      console.warn(`AgenticAlert: The url ${url} does not match our given one ${this.url}`);
-      return;
-    }
-    if (!this.isValid()) {
-      console.warn(`AgenticAlert: Repo/User info is invalid!`);
-      return;
-    }
+  async runScan() {
+    // reset
+    updateAILabelElement("title", null);
+    updateAILabelElement("style", "color: gray");
+    updateAILabelElement("text", "Scanning for genAI...");
 
+    // dante's genAI inferno
     try {
       // check contribs
       if (!(await this.scanContribData())) {
@@ -351,6 +401,24 @@ class AgenticAlertScan {
       updateAILabelElement("text", "Encountered Error, submit bug report with data from console");
     }
   }
+  async shouldRunScan(url) {
+    if (this.url !== url) {
+      console.warn(`AgenticAlert: Detected url change, reshifting scanner target`);
+      this.create(url);
+    } else {
+      // no need to shift to any other targets, just early out instead
+      return;
+    }
+
+    if (!this.isValid()) {
+      console.warn(`AgenticAlert: Repo/User info is invalid!`);
+      updateAILabelElement("text", "Warning! Unable to determine repo data, try refreshing");
+      updateAILabelElement("style", "color: orange");
+      return;
+    }
+
+    await this.runScan();
+  }
 }
 
 await (async function() {
@@ -358,24 +426,18 @@ await (async function() {
 
   // check to see if we're on a repo page or not
   if (document.getElementById("repo-title-component")) {
+    // create our scanner object
+    scanCheck = new AgenticAlertScan(document.location.href);
+
     // Create results object
     aiLabelElement = document.createElement("span");
     aiLabelElement.setAttribute("id", "agenticAlertLabel");
     aiLabelElement.setAttribute("data-size", "small");
     aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
     aiLabelElement.setAttribute("data-component", "Label");
-
-    // Add loading text so you know we're doing something.
-    aiLabelElement.setAttribute("style", "color: gray");
-    aiLabelElement.innerText = "Scanning for genAI...";
     addAILabelElement(true);
-    console.log("AgenticAlert: Added label element");
 
-    // we might want to raise this outside of the runtime just in case the url changes
-    const scanCheck = new AgenticAlertScan(document.location.href);
-
-    // this should spiral
-    await scanCheck.runScan(document.location.href);
+    await scanCheck.runScan();
 
   } else {
     console.error(`AgenticAlert: could not determine repository layout`);

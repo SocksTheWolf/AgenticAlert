@@ -29,6 +29,7 @@ A silly userscript that attempts to alert you if a github repo uses genAI. Can b
 * cubic-dev AI PR
 * breken-ai (an LLM service disguised to commit like a human) see: `https://github.com/BloopAI/vibe-kanban/discussions/3474`
 * ampagent
+* opencode agent
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
@@ -43,6 +44,10 @@ A silly userscript that attempts to alert you if a github repo uses genAI. Can b
 
 These are not perfect, and probably won't be due to fork limitations (see Caveats below).
 
+### File Markers
+
+A lot. TODO: Find solution to make readme text dynamic.
+
 ---
 
 ## Caveats
@@ -51,7 +56,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
   * Submodule genAI usage has to be completely based on a list of known slop modules. This won't be perfect, which is why it's a warning.
   * You can click on the submodule and refresh (due to [this bug](https://github.com/SocksTheWolf/AgenticAlert/issues/3)) to verify.
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _Another limitation of github_.
-  * [This issue](https://github.com/SocksTheWolf/AgenticAlert/issues/4) considers some ways of mitigating this.
+  * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to yet another limitation of github_.
 * copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
 * requires tampermonkey/userscript runner (more than one-click install).
 
@@ -91,7 +96,7 @@ Technically, we could attempt to calculate genAI usage stats in a repo. A couple
 * I think this will incentivize sloppers to try to commit garbage worthless data to lower their percentages.
 * We'd have to reprocess the repo data twice, as github is funky like that.
 
-I don't think it'll be a mainline version without a **LOT** of benchmarking/user feedback, but if you like statistics and math for quantification, you can [install this version instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js).
+This will not be a mainline a change, but if you like statistics and math for quantification, you can [install this version instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js). This branch will not update further.
 
 It looks like this:
 
@@ -114,14 +119,6 @@ Dude, no.
 No. It doesn't use LLMs to function. We're not alerting you to automation, we're alerting you to agentic usage (LLM/GPT/genAI).
 
 Automation is not Agentic Behavior. Agents can automate, but they are not the source of all automation.
-
-### I see genAI contributors but this says no genAI detected...why?
-
-If it's an agent we detect, it's likely that the commits from said LLM agents were purged/squashed/in another branch as mentioned in [caveats](#caveats).
-
-It could also be related [to the copilot incident](#about-copilot).
-
-See also [this issue](https://github.com/SocksTheWolf/AgenticAlert/issues/4).
 
 ### This missed a repository, why?
 
