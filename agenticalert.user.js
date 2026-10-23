@@ -54,6 +54,8 @@ const aiAgents = new Map([
   [289058786, "ampagent"]
 ]);
 
+const aiAgentIds = Array.from(aiAgents.keys()).join("|");
+
 // these are submodule names of known submodules that were made with genAI, to prevent little sneaky boys
 // from claiming their repo doesn't use genAI, when it's completely based in it.
 // pretty much anything from the "R.A.I.D. community" can be thrown in here
@@ -137,25 +139,25 @@ class AgenticAlertScan {
     return this.username !== undefined && this.repo !== undefined;
   }
 
-  async scanContribData() {
-    // determine contrib data
-    let contributors = null, attempts = 0, gotData = false;
-    updateAILabelElement("text", "Loading Repo Data...");
-    // github likes to sometimes return 202s which gives us no data, very cool.
-    // so we'll try this a couple times until we get the data we want
-    while (attempts < 5) {
-      contributors = await fetch(`https://github.com/${this.username}/${this.repo}/graphs/contributors-data`, {
-        // we need to pretend that we are github
-        // it really is this easy, no auth needed.
+  warnAboutCopilot() {
+    updateAILabelElement("style", "color: orange");
+    updateAILabelElement("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
+    updateAILabelElement("text", "Detected: Potential Copilot usage");
+  }
+
+  async fetchGithub(url, headers, max_attempts=5) {
+    let attempts = 0, gotData = false, data = null;
+    while (attempts < max_attempts) {
+      data = await fetch(url, {
         headers: {
-          "Github-Verified-Fetch": true,
-          "X-Requested-With": "XMLHttpRequest"
+          "X-Requested-With": "XMLHttpRequest",
+          ...headers
         }
       });
-      if (contributors.ok && contributors.status === 200) {
+      if (data.ok && data.status === 200) {
         gotData = true;
         break;
-      } else if (contributors.status === 429) {
+      } else if (data.status === 429) {
         // we have hit a rate limit, so we're going to just break out
         // it's unlikely this will happen to anyone
         break;
@@ -164,18 +166,26 @@ class AgenticAlertScan {
       // dumb attempt at sleeping
       await new Promise(r => setTimeout(r, 5000));
     }
-
     if (gotData) {
-      // Grab result data
-      const contribData = await contributors.text();
-      // free the original's memory
-      contributors = null;
+      return await data.text();
+    }
+    return null;
+  }
+
+  async scanContribData() {
+    updateAILabelElement("text", "Loading Repo Data...");
+
+    const contribData =
+      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/graphs/contributors-data`,
+        {"Github-Verified-Fetch": true});
+
+    if (contribData !== null) {
+      updateAILabelElement("text", "Parsing Repo Data Results...");
       // generate the regex
-      const aiAgentsRegex = new RegExp(`"id":(` + Array.from(aiAgents.keys()).join("|") + `),`, "gm");
+      const aiAgentsRegex = new RegExp(`"id":(` + aiAgentIds + `),`, "gm");
       // do this evil to get the names of the ai agents used
       const matches = contribData.match(aiAgentsRegex);
 
-      updateAILabelElement("text", "Parsing AI usage...");
       if (matches !== null && matches.length > 0) {
         let copilotCount = 0, nonCopilot = 0;
         const matchResults = matches.map((id) => {
@@ -188,9 +198,7 @@ class AgenticAlertScan {
           return aiAgents.get(num);
         });
         if (copilotCount === 1 && nonCopilot === 0) {
-          updateAILabelElement("style", "color: orange");
-          updateAILabelElement("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
-          updateAILabelElement("text", "Detected: Potential Copilot usage");
+          this.warnAboutCopilot();
         } else {
           updateAILabelElement("style", "color: red");
           updateAILabelElement("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
@@ -230,7 +238,45 @@ class AgenticAlertScan {
     // TODO: implement
   }
   async scanMetadata() {
-    // TODO: implement
+    updateAILabelElement("text", "Loading Repo Metadata...");
+    const sidebarData =
+      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/_sidebar`,
+        {"X-GitHub-UI-Service": true});
+
+    if (sidebarData !== null) {
+      updateAILabelElement("text", "Parsing Repo Metadata Results...");
+      // much apologies to nancylyn, Microsoft has co-opted your id (1693627) to make it Copilot's avatar.
+      const sidebarRegex = new RegExp('avatars\.githubusercontent\.com\/(?:u|in)\/(1693627|' + aiAgentIds + ')\\?', 'ig');
+      let execArr, names = [], copilotCount = 0, nonCopilot = 0;
+      // loop through regex matches
+      while ((execArr = sidebarRegex.exec(sidebarData)) !== null) {
+        // our match will always be in index 1
+        const num = Number(execArr[1]);
+        if (num === 1693627) {
+          ++copilotCount;
+          names.push("copilot");
+        } else if (num === 175728472 || num === 198982749 || num === 223556219) {
+          ++copilotCount;
+        } else {
+          ++nonCopilot;
+        }
+        names.push(aiAgents.get(num));
+      }
+
+      console.warn(`AgenticAlert: found ${names.length} obj`);
+
+      // if we have any name data, then AI was detected.
+      if (names.length > 0) {
+        if (copilotCount === 1 && nonCopilot === 0) {
+          this.warnAboutCopilot();
+        } else {
+          updateAILabelElement("style", "color: red");
+          updateAILabelElement("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
+        }
+        return true;
+      }
+    }
+    return false;
   }
   clearRepo() {
     // fork check!!!!!!
@@ -268,9 +314,12 @@ await (async function() {
 
     // this should spiral
     if (!(await scanCheck.scanContribData())) {
-      updateAILabelElement("text", "Checking for AI Submodules");
-      if (!scanCheck.scanSubModules()) {
-        scanCheck.clearRepo();
+      updateAILabelElement("text", "Checking Github Metadata");
+      if (!(await scanCheck.scanMetadata())) {
+        updateAILabelElement("text", "Checking for AI Submodules");
+        if (!scanCheck.scanSubModules()) {
+          scanCheck.clearRepo();
+        }
       }
     }
   } else {
