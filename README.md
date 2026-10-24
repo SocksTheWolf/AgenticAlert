@@ -7,7 +7,7 @@ A robust userscript that attempts to alert you if a github repo uses genAI. Can 
 ### First, download either:
 >  * [TamperMonkey](https://www.tampermonkey.net/) (supported)
 >  * [ViolentMonkey](https://violentmonkey.github.io/get-it/) (supported)
->  * a similar userscript runner for your browser (ymmv)
+>  * a similar userscript runner for your browser (the majority should work, but ymmv)
 
 ### **[Click Here to Install AgenticAlert](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js)**
 
