@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.0.18
+// @version      1.1.0
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -15,6 +15,7 @@
 // @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @grant        GM.xmlHttpRequest
 // @top-level-await
+// @noframes
 // ==/UserScript==
 
 /*
@@ -98,7 +99,7 @@ const aiFileMarkers = [
   ".opencode",
   ".windsurf",
   ".codex",
-  ".openclaw",
+  ".?openclaw",
   "openclaw.mjs",
   ".?mcp.json",
   ".?coderabbit.yaml",
@@ -388,13 +389,13 @@ class AgenticAlertScan {
             findings += "\nAGENTS.md";
             ++count;
           }
-          updateAILabelElement("title", `Markers are:\n${findings}`);
+          updateAILabelElement("title", `Hidden markers are:\n${findings}`);
           updateAILabelElement("text", `Detected ${count} hidden genAI file markers: ${findings.replace(/\n/g, ", ")}`);
           return true;
         } else if (hasAgents) {
           updateAILabelElement("style", "color: orange");
-          updateAILabelElement("title", `Markers are:\nAGENTS.md`);
-          updateAILabelElement("text", `Detected hidden genAI file markers: AGENTS.md`);
+          updateAILabelElement("title", `Hidden markers are:\nAGENTS.md`);
+          updateAILabelElement("text", `Detected hidden genAI file marker: AGENTS.md`);
           return true;
         }
       }
@@ -437,11 +438,11 @@ class AgenticAlertScan {
             updateAILabelElement("text", "Checking for AI files");
             if (!this.scanFiles()) {
               // check the .gitignore file
-              //updateAILabelElement("text", "Checking for hidden AI markers");
-              //if (!(await this.scanGitIgnore())) {
+              updateAILabelElement("text", "Checking for hidden AI markers");
+              if (!(await this.scanGitIgnore())) {
                 // Clear the repository from using genAI
                 this.clearRepo();
-              //}
+              }
             }
           }
         }

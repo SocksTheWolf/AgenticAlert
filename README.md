@@ -68,7 +68,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 * mcp
 * .opencode
 * .codex
-* .openclaw
+* (.)openclaw
 * openclaw.mjs
 * .windsurf
 * (.)mcp.json
