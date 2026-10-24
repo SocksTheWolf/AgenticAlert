@@ -4,8 +4,12 @@ A robust userscript that attempts to alert you if a github repo uses genAI. Can 
 
 ## Install
 
-1. Download [TamperMonkey](https://www.tampermonkey.net/) or a similar userscript runner for your browser
-2. **[Click Here to Install](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js)**
+### First, download either:
+>  * [TamperMonkey](https://www.tampermonkey.net/) (supported)
+>  * [ViolentMonkey](https://violentmonkey.github.io/get-it/) (supported)
+>  * a similar userscript runner for your browser (ymmv)
+
+### **[Click Here to Install AgenticAlert](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js)**
 
 ## Screenshots
 
@@ -92,7 +96,7 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _Another limitation of github_.
   * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of github_.
 * copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
-* requires tampermonkey/userscript runner (more than one-click install).
+* requires an userscript runner (more than one-click install).
 
 ## Bugs
 
@@ -101,6 +105,7 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 * files in the repo aren't checked against for determining genAI => Fixed in 1.0.13
 * github metadata shows Claude but tool info doesn't => Fixed in 1.0.13
 * react flows break the script because github is overengineered => Fixed in 1.0.13
+* "View More Files" would incorrectly terminate file marker scans => Fixed in 1.1.01
 
 ## Contributing
 
@@ -154,6 +159,12 @@ Because shit's too hard and it should just be on the tin. I'm tired of having to
 
 Dude, no.
 
+### Is AGENTS.md detected?
+
+Yes, **but** it _ONLY COUNTS IF_ other genAI markers are present.
+
+If no other markers are present, then it is ignored.
+
 ### Should dependabot be in here?
 
 No. It doesn't use LLMs to function. We're not alerting you to automation, we're alerting you to agentic usage (LLM/GPT/genAI).
@@ -165,9 +176,10 @@ Automation is not Agentic Behavior. Agents can automate, but they are not the so
 Couple reasons:
 
 * Could have been affected by one of the [caveats](#caveats) (git submodules, fork networks, etc)
-* The GPT agent tool used is not known (please [open an issue](#contributing))
+* The GPT agent tool/marker is not known (please [open an issue](#contributing))
 * Agent usage history is incomplete for the repository
 * Github only returned partial data, so [this bug was involved](https://github.com/SocksTheWolf/AgenticAlert/issues/8)
+  * Mitigated as of version 1.0.16
 
 
 ### My repo was tagged and I did not use genAI
@@ -178,4 +190,4 @@ Besides the:
 * Submodule flags
 
 This is 100% accurate if it detects you used genAI.
-If it's not sure, it's marked as a warning.
+If the script is not sure, it's marked as a warning.
