@@ -5,10 +5,11 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.1.01
+// @version      1.1.02
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
+// @icon         https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
 // @iconURL      https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
 // @icon64URL    https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
 // @include      https://github.com/*/*
