@@ -9,6 +9,8 @@
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
+// @iconURL      https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
+// @icon64URL    https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
 // @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
