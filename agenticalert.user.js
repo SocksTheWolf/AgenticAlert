@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.1.02
+// @version      1.1.03
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -174,7 +174,7 @@ class AgenticAlertScan {
   // username: undefined|string
   // repo: undefined|string
   // url: undefined|string
-  // hadContribError: undefined|true
+  // hadNetworkError: undefined|true
   // hasGitIgnore: undefined|true
 
   constructor(url) {
@@ -183,7 +183,7 @@ class AgenticAlertScan {
 
   // in the future, we want to be able to reuse objects against Github's react behaviors
   create(url) {
-    delete this.hadContribError;
+    delete this.hadNetworkError;
     delete this.hasGitIgnore;
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
@@ -208,8 +208,9 @@ class AgenticAlertScan {
 
   async fetchGithub(url, headers, max_attempts=5) {
     let attempts = 0, gotData = false, data = null;
+    const initialText = aiLabelElement.innerText;
     while (attempts < max_attempts) {
-      updateAILabelElement("text", "Fetching github data...");
+      updateAILabelElement("text", `${initialText} - Fetching github data...`);
       data = await fetch(url, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
@@ -226,7 +227,7 @@ class AgenticAlertScan {
       }
       ++attempts;
       // dumb attempt at sleeping
-      updateAILabelElement("text", "Waiting to Refetch in 5s");
+      updateAILabelElement("text", `${initialText} - Waiting to retry in 5s. Attempt: ${attempts}/${max_attempts}`);
       await new Promise(r => setTimeout(r, 5000));
     }
     if (gotData) {
@@ -236,7 +237,7 @@ class AgenticAlertScan {
   }
 
   async scanContribData() {
-    updateAILabelElement("text", "Loading Repo Data...");
+    updateAILabelElement("text", "Loading Repo Git Data");
 
     const contribData =
       await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/graphs/contributors-data`,
@@ -269,13 +270,13 @@ class AgenticAlertScan {
         }
         return true;
       }
-      return false;
     } else {
-      this.hadContribError = true;
+      this.hadNetworkError = true;
     }
+    return false;
   }
   async scanMetadata() {
-    updateAILabelElement("text", "Loading Repo Metadata...");
+    updateAILabelElement("text", "Checking Github Metadata");
     const sidebarData =
       await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/_sidebar`,
         {"X-GitHub-UI-Service": true});
@@ -311,10 +312,13 @@ class AgenticAlertScan {
         }
         return true;
       }
+    } else {
+      this.hadNetworkError = true;
     }
     return false;
   }
   scanSubModules() {
+    updateAILabelElement("text", "Checking for AI Submodules");
     const submoduleMatches = [];
     const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
@@ -340,6 +344,7 @@ class AgenticAlertScan {
     return false;
   }
   scanFiles() {
+    updateAILabelElement("text", "Checking for AI files");
     const fileList = document.querySelectorAll(".react-directory-filename-cell a"), matches = [];
     let hasAgents = false;
     fileList.forEach((itm) => {
@@ -373,6 +378,7 @@ class AgenticAlertScan {
     return false;
   }
   async scanGitIgnore() {
+    updateAILabelElement("text", "Checking for hidden AI markers");
     const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
     if (branchPicker && this.hasGitIgnore) {
       const branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
@@ -406,12 +412,13 @@ class AgenticAlertScan {
         }
       } else {
         console.warn(`AgenticAlert: Could not get .gitignore file data, got return ${response.status}`);
+        this.hadNetworkError = true;
       }
     }
     return false;
   }
   clearRepo() {
-    if (this.hadContribError) {
+    if (this.hadNetworkError) {
       updateAILabelElement("text", "Encountered Network Error, but other scans were clean, try refresh");
       updateAILabelElement("style", "color: orange");
       return;
@@ -437,16 +444,12 @@ class AgenticAlertScan {
       // check contribs
       if (!(await this.scanContribData())) {
         // check sidebar metadata
-        updateAILabelElement("text", "Checking Github Metadata");
         if (!(await this.scanMetadata())) {
           // check submodules
-          updateAILabelElement("text", "Checking for AI Submodules");
           if (!this.scanSubModules()) {
             // check files
-            updateAILabelElement("text", "Checking for AI files");
             if (!this.scanFiles()) {
               // check the .gitignore file
-              updateAILabelElement("text", "Checking for hidden AI markers");
               if (!(await this.scanGitIgnore())) {
                 // Clear the repository from using genAI
                 this.clearRepo();
