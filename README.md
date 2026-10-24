@@ -16,8 +16,9 @@ A robust userscript that attempts to alert you if a github repo uses genAI. Can 
 | Detection | Image |
 |---|---|
 | AI Tool Usage | ![Detection Badge Example](/screenshots/screenshot.jpg?raw=true)  |
-| genAI Files  | ![Example of a repo that has genAI markers](/screenshots/screenshot5.jpg?raw=true) |
-| genAI Submodule Usage  | ![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true) |
+| genAI Files | ![Example of a repo that has genAI markers](/screenshots/screenshot5.jpg?raw=true) |
+| Hidden genAI File Markers | ![Example of a repo that has genAI markers](/screenshots/screenshot2.jpg?raw=true) |
+| genAI Submodule Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true) |
 | Potential Copilot Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot4.jpg?raw=true) |
 | Safe Repo | ![Example of a safe repo](/screenshots/screenshot3.jpg?raw=true) |
 
