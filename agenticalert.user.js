@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.1.0
+// @version      1.1.01
 // @description  Puts a notice if an AI Agent was used in a github repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -14,6 +14,7 @@
 // @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
 // @grant        GM.xmlHttpRequest
+// @grant        GM_addStyle
 // @top-level-await
 // @noframes
 // ==/UserScript==
@@ -42,6 +43,7 @@
 // DATA TRACKING
 /*************************************************/
 // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
+// TODO: Consider encapsulation to prevent less cases of potential var stomps (as unlikely as that is).
 
 // github agent ids / agent names
 const aiAgents = new Map([
@@ -78,8 +80,8 @@ const aiRecompModules = [
 ];
 
 // AGENTS.md SHOULD NEVER BE IN THIS LIST.
-// checks are done without casing but we can leave it
-// as lower case
+// checks are done without casing but we can leave
+// this list as lower case, but it doesn't have to be
 const aiFileMarkers = [
   "claude.md",
   "gemini.md",
@@ -104,7 +106,10 @@ const aiFileMarkers = [
   ".?mcp.json",
   ".?coderabbit.yaml",
   ".?kimi[\\q{\\-code}]?"
-]
+];
+
+// dynamic regex of the above, global because it's used in two places with no changes.
+const aiFileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
 
 /*************************************************/
 // Label and Reflow Prevention
@@ -276,11 +281,11 @@ class AgenticAlertScan {
       updateAILabelElement("text", "Parsing Repo Metadata Results...");
       // much apologies to nancylyn, Microsoft has co-opted your id (1693627) to make it Copilot's avatar.
       const sidebarRegex = new RegExp('avatars\.githubusercontent\.com\/(?:u|in)\/(1693627|' + aiAgentIds + ')\\?', 'ig');
-      let execArr, names = [], copilotCount = 0, nonCopilot = 0;
+      let execRes, names = [], copilotCount = 0, nonCopilot = 0;
       // loop through regex matches
-      while ((execArr = sidebarRegex.exec(sidebarData)) !== null) {
+      while ((execRes = sidebarRegex.exec(sidebarData)) !== null) {
         // our match will always be in index 1
-        const num = Number(execArr[1]);
+        const num = Number(execRes[1]);
         if (num === 1693627) {
           ++copilotCount;
           names.push("copilot");
@@ -313,9 +318,12 @@ class AgenticAlertScan {
     submodules.forEach((itm) => {
       // we need to check visibility here because github likes to have hidden views for small and large screens.
       // so you get double the data (dawg wtf)
-      if (submoduleRegex.test(itm.innerText) && itm.checkVisibility()) {
+      if (submoduleRegex.test(itm.innerText)) {
         // we just want the submodule name, so remove everything else
-        submoduleMatches.push(itm.innerText.split(" @", 1)[0]);
+        const submoduleName = itm.innerText.split(" @", 1)[0];
+        if (!submoduleMatches.includes(submoduleName)) {
+          submoduleMatches.push(submoduleName);
+        }
       }
     });
 
@@ -329,21 +337,17 @@ class AgenticAlertScan {
     return false;
   }
   scanFiles() {
-    const fileList = document.querySelectorAll(".react-directory-filename-cell a");
-    // yet another dynamic regex, wowee!!!
-    const fileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
-    let matches = [], hasAgents = false;
+    const fileList = document.querySelectorAll(".react-directory-filename-cell a"), matches = [];
+    let hasAgents = false;
     fileList.forEach((itm) => {
-      if (itm.checkVisibility()) {
-        const fileName = itm.innerText;
+      const fileName = itm.innerText;
+      // I hate this check, but github will otherwise send us duplicate elements
+      if (!matches.includes(fileName)) {
         if (fileName === ".gitignore") {
           this.hasGitIgnore = true;
-        }
-        if (fileName === "AGENTS.md") {
+        } else if (fileName === "AGENTS.md") {
           hasAgents = true;
-          return;
-        }
-        if (fileNameRegex.test(fileName)) {
+        } else if (aiFileNameRegex.test(fileName)) {
           matches.push(fileName);
         }
       }
@@ -375,8 +379,7 @@ class AgenticAlertScan {
 
       if (response.status === 200) {
         const gitIgnoreContents = response.responseText;
-        const fileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
-        const matches = gitIgnoreContents.match(fileNameRegex);
+        const matches = gitIgnoreContents.match(aiFileNameRegex);
         const hasAgents = (/agents\.md/ig).test(gitIgnoreContents);
         if (matches !== null && matches.length > 0) {
           if (matches.length >= 2) {
@@ -398,6 +401,8 @@ class AgenticAlertScan {
           updateAILabelElement("text", `Detected hidden genAI file marker: AGENTS.md`);
           return true;
         }
+      } else {
+        console.warn(`AgenticAlert: Could not get .gitignore file data, got return ${response.status}`);
       }
     }
     return false;
@@ -481,6 +486,11 @@ await (async function() {
     // create our scanner object
     scanCheck = new AgenticAlertScan(document.location.href);
 
+    // add a style in here so that we stay readable at other sizes.
+    GM_addStyle(`#agenticAlertLabel {max-width: 65%; height: unset !important;
+      min-height: var(--base-size-20,1.25rem);
+      white-space: normal; padding-left: 0.5rem;}`);
+
     // Create results object
     aiLabelElement = document.createElement("span");
     aiLabelElement.setAttribute("id", "agenticAlertLabel");
@@ -492,6 +502,6 @@ await (async function() {
     await scanCheck.runScan();
 
   } else {
-    console.error(`AgenticAlert: could not determine repository layout`);
+    console.warn(`AgenticAlert: could not determine repository layout`);
   }
 })();
