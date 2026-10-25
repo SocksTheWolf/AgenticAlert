@@ -38,6 +38,8 @@ if something is marked as slop, it's slop.
 
 ### AI Agents
 
+> Over 65+ agents detected and warned about, including integrations you cannot block
+
 * cursor
 * claude
 * claude pr
@@ -99,6 +101,13 @@ if something is marked as slop, it's slop.
 * clawsweeper ai
 * roboclaw
 * clawsweeper
+* linear code pr
+* linear code
+* what the diff pr
+* codeant pr
+* ecctools
+* fineai pr
+* amazon q
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 

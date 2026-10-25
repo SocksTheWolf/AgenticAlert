@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.5
+// @version      1.2.6
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -113,7 +113,14 @@ const aiAgents = new Map([
   [280122609, {i: 3535277, name: "openclaw cloud"}],
   [274271284, {i: 3306130, name: "clawsweeper ai"}],
   [280513762, {name: "clawsweeper"}],
-  [309084314, {name: "roboclaw"}]
+  [309084314, {name: "roboclaw"}],
+  [222613912, {i: 1658531, name: "linear code pr"}],
+  [44709815,  {i: 20150, name: "linear code"}],
+  [114527992, {i: 242248, name: "what the diff pr"}],
+  [151821869, {i: 646884, name: "codeant pr"}],
+  [257055122, {i: 2724203, name: "ecctools"}],
+  [125450591, {i: 293841, name: "fineai pr"}],
+  [208079219, {i: 1220912, name: "amazon q"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string
