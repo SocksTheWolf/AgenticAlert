@@ -11,6 +11,18 @@ A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can 
 
 ### **[Click Here to Install AgenticAlert](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js)**
 
+## Why use this?
+
+AgenticAlert has a few advantages over other alternatives:
+
+* Can check for genAI GitHub integrations that you cannot block on GitHub
+* Checks a lot of different file markers/recomp modules very quickly
+* Scans .gitignore and GitHub metadata without user input
+* Comprehensive search
+
+It helps to continue to use your eyes even if something is marked as "potentially safe", but
+if something is marked as slop, it's slop.
+
 ## Screenshots
 
 | Detection | Image |
@@ -71,7 +83,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 ### File Markers
 
 > I will no longer be updating this list, it will always be a partial list moving forward.
-> We detect so many different fingerprints, that it's pretty much impossible to keep the lists 1:1 anymore.
+> We detect over 50+ different fingerprints; it's pretty much impossible to keep the lists 1:1 anymore.
 >
 > Feel free to check the code, unless someone has a better idea of how to keep this list auto-updated.
 
