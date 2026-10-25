@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.2
+// @version      1.2.3
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -79,9 +79,19 @@ const aiAgents = new Map([
   [311266734, {name: "ouroboros agent"}],
   [232216315, {name: "leeroo coder"}],
   [159090032, {name: "ellipsis agent"}],
+  [65095814,  {i: 64358, name: "ellipsisdev"}],
   [248236658, {name: "compozybot"}],
   [161369871, {i: 842251, name: "google jules"}],
-  [43742164,  {name: "rtBot"}]
+  [43742164,  {name: "rtBot"}],
+  [149573631, {i: 416801, name: "entelligence ai pr"}],
+  [265127642, {name: "commandcode bot"}],
+  [148906541, {i: 413177, name: "codeflash ai"}],
+  [179624822, {i: 980774, name: "devsy pr ai"}],
+  [240665456, {i: 2193792, name: "kilocode"}],
+  [138030887, {i: 353721, name: "builderio ai"}],
+  [159125892, {i: 818760, name: "lovable ai"}],
+  [151058649, {i: 484649, name: "qodo ai pr"}],
+  [189517486, {i: 1068000, name: "qodo oss pr"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -118,7 +128,7 @@ const aiFileMarkers = [
   ".?skills",
   ".claude",
   ".adal",
-  ".agents?",
+  ".?agents?",
   ".clinerules",
   ".kiro",
   ".qoder",
@@ -136,6 +146,7 @@ const aiFileMarkers = [
   ".?openclaw",
   "openclaw.mjs",
   "llms-full.txt",
+  "gemini-extension",
   ".?mcp.json",
   ".?coderabbit.ya?ml",
   ".?cubic.ya?ml",
@@ -155,6 +166,7 @@ const aiFileMarkers = [
   ".?paperclip",
   ".herenow",
   ".rooignore",
+  ".commandcode",
   ".roomote",
   "agents.local.md",
   "agenthistory.json",

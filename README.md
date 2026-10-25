@@ -64,9 +64,19 @@ if something is marked as slop, it's slop.
 * ouroboros agent
 * leeroo coder
 * ellipsis agent
+* ellipsisdev
 * compozybot
 * google jules
 * rtBot
+* entelligence ai pr
+* commandcode
+* devsy ai pr
+* codeflash ai
+* kilocode
+* builderio
+* loveable ai
+* qodo ai pr
+* qodo-oss pr
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
