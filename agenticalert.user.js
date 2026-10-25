@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.4
+// @version      1.2.5
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -91,7 +91,29 @@ const aiAgents = new Map([
   [138030887, {i: 353721, name: "builderio ai"}],
   [159125892, {i: 818760, name: "lovable ai"}],
   [151058649, {i: 484649, name: "qodo ai pr"}],
-  [189517486, {i: 1068000, name: "qodo oss pr"}]
+  [189517486, {i: 1068000, name: "qodo oss pr"}],
+  [328778573, {i: 4931833, name: "lia ai"}],
+  [54958958,  {name: "amazon auto ai"}],
+  [244629292, {name: "kiro agent"}],
+  [230936708, {i: 1916892, name: "continue ai"}],
+  [119856028, {i: 268977, name: "aikido pr"}],
+  [276134852, {i: 3381200, name: "cline cloud"}],
+  [58596630,  {i: 48477, name: "sourcery pr"}],
+  [248968518, {name: "adal cli"}],
+  [220387035, {name: "trae agent"}],
+  [258877100, {i: 2780473, name: "aether pr"}],
+  [224887109, {i: 1734312, name: "freebuff ai"}],
+  [230265268, {name: "tambobot"}],
+  [281769369, {i: 3601981, name: "tambobot cloud"}],
+  [198680274, {i: 1140780, name: "charliecreates pr"}],
+  [197835787, {name: "charliehelps"}],
+  [238992291, {name: "sisyphus ai"}],
+  [192355599, {i: 1093193, name: "askmanu"}],
+  [226033991, {i: 1768019, name: "pullfrog pr"}],
+  [280122609, {i: 3535277, name: "openclaw cloud"}],
+  [274271284, {i: 3306130, name: "clawsweeper ai"}],
+  [280513762, {name: "clawsweeper"}],
+  [309084314, {name: "roboclaw"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -117,6 +139,9 @@ const aiFileMarkers = [
   "claude.local.md",
   "gemini.md",
   "gemini.local.md",
+  "copilot-instructions.md",
+  "adal.md",
+  "autosde.ya?ml",
   "qwen.md",
   "skills?.md",
   "cursor.md",
@@ -130,9 +155,11 @@ const aiFileMarkers = [
   ".adal",
   ".agents?",
   ".clinerules",
+  ".continue",
   ".kiro",
+  ".aieditoragent",
   ".qoder",
-  ".trae",
+  ".?trae",
   ".qwen",
   ".gemini",
   ".chatgpt",
@@ -155,6 +182,8 @@ const aiFileMarkers = [
   ".playwright-mcp",
   ".fleet",
   ".air",
+  "freebuff",
+  ".senpi",
   ".?openai",
   ".langgraph_api",
   ".?langgraph.json",

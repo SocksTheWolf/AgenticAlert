@@ -77,6 +77,28 @@ if something is marked as slop, it's slop.
 * loveable ai
 * qodo ai pr
 * qodo-oss pr
+* lia ai
+* amazon auto ai
+* kiro agent
+* continue ai
+* aikido pr
+* cline cloud
+* sourcery pr
+* adal cli
+* trae agent
+* aether pr
+* freebuff ai
+* tambobot
+* tambobot cloud
+* charliecreates pr
+* charliehelps ai
+* sisyphus ai
+* askmanu
+* pullfrog pr
+* openclaw cloud
+* clawsweeper ai
+* roboclaw
+* clawsweeper
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
