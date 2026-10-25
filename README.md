@@ -14,14 +14,13 @@ A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can 
 ## Screenshots
 
 | Detection | Image |
-|---|---|
-| AI Tool Usage | ![Detection Badge Example](/screenshots/screenshot.jpg?raw=true)  |
+| --- | --- |
+| AI Tool Usage | ![Detection Badge Example](/screenshots/screenshot.jpg?raw=true) |
 | genAI Files | ![Example of a repo that has genAI markers](/screenshots/screenshot5.jpg?raw=true) |
 | Hidden genAI File Markers | ![Example of a repo that has genAI markers](/screenshots/screenshot2.jpg?raw=true) |
 | genAI Submodule Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true) |
 | Potential Copilot Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot4.jpg?raw=true) |
 | Safe Repo | ![Example of a safe repo](/screenshots/screenshot3.jpg?raw=true) |
-
 
 ## Detection List
 
@@ -29,6 +28,7 @@ A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can 
 
 * cursor
 * claude
+* claude pr
 * devin ai
 * copilot PR/SWE/CLI
 * codex
@@ -40,6 +40,14 @@ A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can 
 * breken-ai (an LLM service disguised to commit like a human) see: `https://github.com/BloopAI/vibe-kanban/discussions/3474`
 * ampagent
 * opencode agent
+* paperclip
+* roomote cloud
+* roomote ai
+* autogpt
+* firecrawl ai
+* capy ai
+* greptile ai pr
+* factorydroid ai
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
@@ -56,9 +64,17 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 
 ### File Markers
 
-* CLAUDE.md
-* GEMINI.md
+I will no longer be updating this list, it will always be a partial list moving forward.
+We detect so much different fingerprints, that it's pretty much impossible to keep the lists 1:1 anymore.
+
+Feel free to check the code, unless someone has a better idea of how to keep this list auto-updated.
+
+* CLAUDE(.local).md
+* GEMINI(.local).md
 * INSTALL_FOR_AGENTS.md
+* SKILL(S).md
+* CURSOR.md
+* LLAMA_CPP_VERSION
 * .superpowers
 * .codex
 * .hermes
@@ -70,18 +86,37 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 * .kiro
 * .clinerules
 * .qoder
+* .devin
+* .serena
 * mcp
 * .opencode
-* .codex
 * (.)openclaw
 * openclaw.mjs
 * .windsurf
 * (.)mcp.json
-* (.)coderabbit.yaml
+* (.)coderabbit.y(a)ml
+* (.)cubic.y(a)ml
 * (.)kimi(-code)
+* (.)kilo(code)
 * .playwright-mcp
+* .fleet
+* .air
+* (.)openai
+* .langgraph_api
+* (.)langgraph.json
+* .om(c)(p)
+* .pi
+* .promptflow
+* .abstra
+* (.)paperclip
+* .herenow
+* AGENTS.local.md
+* agenthistory.json
+* (.)graphify
+* .orca
+* orca.y(a)ml
 
-Objects marked as `(.)` are checked both with and without a starting `.`.
+Objects marked as `(...)` are checked both with and without the contents of the `...`.
 
 > **NOTE**: `AGENTS.md` is only detected if multiple other file markers are already present.
 
@@ -183,7 +218,6 @@ Couple reasons:
 * Agent usage history is incomplete for the repository
 * GitHub only returned partial data, so [this bug was involved](https://github.com/SocksTheWolf/AgenticAlert/issues/8)
   * Mitigated as of version 1.0.16
-
 
 ### My repo was tagged and I did not use genAI
 

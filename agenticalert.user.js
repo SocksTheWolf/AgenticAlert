@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.1.04
+// @version      1.2.0
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -48,27 +48,46 @@
 // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
 // TODO: Consider encapsulation to prevent less cases of potential var stomps (as unlikely as that is).
 
-// GitHub agent ids / agent names
+// GitHub account ids -> {integration id/agent names}
 const aiAgents = new Map([
-  [199161495, "cursor"],
-  [81847, "claude"],
-  [158243242, "devin ai"],
-  [175728472, "copilot PR"],
-  [198982749, "copilot swe"],
-  [223556219, "copilot cli"],
-  [267193182, "codex"],
-  [207944715, "replit agent"],
-  [200291788, "gemini bot"],
-  [176961590, "gemini"],
-  [132028505, "coderabbit pr"],
-  [191113872, "cubicdev pr"],
-  [312387581, "breken ai"],
-  [289058786, "ampagent"],
-  [219766164, "opencode agent"]
+  [199161495, {name: "cursor"}],
+  [206951365, {i: 1210556, name: "cursor pr"}],
+  [81847, {name: "claude"}],
+  [209825114, {i: 1236702, name: "claude pr"}],
+  [158243242, {i: 811515, name: "devin ai"}],
+  [175728472, {i: 946600, name: "copilot PR"}],
+  [198982749, {i: 1143301, name: "copilot swe"}],
+  [223556219, {i: 1693627, name: "copilot cli"}],
+  [267193182, {name: "codex"}],
+  [207944715, {name: "replit agent"}],
+  [200291788, {name: "gemini bot"}],
+  [176961590, {i: 956858, name: "gemini"}],
+  [136622811, {i: 347564, name: "coderabbit pr"}],
+  [191113872, {i: 1082092, name: "cubicdev pr"}],
+  [312387581, {name: "breken ai"}],
+  [289058786, {name: "ampagent"}],
+  [219766164, {i: 1549082, name: "opencode agent"}],
+  [271391591, {name: "paperclip"}],
+  [311835222, {i: 211522643, name: "roomote cloud ai"}],
+  [301996811, {i: 4262291, name: "roomote ai"}],
+  [133978099, {name: "autogpt"}],
+  [254786068, {name: "firecrawl ai"}],
+  [230910855, {i: 1915919, name: "capy ai"}],
+  [165735046, {i: 867647, name: "greptile pr"}],
+  [138933559, {i: 358017, name: "factory droid"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string
 const aiAgentIds = Array.from(aiAgents.keys()).join("|");
+
+// Github Bot Integration Ids -> Agents
+// Used for metadata as a quicker way to do reverse lookup
+const aiAgentAvatars = new Map();
+aiAgents.forEach(((value, key) => {
+  if (value.i !== undefined) {
+    aiAgentAvatars.set(value.i, key);
+  }
+}));
 
 // these are submodule names of known submodules that were made with genAI, prevents owners
 // from claiming their repo doesn't use genAI, when it's completely based in it.
@@ -87,33 +106,67 @@ const aiRecompModules = [
 // this list as lower case, but it doesn't have to be
 const aiFileMarkers = [
   "claude.md",
+  "claude.local.md",
   "gemini.md",
+  "gemini.local.md",
+  "qwen.md",
+  "skills?.md",
+  "cursor.md",
   "install_for_agents.md",
+  "LLAMA_CPP_VERSION",
   ".superpowers",
   ".codex",
   ".hermes",
   ".?skills",
   ".claude",
+  ".adal",
   ".agents?",
   ".clinerules",
   ".kiro",
   ".qoder",
+  ".trae",
+  ".qwen",
+  ".gemini",
   ".chatgpt",
+  ".grok-plugin",
   ".cursor",
   "^mcp",
+  ".devin",
+  ".serena",
   ".opencode",
   ".windsurf",
-  ".codex",
   ".?openclaw",
   "openclaw.mjs",
+  "llms\\-full.txt",
   ".?mcp.json",
-  ".?coderabbit.yaml",
+  ".?coderabbit.ya?ml",
+  ".?cubic.ya?ml",
   ".?kimi[\\q{\\-code}]?",
-  ".playwright-mcp"
+  ".?kilo[\\q{code}]?",
+  ".playwright-mcp",
+  ".fleet",
+  ".air",
+  ".?openai",
+  ".langgraph_api",
+  ".?langgraph.json",
+  ".?greptile.json",
+  ".omc?p?",
+  ".pi\/?\*?\*?$",
+  ".promptflow",
+  ".abstra",
+  ".?paperclip",
+  ".herenow",
+  ".rooignore",
+  ".roomote",
+  "agents.local.md",
+  "agenthistory.json",
+  ".?graphify",
+  ".orca",
+  "orca.ya?ml",
 ];
 
 // dynamic regex of the above, global because it's used in two places with no changes.
-const aiFileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/\./g, "\\.")).join("|") + ")", "ig");
+const aiFileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/(\*|\.)/g, "\\$1")).join("|") + ")", "ig");
 
 /*************************************************/
 // Label and Reflow Prevention
@@ -208,7 +261,7 @@ class AgenticAlertScan {
     return this.username !== undefined && this.repo !== undefined;
   }
 
-  async fetchGithub(url, headers, max_attempts=5) {
+  async fetchGithub(url, headers={}, max_attempts=5) {
     let attempts = 0, gotData = false, data = null;
     const initialText = aiLabelElement.innerText;
     while (attempts < max_attempts) {
@@ -216,6 +269,7 @@ class AgenticAlertScan {
       data = await fetch(url, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
+          "Github-Verified-Fetch": true,
           ...headers
         }
       });
@@ -242,8 +296,7 @@ class AgenticAlertScan {
     updateAILabelElement("text", "Loading Repo Git Data");
 
     const contribData =
-      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/graphs/contributors-data`,
-        {"Github-Verified-Fetch": true});
+      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/graphs/contributors-data`);
 
     if (contribData !== null) {
       updateAILabelElement("text", "Parsing Repo Data Results...");
@@ -251,17 +304,16 @@ class AgenticAlertScan {
       const aiAgentsRegex = new RegExp(`"id":(` + aiAgentIds + `),`, "gm");
       // do this evil to get the names of the ai agents used
       const matches = contribData.match(aiAgentsRegex);
-
       if (matches !== null && matches.length > 0) {
         let copilotCount = 0, nonCopilot = 0;
         const matchResults = matches.map((id) => {
-          const num = Number(id.replace(`"id":`, "").replace(",", ""));
+          const num = Number(id.replace(aiAgentsRegex, "$1"));
           if (num === 175728472 || num === 198982749 || num === 223556219) {
             ++copilotCount;
           } else {
             ++nonCopilot;
           }
-          return aiAgents.get(num);
+          return aiAgents.get(num).name;
         });
         if (copilotCount === 1 && nonCopilot === 0) {
           this.hasPotentialCopilot = true;
@@ -281,27 +333,30 @@ class AgenticAlertScan {
   async scanMetadata() {
     updateAILabelElement("text", "Checking Github Metadata");
     const sidebarData =
-      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/_sidebar`,
-        {"X-GitHub-UI-Service": true});
+      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/commits/deferred_commit_contributors`);
 
     if (sidebarData !== null) {
       updateAILabelElement("text", "Parsing Repo Metadata Results...");
-      // much apologies to nancylyn, Microsoft has co-opted your id (1693627) to make it Copilot's avatar.
-      const sidebarRegex = new RegExp('avatars\.githubusercontent\.com\/(?:u|in)\/(1693627|' + aiAgentIds + ')\\?', 'ig');
+      const integrationIDs = Array.from(aiAgentAvatars.keys()).join("|");
+      // yeah good luck reversing this one, buddy.
+      const metadataRegex = new RegExp(`u\/(${aiAgentIds})|in\/(${integrationIDs})\\?v=4`, 'ig');
       let execRes, names = [], copilotCount = 0, nonCopilot = 0;
       // loop through regex matches
-      while ((execRes = sidebarRegex.exec(sidebarData)) !== null) {
+      while ((execRes = metadataRegex.exec(sidebarData)) !== null) {
+        // cleanup bad entries
+        execRes = execRes.filter((itm) => itm !== undefined);
         // our match will always be in index 1
-        const num = Number(execRes[1]);
-        if (num === 1693627) {
-          ++copilotCount;
-          names.push("copilot");
-        } else if (num === 175728472 || num === 198982749 || num === 223556219) {
+        let num = Number(execRes[1]);
+        if (execRes[0].includes("in/")) {
+          num = aiAgentAvatars.get(num);
+        }
+
+        if (num === 175728472 || num === 198982749 || num === 223556219) {
           ++copilotCount;
         } else {
           ++nonCopilot;
         }
-        names.push(aiAgents.get(num));
+        names.push(aiAgents.get(num).name);
       }
 
       // if we have any name data, then AI was detected.
@@ -327,11 +382,10 @@ class AgenticAlertScan {
     const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
     submodules.forEach((itm) => {
-      // we need to check visibility here because GitHub likes to have hidden views for small and large screens.
-      // so you get double the data (dawg wtf)
       if (submoduleRegex.test(itm.innerText)) {
         // we just want the submodule name, so remove everything else
         const submoduleName = itm.innerText.split(" @", 1)[0];
+        // Check for duplicates because github loves to give us dupes
         if (!submoduleMatches.includes(submoduleName)) {
           submoduleMatches.push(submoduleName);
         }
@@ -480,7 +534,7 @@ class AgenticAlertScan {
   }
   async shouldRunScan(url) {
     if (this.url !== url) {
-      console.warn(`AgenticAlert: Detected url change, reshifting scanner target`);
+      console.warn(`AgenticAlert: Detected url change to ${url}, reshifting scanner target`);
       this.create(url);
     } else {
       // no need to shift to any other targets, just early out instead
@@ -509,7 +563,7 @@ await (async function() {
     // add a style in here so that we stay readable at other sizes.
     GM_addStyle(`#agenticAlertLabel {max-width: 65%; height: unset !important;
       min-height: var(--base-size-20,1.25rem);
-      white-space: normal; padding-left: 0.5rem;}`);
+      white-space: normal; padding-left: 0.5rem; padding-right: 0.5rem;}`);
 
     // Create results object
     aiLabelElement = document.createElement("span");
