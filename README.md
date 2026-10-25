@@ -64,10 +64,10 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 
 ### File Markers
 
-I will no longer be updating this list, it will always be a partial list moving forward.
-We detect so much different fingerprints, that it's pretty much impossible to keep the lists 1:1 anymore.
-
-Feel free to check the code, unless someone has a better idea of how to keep this list auto-updated.
+> I will no longer be updating this list, it will always be a partial list moving forward.
+> We detect so much different fingerprints, that it's pretty much impossible to keep the lists 1:1 anymore.
+>
+> Feel free to check the code, unless someone has a better idea of how to keep this list auto-updated.
 
 * CLAUDE(.local).md
 * GEMINI(.local).md
@@ -143,6 +143,8 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 * GitHub metadata shows Claude but tool info doesn't => Fixed in 1.0.13
 * react flows break the script because GitHub is overengineered => Fixed in 1.0.13
 * "View More Files" would incorrectly terminate file marker scans => Fixed in 1.1.01
+* GitHub metadata can sometimes fail => Fixed in 1.2.0
+* GitHub metadata can have different ids for users => Fixed in 1.2.0
 
 ## Contributing
 
