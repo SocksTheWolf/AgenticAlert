@@ -346,7 +346,7 @@ class AgenticAlertScan {
       updateAILabelElement("text", "Parsing Repo Metadata Results...");
       const integrationIDs = Array.from(aiAgentAvatars.keys()).join("|");
       // yeah good luck reversing this one, buddy.
-      const metadataRegex = new RegExp(`u\/(${aiAgentIds})|in\/(${integrationIDs})\\?v=4`, 'ig');
+      const metadataRegex = new RegExp(`u\/(${aiAgentIds})|in\/(${integrationIDs})\\?v=`, 'ig');
       let execRes, names = [], copilotCount = 0, nonCopilot = 0;
       // loop through regex matches
       while ((execRes = metadataRegex.exec(sidebarData)) !== null) {
