@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.0
+// @version      1.2.1
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -74,20 +74,17 @@ const aiAgents = new Map([
   [254786068, {name: "firecrawl ai"}],
   [230910855, {i: 1915919, name: "capy ai"}],
   [165735046, {i: 867647, name: "greptile pr"}],
-  [138933559, {i: 358017, name: "factory droid"}]
+  [138933559, {i: 358017, name: "factory droid"}],
+  [175740463, {name: "openhands ai"}],
+  [311266734, {name: "ouroboros agent"}],
+  [232216315, {name: "leeroo coder"}],
+  [159090032, {name: "ellipsis agent"}],
+  [248236658, {name: "compozybot"}],
+  [161369871, {i: 842251, name: "google jules"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string
 const aiAgentIds = Array.from(aiAgents.keys()).join("|");
-
-// Github Bot Integration Ids -> Agents
-// Used for metadata as a quicker way to do reverse lookup
-const aiAgentAvatars = new Map();
-aiAgents.forEach(((value, key) => {
-  if (value.i !== undefined) {
-    aiAgentAvatars.set(value.i, key);
-  }
-}));
 
 // these are submodule names of known submodules that were made with genAI, prevents owners
 // from claiming their repo doesn't use genAI, when it's completely based in it.
@@ -336,6 +333,16 @@ class AgenticAlertScan {
       await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/commits/deferred_commit_contributors`);
 
     if (sidebarData !== null) {
+      updateAILabelElement("text", "Calculating Integration Ids...");
+      // Github Bot Integration Ids -> Agents
+      // Used for metadata as a quicker way to do reverse lookup
+      const aiAgentAvatars = new Map();
+      aiAgents.forEach(((value, key) => {
+        if (value.i !== undefined) {
+          aiAgentAvatars.set(value.i, key);
+        }
+      }));
+
       updateAILabelElement("text", "Parsing Repo Metadata Results...");
       const integrationIDs = Array.from(aiAgentAvatars.keys()).join("|");
       // yeah good luck reversing this one, buddy.

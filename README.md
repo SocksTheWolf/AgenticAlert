@@ -48,6 +48,12 @@ A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can 
 * capy ai
 * greptile ai pr
 * factorydroid ai
+* openhands ai
+* ouroboros agent
+* leeroo coder
+* ellipsis agent
+* compozybot
+* google jules
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
