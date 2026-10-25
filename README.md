@@ -174,6 +174,7 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 * "View More Files" would incorrectly terminate file marker scans => Fixed in 1.1.01
 * GitHub metadata can sometimes fail => Fixed in 1.2.0
 * GitHub metadata can have different ids for users => Fixed in 1.2.0
+* the word `agent` got flagged if it was anywhere due to a malformed wildcard => Fixed in 1.2.4
 
 ## Contributing
 
