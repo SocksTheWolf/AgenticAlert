@@ -570,7 +570,7 @@ await (async function() {
     // add a style in here so that we stay readable at other sizes.
     GM_addStyle(`#agenticAlertLabel {max-width: 65%; height: unset !important;
       min-height: var(--base-size-20,1.25rem);
-      white-space: normal; padding-left: 0.5rem; padding-right: 0.5rem;}`);
+      white-space: normal; padding: 0.34rem;}`);
 
     // Create results object
     aiLabelElement = document.createElement("span");
