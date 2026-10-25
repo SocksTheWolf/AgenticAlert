@@ -65,7 +65,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 ### File Markers
 
 > I will no longer be updating this list, it will always be a partial list moving forward.
-> We detect so much different fingerprints, that it's pretty much impossible to keep the lists 1:1 anymore.
+> We detect so many different fingerprints, that it's pretty much impossible to keep the lists 1:1 anymore.
 >
 > Feel free to check the code, unless someone has a better idea of how to keep this list auto-updated.
 
@@ -128,10 +128,10 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 
 ## Caveats
 
-* genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a **limitation** of GitHub.
+* genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a **limitation** of GitHub_.
   * Submodule genAI usage has to be completely based on a list of known slop modules. This won't be perfect, which is why it's a warning.
-* if genAI is used in previous/other branches, or purged commits, it will not be detected. _**Another limitation** of GitHub.
-  * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of GitHub.
+* if genAI is used in previous/other branches, or purged commits, it will not be detected. _**Another limitation** of GitHub_.
+  * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of GitHub_.
 * copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
 * requires an userscript runner (more than one-click install).
 
