@@ -1,6 +1,6 @@
 # AgenticAlert
 
-A robust userscript that attempts to alert you if a github repo uses genAI. Can be installed in pretty much everything.
+A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can be installed in pretty much everything.
 
 ## Install
 
@@ -79,6 +79,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 * (.)mcp.json
 * (.)coderabbit.yaml
 * (.)kimi(-code)
+* .playwright-mcp
 
 Objects marked as `(.)` are checked both with and without a starting `.`.
 
@@ -92,20 +93,20 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 
 ## Caveats
 
-* genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a limitation of github_.
+* genAI used in fork network commits will not be shown, unless the fork repository also uses genAI. _This is a **limitation** of GitHub.
   * Submodule genAI usage has to be completely based on a list of known slop modules. This won't be perfect, which is why it's a warning.
-* if genAI is used in previous/other branches, or purged commits, it will not be detected. _Another limitation of github_.
-  * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of github_.
+* if genAI is used in previous/other branches, or purged commits, it will not be detected. _**Another limitation** of GitHub.
+  * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of GitHub.
 * copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
 * requires an userscript runner (more than one-click install).
 
 ## Bugs
 
-* sometimes github will just **delete the results badge** => Fixed in 1.0.4
-* even more times github will delete the results page => Fixed in 1.0.13
+* sometimes GitHub will just **delete the results badge** => Fixed in 1.0.4
+* even more times GitHub will delete the results page => Fixed in 1.0.13
 * files in the repo aren't checked against for determining genAI => Fixed in 1.0.13
-* github metadata shows Claude but tool info doesn't => Fixed in 1.0.13
-* react flows break the script because github is overengineered => Fixed in 1.0.13
+* GitHub metadata shows Claude but tool info doesn't => Fixed in 1.0.13
+* react flows break the script because GitHub is overengineered => Fixed in 1.0.13
 * "View More Files" would incorrectly terminate file marker scans => Fixed in 1.1.01
 
 ## Contributing
@@ -115,6 +116,7 @@ I'm looking for:
 * more genai coding agents
 * known slop recomp modules
 * files that genAI agents/bots/tools leave in the file/folder structure
+* ideas for how to improve the script's judgement
 
 If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose).
 
@@ -140,7 +142,7 @@ Technically, we could attempt to calculate genAI usage stats in a repo. A couple
 
 * This process is slower (not sure how much yet), and requires more processing, but it's doable.
 * I think this will incentivize sloppers to try to commit garbage worthless data to lower their percentages.
-* We'd have to reprocess the repo data twice, as github is funky like that.
+* We'd have to reprocess the repo data twice, as GitHub is funky like that.
 
 This will not be a mainline change, but if you like statistics and math for quantification, you can [install this version instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js). This branch will not update further.
 
@@ -179,7 +181,7 @@ Couple reasons:
 * Could have been affected by one of the [caveats](#caveats) (git submodules, fork networks, etc)
 * The GPT agent tool/marker is not known (please [open an issue](#contributing))
 * Agent usage history is incomplete for the repository
-* Github only returned partial data, so [this bug was involved](https://github.com/SocksTheWolf/AgenticAlert/issues/8)
+* GitHub only returned partial data, so [this bug was involved](https://github.com/SocksTheWolf/AgenticAlert/issues/8)
   * Mitigated as of version 1.0.16
 
 

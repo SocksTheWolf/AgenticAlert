@@ -5,8 +5,8 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.1.03
-// @description  Puts a notice if an AI Agent was used in a github repository
+// @version      1.1.04
+// @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
 // @icon         https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
@@ -48,7 +48,7 @@
 // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
 // TODO: Consider encapsulation to prevent less cases of potential var stomps (as unlikely as that is).
 
-// github agent ids / agent names
+// GitHub agent ids / agent names
 const aiAgents = new Map([
   [199161495, "cursor"],
   [81847, "claude"],
@@ -108,7 +108,8 @@ const aiFileMarkers = [
   "openclaw.mjs",
   ".?mcp.json",
   ".?coderabbit.yaml",
-  ".?kimi[\\q{\\-code}]?"
+  ".?kimi[\\q{\\-code}]?",
+  ".playwright-mcp"
 ];
 
 // dynamic regex of the above, global because it's used in two places with no changes.
@@ -150,7 +151,7 @@ function addAILabelElement(watchMutation) {
   if (titleComp) {
     titleComp.firstChild.appendChild(aiLabelElement);
   }
-  // this is the dumbest thing but it helps fight against github's DOM reflows
+  // this is the dumbest thing but it helps fight against GitHub's DOM reflows
   if (watchMutation) {
     aiMutationObservation.observe(document.body, { subtree: true, childList: true });
   }
@@ -161,7 +162,7 @@ const aiMutationObservation = new MutationObserver(async (_mutations) => {
     addAILabelElement(false);
   }
   // if a repo title element still exists, then we should check to see
-  // if we should run the scan; this fights react reflow bs from github
+  // if we should run the scan; this fights react reflow bs from GitHub
   if (document.getElementById("repo-title-component") && scanCheck !== null) {
     await scanCheck.shouldRunScan(document.location.href);
   }
@@ -174,17 +175,24 @@ class AgenticAlertScan {
   // username: undefined|string
   // repo: undefined|string
   // url: undefined|string
+
   // hadNetworkError: undefined|true
   // hasGitIgnore: undefined|true
+  // hasPotentialCopilot: undefined|true
 
   constructor(url) {
     this.create(url);
   }
 
-  // in the future, we want to be able to reuse objects against Github's react behaviors
-  create(url) {
+  reset() {
+    delete this.hasPotentialCopilot;
     delete this.hadNetworkError;
     delete this.hasGitIgnore;
+  }
+
+  // in the future, we want to be able to reuse objects against Github's react behaviors
+  create(url) {
+    this.reset();
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
@@ -200,17 +208,11 @@ class AgenticAlertScan {
     return this.username !== undefined && this.repo !== undefined;
   }
 
-  warnAboutCopilot() {
-    updateAILabelElement("style", "color: orange");
-    updateAILabelElement("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
-    updateAILabelElement("text", "Detected: Potential Copilot usage");
-  }
-
   async fetchGithub(url, headers, max_attempts=5) {
     let attempts = 0, gotData = false, data = null;
     const initialText = aiLabelElement.innerText;
     while (attempts < max_attempts) {
-      updateAILabelElement("text", `${initialText} - Fetching github data...`);
+      updateAILabelElement("text", `${initialText} - Fetching GitHub data...`);
       data = await fetch(url, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
@@ -262,7 +264,8 @@ class AgenticAlertScan {
           return aiAgents.get(num);
         });
         if (copilotCount === 1 && nonCopilot === 0) {
-          this.warnAboutCopilot();
+          this.hasPotentialCopilot = true;
+          return false;
         } else {
           updateAILabelElement("style", "color: red");
           updateAILabelElement("title", "Github git contribution data shows genAI agent usage");
@@ -304,7 +307,8 @@ class AgenticAlertScan {
       // if we have any name data, then AI was detected.
       if (names.length > 0) {
         if (copilotCount === 1 && nonCopilot === 0) {
-          this.warnAboutCopilot();
+          this.hasPotentialCopilot = true;
+          return false;
         } else {
           updateAILabelElement("style", "color: red");
           updateAILabelElement("title", "Github metadata shows genAI agent usage");
@@ -323,7 +327,7 @@ class AgenticAlertScan {
     const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
     submodules.forEach((itm) => {
-      // we need to check visibility here because github likes to have hidden views for small and large screens.
+      // we need to check visibility here because GitHub likes to have hidden views for small and large screens.
       // so you get double the data (dawg wtf)
       if (submoduleRegex.test(itm.innerText)) {
         // we just want the submodule name, so remove everything else
@@ -349,7 +353,7 @@ class AgenticAlertScan {
     let hasAgents = false;
     fileList.forEach((itm) => {
       const fileName = itm.innerText;
-      // I hate this check, but github will otherwise send us duplicate elements
+      // I hate this check, but GitHub will otherwise send us duplicate elements
       if (!matches.includes(fileName)) {
         if (fileName === ".gitignore") {
           this.hasGitIgnore = true;
@@ -418,11 +422,21 @@ class AgenticAlertScan {
     return false;
   }
   clearRepo() {
+    // The copilot check
+    if (this.hasPotentialCopilot) {
+      updateAILabelElement("style", "color: orange");
+      updateAILabelElement("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
+      updateAILabelElement("text", "Detected: Potential Copilot usage");
+      return;
+    }
+
+    // if we encountered any errors
     if (this.hadNetworkError) {
       updateAILabelElement("text", "Encountered Network Error, but other scans were clean, try refresh");
       updateAILabelElement("style", "color: orange");
       return;
     }
+
     // fork check!!!!!!
     const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
     if (checkFork !== null) {
