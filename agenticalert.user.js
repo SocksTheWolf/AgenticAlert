@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.1
+// @version      1.2.2
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -134,11 +134,11 @@ const aiFileMarkers = [
   ".windsurf",
   ".?openclaw",
   "openclaw.mjs",
-  "llms\\-full.txt",
+  "llms-full.txt",
   ".?mcp.json",
   ".?coderabbit.ya?ml",
   ".?cubic.ya?ml",
-  ".?kimi[\\q{\\-code}]?",
+  ".?kimi[\\q{-code}]?",
   ".?kilo[\\q{code}]?",
   ".playwright-mcp",
   ".fleet",
@@ -163,7 +163,7 @@ const aiFileMarkers = [
 ];
 
 // dynamic regex of the above, global because it's used in two places with no changes.
-const aiFileNameRegex = new RegExp("(" + aiFileMarkers.map((itm) => itm.replace(/(\*|\.)/g, "\\$1")).join("|") + ")", "ig");
+const aiFileNameRegex = new RegExp(`(${[...aiFileMarkers, ...aiRecompModules].map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1")).join("|")})`, "ig");
 
 /*************************************************/
 // Label and Reflow Prevention
@@ -298,7 +298,7 @@ class AgenticAlertScan {
     if (contribData !== null) {
       updateAILabelElement("text", "Parsing Repo Data Results...");
       // generate the regex
-      const aiAgentsRegex = new RegExp(`"id":(` + aiAgentIds + `),`, "gm");
+      const aiAgentsRegex = new RegExp(`"id":(${aiAgentIds}),`, "gm");
       // do this evil to get the names of the ai agents used
       const matches = contribData.match(aiAgentsRegex);
       if (matches !== null && matches.length > 0) {
@@ -386,7 +386,7 @@ class AgenticAlertScan {
   scanSubModules() {
     updateAILabelElement("text", "Checking for AI Submodules");
     const submoduleMatches = [];
-    const submoduleRegex = new RegExp('^(' + aiRecompModules.join("|") + ')', 'i');
+    const submoduleRegex = new RegExp(`^(${aiRecompModules.join("|")})`, 'i');
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
     submodules.forEach((itm) => {
       if (submoduleRegex.test(itm.innerText)) {
