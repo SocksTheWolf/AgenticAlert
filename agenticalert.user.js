@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.3
+// @version      1.2.4
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -128,7 +128,7 @@ const aiFileMarkers = [
   ".?skills",
   ".claude",
   ".adal",
-  ".?agents?",
+  ".agents?",
   ".clinerules",
   ".kiro",
   ".qoder",
