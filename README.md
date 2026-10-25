@@ -18,10 +18,11 @@ AgenticAlert has a few advantages over other alternatives:
 * Can check for genAI GitHub integrations that you cannot block on GitHub
 * Checks a lot of different file markers/recomp modules very quickly
 * Scans .gitignore and GitHub metadata without user input
-* Comprehensive search
+* Comprehensive deep search
 
-It helps to continue to use your eyes even if something is marked as "potentially safe", but
-if something is marked as slop, it's slop.
+> **NOTE**: you should continue to use your eyes if something is marked as "potentially safe", as there's always the chance of new ai agents we don't detect yet.
+
+However, if something is marked as slop, it's slop.
 
 ## Screenshots
 
@@ -98,18 +99,19 @@ if something is marked as slop, it's slop.
 * askmanu
 * pullfrog pr
 * openclaw cloud
-* clawsweeper ai
+* clawsweeper cloud ai
+* clawsweeper bot
 * roboclaw
-* clawsweeper
 * linear code pr
-* linear code
+* linear code cloud
 * what the diff pr
 * codeant pr
 * ecctools
 * fineai pr
 * amazon q
 
-(the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
+> the PR versions are bots that work explicitly on pull requests.
+> their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin might be
 
 ### genAI Recomp Based Modules
 
@@ -124,7 +126,7 @@ These are not perfect, and probably won't be due to fork limitations (see Caveat
 
 ### File Markers
 
-> I will no longer be updating this list, it will always be a partial list moving forward.
+> I will no longer be updating this list, it will always be a partial list moving forward.   
 > We detect over 50+ different fingerprints; it's pretty much impossible to keep the lists 1:1 anymore.
 >
 > Feel free to check the code, unless someone has a better idea of how to keep this list auto-updated.
@@ -218,6 +220,8 @@ I'm looking for:
 
 If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose).
 
+You can also help by [leaving a tip](https://wolf.stream/tip) too!
+
 ## Notes
 
 ### About copilot
@@ -238,7 +242,7 @@ Version 1.0.7 adds a special warning if only copilot is detected and nothing els
 
 Technically, we could attempt to calculate genAI usage stats in a repo. A couple of notes:
 
-* This process is slower (not sure how much yet), and requires more processing, but it's doable.
+* This process is slower (did not bench), and requires more processing, but it's doable.
 * I think this will incentivize sloppers to try to commit garbage worthless data to lower their percentages.
 * We'd have to reprocess the repo data twice, as GitHub is funky like that.
 
@@ -290,4 +294,4 @@ Besides the:
 * Submodule flags
 
 This is 100% accurate if it detects you used genAI.
-If the script is not sure, it's marked as a warning.
+If the script is not sure, findings are marked as a warning.
