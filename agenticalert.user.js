@@ -52,7 +52,7 @@
 const aiAgents = new Map([
   [199161495, {name: "cursor"}],
   [206951365, {i: 1210556, name: "cursor pr"}],
-  [81847, {name: "claude"}],
+  [81847,     {name: "claude"}],
   [209825114, {i: 1236702, name: "claude pr"}],
   [158243242, {i: 811515, name: "devin ai"}],
   [175728472, {i: 946600, name: "copilot PR"}],
@@ -80,7 +80,8 @@ const aiAgents = new Map([
   [232216315, {name: "leeroo coder"}],
   [159090032, {name: "ellipsis agent"}],
   [248236658, {name: "compozybot"}],
-  [161369871, {i: 842251, name: "google jules"}]
+  [161369871, {i: 842251, name: "google jules"}],
+  [43742164,  {name: "rtBot"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string

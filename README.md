@@ -66,6 +66,7 @@ if something is marked as slop, it's slop.
 * ellipsis agent
 * compozybot
 * google jules
+* rtBot
 
 (the PR versions are bots that work explicitly on pull requests, their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin may be)
 
