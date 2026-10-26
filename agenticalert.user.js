@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.8
+// @version      1.2.9
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -71,7 +71,7 @@ const aiAgents = new Map([
   [311835222, {i: 211522643, name: "roomote cloud ai"}],
   [301996811, {i: 4262291, name: "roomote ai"}],
   [133978099, {name: "autogpt"}],
-  [254786068, {name: "firecrawl ai"}],
+  [254786068, {i: 2652220, name: "firecrawl ai"}],
   [230910855, {i: 1915919, name: "capy ai"}],
   [165735046, {i: 867647, name: "greptile pr"}],
   [138933559, {i: 358017, name: "factory droid"}],
