@@ -45,12 +45,12 @@ However, if something is marked as slop, it's slop.
 
 | Detection | Image |
 | --- | --- |
-| AI Tool Usage | ![Detection Badge Example](/screenshots/screenshot.jpg?raw=true) |
-| genAI Files | ![Example of a repo that has genAI markers](/screenshots/screenshot5.jpg?raw=true) |
-| Hidden genAI File Markers | ![Example of a repo that has genAI markers](/screenshots/screenshot2.jpg?raw=true) |
-| genAI Submodule Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true) |
-| Potential Copilot Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot4.jpg?raw=true) |
-| Safe Repo | ![Example of a safe repo](/screenshots/screenshot3.jpg?raw=true) |
+| AI Tool Usage | ![Detection Badge Example](/site/screenshots/screenshot.jpg?raw=true) |
+| genAI Files | ![Example of a repo that has genAI markers](/site/screenshots/screenshot5.jpg?raw=true) |
+| Hidden genAI File Markers | ![Example of a repo that has genAI markers](/site/screenshots/screenshot2.jpg?raw=true) |
+| genAI Submodule Usage | ![Example of a repo that has genAI markers](/site/screenshots/screenshot6.jpg?raw=true) |
+| Potential Copilot Usage | ![Example of a repo that has genAI markers](/site/screenshots/screenshot4.jpg?raw=true) |
+| Safe Repo | ![Example of a safe repo](/site/screenshots/screenshot3.jpg?raw=true) |
 
 ---
 
@@ -100,7 +100,7 @@ If you see more than one instance of copilot in the detection, copilot genAI was
 
 Version 1.0.7 adds a special warning if only copilot is detected and nothing else. It looks like this:
 
-![Copilot detection warning](/screenshots/screenshot4.jpg?raw=true)
+![Copilot detection warning](/site/screenshots/screenshot4.jpg?raw=true)
 
 ---
 
@@ -116,7 +116,7 @@ This will not be a mainline change, but if you like statistics and math for quan
 
 It looks like this:
 
-![Statistics](/screenshots/usage.jpg?raw=true)
+![Statistics](/site/screenshots/usage.jpg?raw=true)
 
 ---
 

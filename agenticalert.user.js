@@ -5,17 +5,17 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.9
+// @version      1.3.0
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
-// @icon         https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
-// @iconURL      https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
-// @icon64URL    https://raw.githubusercontent.com/SocksTheWolf/AgenticAlert/refs/heads/main/icon.png
+// @icon         https://agenticalert.download/icon.png
+// @iconURL      https://agenticalert.download/icon.png
+// @icon64URL    https://agenticalert.download/icon.png
 // @include      https://github.com/*/*
 // @include      https://www.github.com/*/*
-// @downloadURL  https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
-// @updateURL    https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js
+// @downloadURL  https://agenticalert.download/agenticalert.user.js
+// @updateURL    https://agenticalert.download/agenticalert.user.js
 // @grant        GM.xmlHttpRequest
 // @grant        GM_addStyle
 // @top-level-await

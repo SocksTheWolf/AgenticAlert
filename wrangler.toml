@@ -1,0 +1,16 @@
+name="agenticalert"
+compatibility_date = "2026-08-26"
+preview_urls = false
+send_metrics = false
+
+routes = [
+  { pattern = "agenticalert.download", custom_domain = true },
+  { pattern = "www.agenticalert.download", custom_domain = true }
+]
+
+[build]
+command = "npm run build"
+
+[assets]
+directory = "./site"
+html_handling = "drop-trailing-slash"

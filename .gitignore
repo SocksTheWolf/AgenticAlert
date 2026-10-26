@@ -1,2 +1,10 @@
+# Stupid images
 .github/collage.jpg
 *.pdn
+
+# Node and wrangler crap
+node_modules/
+.wrangler/
+
+# deploy will always copy the latest script into the site directory
+site/agenticalert.user.js
