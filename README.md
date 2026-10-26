@@ -16,7 +16,7 @@ Skip this if you already have an userscript runner.
 
 ### STEP TWO
 
-<h3 style="text-align: center;"><a target="_blank" href="https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js">Click Here to Install AgenticAlert</a></h3>
+<h3 align="center"><a target="_blank" href="https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js">Click Here to Install AgenticAlert</a></h3>
 
 ## Why use this?
 
