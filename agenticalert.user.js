@@ -93,7 +93,6 @@ const aiAgents = new Map([
   [151058649, {i: 484649, name: "qodo ai pr"}],
   [189517486, {i: 1068000, name: "qodo oss pr"}],
   [328778573, {i: 4931833, name: "lia ai"}],
-  [54958958,  {name: "amazon auto ai"}],
   [244629292, {name: "kiro agent"}],
   [230936708, {i: 1916892, name: "continue ai"}],
   [119856028, {i: 268977, name: "aikido pr"}],
