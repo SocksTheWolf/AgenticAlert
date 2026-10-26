@@ -24,6 +24,16 @@ AgenticAlert has a few advantages over other alternatives:
 
 However, if something is marked as slop, it's slop.
 
+## Detection List
+
+[The list became so long that it no longer fits here, so click here to view what this detects](https://github.com/SocksTheWolf/AgenticAlert/wiki/Detections).
+
+**Highlights**:
+
+> * Over 75+ AI LLM GPT Agents (including ones you cannot block on GitHub)
+> * 6 Slop Recomp Modules
+> * 100+ LLM file markers
+
 ## Screenshots
 
 | Detection | Image |
@@ -34,167 +44,6 @@ However, if something is marked as slop, it's slop.
 | genAI Submodule Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot6.jpg?raw=true) |
 | Potential Copilot Usage | ![Example of a repo that has genAI markers](/screenshots/screenshot4.jpg?raw=true) |
 | Safe Repo | ![Example of a safe repo](/screenshots/screenshot3.jpg?raw=true) |
-
-## Detection List
-
-### AI Agents
-
-> Over 65+ agents detected and warned about, including integrations you cannot block
-
-* cursor
-* claude
-* claude pr
-* devin ai
-* copilot PR/SWE/CLI
-* codex
-* replit
-* gemini assist bot
-* gemini
-* coderabbit AI PR
-* cubic-dev AI PR
-* breken-ai (an LLM service disguised to commit like a human) see: `https://github.com/BloopAI/vibe-kanban/discussions/3474`
-* ampagent
-* opencode agent
-* paperclip
-* roomote cloud
-* roomote ai
-* autogpt
-* firecrawl ai
-* capy ai
-* greptile ai pr
-* factorydroid ai
-* openhands ai
-* ouroboros agent
-* leeroo coder
-* ellipsis agent
-* ellipsisdev
-* compozybot
-* google jules
-* rtBot
-* entelligence ai pr
-* commandcode
-* devsy ai pr
-* codeflash ai
-* kilocode
-* builderio
-* loveable ai
-* qodo ai pr
-* qodo-oss pr
-* lia ai
-* amazon auto ai
-* kiro agent
-* continue ai
-* aikido pr
-* cline cloud
-* sourcery pr
-* adal cli
-* trae agent
-* aether pr
-* freebuff ai
-* tambobot
-* tambobot cloud
-* charliecreates pr
-* charliehelps ai
-* sisyphus ai
-* askmanu
-* pullfrog pr
-* openclaw cloud
-* clawsweeper cloud ai
-* clawsweeper bot
-* roboclaw
-* linear code pr
-* linear code cloud
-* what the diff pr
-* codeant pr
-* ecctools
-* fineai pr
-* amazon q
-* dosubot pr
-* dosubot
-* deepsource pr
-* codefactor pr
-* crgpt
-* zippy
-* bito agent
-* bito pr
-
-> the PR versions are bots that work explicitly on pull requests.
-> their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin might be
->
-> all of the above agents use genAI regardless of PR or not. Only genAI/LLM/GPT agents are allowed on this list.
-
-### genAI Recomp Based Modules
-
-* psxrecomp
-* recomp-ui
-* snesrecomp
-* segagenesisrecomp
-* gbarecomp
-* ndsrecomp
-
-These are not perfect, and probably won't be due to fork limitations (see Caveats below).
-
-### File Markers
-
-> I will no longer be updating this list, it will always be a partial list moving forward.   
-> We detect over 50+ different fingerprints; it's pretty much impossible to keep the lists 1:1 anymore.
->
-> Feel free to check the code, unless someone has a better idea of how to keep this list auto-updated.
-
-* CLAUDE(.local).md
-* GEMINI(.local).md
-* INSTALL_FOR_AGENTS.md
-* SKILL(S).md
-* CURSOR.md
-* LLAMA_CPP_VERSION
-* .superpowers
-* .codex
-* .hermes
-* (.)skills
-* .claude
-* .cursor
-* .agent(s)
-* .chatgpt
-* .kiro
-* .clinerules
-* .qoder
-* .devin
-* .serena
-* mcp
-* .opencode
-* (.)openclaw
-* openclaw.mjs
-* .windsurf
-* (.)mcp.json
-* (.)coderabbit.y(a)ml
-* (.)cubic.y(a)ml
-* (.)kimi(-code)
-* (.)kilo(code)
-* .playwright-mcp
-* .fleet
-* .air
-* (.)openai
-* .langgraph_api
-* (.)langgraph.json
-* .om(c)(p)
-* .pi
-* .promptflow
-* .abstra
-* (.)paperclip
-* .herenow
-* AGENTS.local.md
-* agenthistory.json
-* (.)graphify
-* .orca
-* orca.y(a)ml
-
-Objects marked as `(...)` are checked both with and without the contents of the `...`.
-
-> **NOTE**: `AGENTS.md` is only detected if multiple other file markers are already present.
-
-The presence of two or more of these files/folders is a redflag.
-
-The presence of one file (`AGENTS.md` is not considered as per above), is a warning.
 
 ---
 
@@ -217,7 +66,7 @@ The presence of one file (`AGENTS.md` is not considered as per above), is a warn
 * "View More Files" would incorrectly terminate file marker scans => Fixed in 1.1.01
 * GitHub metadata can sometimes fail => Fixed in 1.2.0
 * GitHub metadata can have different ids for users => Fixed in 1.2.0
-* the word `agent` got flagged if it was in any filename due to a malformed wildcard => Fixed in 1.2.4
+* the word `agent` got flagged if it was in any filename due to a malformed wildcard => Broke in 1.2.3, Fixed in 1.2.4
 
 ## Contributing
 
