@@ -9,6 +9,7 @@
     <link rel="preload" href="simple.min.css" as="style" />
     <link rel="preload" href="icon.png" as="image" type="image/png" />
     <link rel="stylesheet" href="simple.min.css" />
+    <script type="text/javascript" src="back-to-top.min.js"></script>
 
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
@@ -62,13 +63,15 @@
 <div id="download" class="notice"><b>Download AgenticAlert</b><br />
   <p>This is a super simple and easy install process. Just follow these <u>two</u> steps!</p>
   <ol>
-    <li><p>Download and install an userscript extension for your browser.<br /><br />We recommend either:</p>
+    <li>Download and install an userscript extension for your browser.
+      <blockquote style="margin-block: 1rem">We recommend either:<br />
       <ul>
         <li><a href="https://www.tampermonkey.net/" target="_blank">TamperMonkey</a></li>
         <li><a href="https://violentmonkey.github.io/get-it/" target="_blank">ViolentMonkey</a></li>
       </ul>
-      <p><small>but most userscript extensions will work, ymmv</small></p>
-    </li><br />
+      <p style="padding-top: 10px;"><small>but most userscript extensions will work, ymmv</small></p>
+      </blockquote>
+    </li>
     <li><a href="https://agenticalert.download/agenticalert.user.js"><strong>CLICK THIS LINK TO INSTALL</strong></a></li>
   </ol>
 </div>
@@ -79,13 +82,16 @@
 <p>Here's a short feature list:</p>
 <ul>
 <li>Detects over 75+ AI LLM GPT Agents (including ones you cannot block on GitHub)</li>
-<li>Instantly recognizes many common Slop Recomp Modules</li>
+<li>Instantly recognizes many common slop Recomp Modules</li>
 <li>Scans for over 100+ LLM file markers in a repository</li>
-<li>Checks a lot of different file markers/recomp modules very quickly</li>
+<li>All processing is done locally, no external servers used</li>
 <li>Scans .gitignore and GitHub metadata without user input</li>
 <li>Automatically updates with the latest ruleset</li>
+<li>No ads, no tracking, no bs</li>
 <li>Written by hand by someone that knows what they're doing (<a target="_blank" href="https://socksthewolf.com/projects">for real</a>)</li>
+<li>Free <small>(<a href="https://wolf.stream/tip">tips</a> would be appreciated)</small></li>
 </ul>
+
 
 <!-- rip all this html from github lol -->
 <h3 id="screenshots">Screenshots</h3>
@@ -128,12 +134,18 @@
       <p>AgenticAlert was created by <a rel="me" href="https://socksthewolf.com">SocksTheWolf</a> and is licensed under the GPL-3<br>
     </footer>
   </body>
-  <script type="text/javascript" src="back-to-top.min.js"></script>
+  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
   <script type="text/javascript">
+  kofiWidgetOverlay.draw('socksthewolf', {
+    'type': 'floating-chat',
+    'floating-chat.donateButton.text': 'Support this',
+    'floating-chat.donateButton.background-color': '#ffb300',
+    'floating-chat.donateButton.text-color': '#323842'
+  });
   addBackToTop({
     diameter: 56,
     backgroundColor: '#ffb300',
-    textColor: '#fff'
+    textColor: '#323842'
   })
   </script>
 </html>
