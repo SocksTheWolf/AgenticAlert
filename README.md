@@ -111,9 +111,17 @@ However, if something is marked as slop, it's slop.
 * amazon q
 * dosubot pr
 * dosubot
+* deepsource pr
+* codefactor pr
+* crgpt
+* zippy
+* bito agent
+* bito pr
 
 > the PR versions are bots that work explicitly on pull requests.
 > their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin might be
+>
+> all of the above agents use genAI regardless of PR or not. Only genAI/LLM/GPT agents are allowed on this list.
 
 ### genAI Recomp Based Modules
 

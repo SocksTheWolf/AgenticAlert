@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.7
+// @version      1.2.8
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -122,7 +122,13 @@ const aiAgents = new Map([
   [125450591, {i: 293841, name: "fineai pr"}],
   [208079219, {i: 1220912, name: "amazon q"}],
   [131922026, {i: 324583, name: "dosubot pr"}],
-  [281726552, {name: "dosubot"}]
+  [281726552, {name: "dosubot"}],
+  [62050782,  {i: 57168, name: "deepsource pr"}],
+  [47775046,  {i: 25603, name: "codefactor pr"}],
+  [125169248, {i: 292659, name: "crgpt"}],
+  [234243425, {i: 2008959, name: "zippy"}],
+  [157525551, {name: "bito agent"}],
+  [188872107, {i: 1061978, name: "bito pr"}],
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -137,7 +143,7 @@ const aiRecompModules = [
   "ndsrecomp",
   "gbarecomp",
   "snesrecomp",
-  "recomp-ui"
+  "recomp-ui",
 ];
 
 // AGENTS.md SHOULD NEVER BE IN THIS LIST.
@@ -212,6 +218,8 @@ const aiFileMarkers = [
   ".?graphify",
   ".orca",
   "orca.ya?ml",
+  ".bito.ya?ml",
+  "bito-cra.properties",
 ];
 
 // dynamic regex of the above, global because it's used in two places with no changes.
