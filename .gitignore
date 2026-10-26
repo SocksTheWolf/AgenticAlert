@@ -8,3 +8,4 @@ node_modules/
 
 # deploy will always copy the latest script into the site directory
 site/agenticalert.user.js
+site/icon.png
