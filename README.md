@@ -109,6 +109,8 @@ However, if something is marked as slop, it's slop.
 * ecctools
 * fineai pr
 * amazon q
+* dosubot pr
+* dosubot
 
 > the PR versions are bots that work explicitly on pull requests.
 > their code is genAI, but can only be initiated by a pull request, wherever/whatever that origin might be

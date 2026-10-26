@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.2.6
+// @version      1.2.7
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -120,7 +120,9 @@ const aiAgents = new Map([
   [151821869, {i: 646884, name: "codeant pr"}],
   [257055122, {i: 2724203, name: "ecctools"}],
   [125450591, {i: 293841, name: "fineai pr"}],
-  [208079219, {i: 1220912, name: "amazon q"}]
+  [208079219, {i: 1220912, name: "amazon q"}],
+  [131922026, {i: 324583, name: "dosubot pr"}],
+  [281726552, {name: "dosubot"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -177,6 +179,7 @@ const aiFileMarkers = [
   ".serena",
   ".opencode",
   ".windsurf",
+  ".metabob",
   ".?openclaw",
   "openclaw.mjs",
   "llms-full.txt",
