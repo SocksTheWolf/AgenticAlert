@@ -1,6 +1,7 @@
 name="agenticalert"
-compatibility_date = "2026-08-26"
+compatibility_date = "2026-11-25"
 preview_urls = false
+workers_dev = false
 send_metrics = false
 
 routes = [
@@ -10,6 +11,9 @@ routes = [
 
 [build]
 command = "npm run build"
+
+[cache]
+enabled = true
 
 [assets]
 directory = "./site"
