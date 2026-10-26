@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "npx cpy agenticalert.user.js site"
+    "build": "npx cpy agenticalert.user.js site && npx cpy icon.png site"
   },
   "devDependencies": {
     "cpy-cli": "^7.0.0",
