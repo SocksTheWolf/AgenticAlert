@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.3.0
+// @version      1.3.1
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @connect      raw.githubusercontent.com
@@ -128,6 +128,8 @@ const aiAgents = new Map([
   [234243425, {i: 2008959, name: "zippy"}],
   [157525551, {name: "bito agent"}],
   [188872107, {i: 1061978, name: "bito pr"}],
+  [128439645, {i: 307814, name: "sweep ai"}],
+  [140088366, {i: 364074, name: "ctonew"}],
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -155,6 +157,7 @@ const aiFileMarkers = [
   "gemini.local.md",
   "copilot-instructions.md",
   "adal.md",
+  "sweep.md",
   "autosde.ya?ml",
   "qwen.md",
   "skills?.md",
