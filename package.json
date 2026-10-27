@@ -4,6 +4,17 @@
   },
   "devDependencies": {
     "cpy-cli": "^7.0.0",
-    "wrangler": "^4.152.0"
+    "wrangler": "^4.154.0"
+  },
+  "overrides": {
+    "@actions/github": {
+      "undici": "^7.30.1"
+    },
+    "@actions/http-client": {
+      "undici": "^7.30.1"
+    },
+    "miniflare": {
+      "undici": "^7.30.1"
+    }
   }
 }
