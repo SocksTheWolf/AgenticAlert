@@ -5,10 +5,9 @@
 // @copyright    SocksTheWolf
 // @homepage     https://socksthewolf.com/
 // @run-at       document-end
-// @version      1.3.1
+// @version      1.3.2
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
-// @connect      raw.githubusercontent.com
 // @icon         https://agenticalert.download/icon.png
 // @iconURL      https://agenticalert.download/icon.png
 // @icon64URL    https://agenticalert.download/icon.png
@@ -16,11 +15,18 @@
 // @include      https://www.github.com/*/*
 // @downloadURL  https://agenticalert.download/agenticalert.user.js
 // @updateURL    https://agenticalert.download/agenticalert.user.js
-// @grant        GM.xmlHttpRequest
 // @grant        GM_addStyle
 // @top-level-await
 // @noframes
 // ==/UserScript==
+
+// If you got a notice about the URLs changing, that's intentional
+// GitHub is caching the script url and serving old versions.
+// The script on the repository is the exact same script as the one in the download url
+// it's automatically copied over to the site whenever a new script/site update is pushed
+//
+// This comment will be here for the next couple of versions.
+// it'll be removed in the future
 
 /*
   AgenticAlert - a notifier for slop/vibe/gpt repositories
@@ -302,10 +308,9 @@ class AgenticAlertScan {
     delete this.hasGitIgnore;
   }
 
-  // in the future, we want to be able to reuse objects against Github's react behaviors
   create(url) {
     this.reset();
-    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/(?<username>[a-z0-9_-]+)\/(?<project>[\w\.\-]+)/i;
+    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/([a-z0-9_-]+)\/([\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
       this.username = match[1];
@@ -320,16 +325,15 @@ class AgenticAlertScan {
     return this.username !== undefined && this.repo !== undefined;
   }
 
-  async fetchGithub(url, headers={}, max_attempts=5) {
+  async fetchGithub(url, headers=null, max_attempts=5) {
     let attempts = 0, gotData = false, data = null;
     const initialText = aiLabelElement.innerText;
     while (attempts < max_attempts) {
       updateAILabelElement("text", `${initialText} - Fetching GitHub data...`);
       data = await fetch(url, {
-        headers: {
+        headers: headers ?? {
           "X-Requested-With": "XMLHttpRequest",
           "Github-Verified-Fetch": true,
-          ...headers
         }
       });
       if (data.ok && data.status === 200) {
@@ -379,7 +383,7 @@ class AgenticAlertScan {
           return false;
         } else {
           updateAILabelElement("style", "color: red");
-          updateAILabelElement("title", "Github git contribution data shows genAI agent usage");
+          updateAILabelElement("title", "Git contribution data shows genAI agent usage");
           updateAILabelElement("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
         }
         return true;
@@ -509,12 +513,11 @@ class AgenticAlertScan {
     const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
     if (branchPicker && this.hasGitIgnore) {
       const branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
-      const response = await GM.xmlHttpRequest(
-        {url: `https://raw.githubusercontent.com/${this.username}/${this.repo}/refs/heads/${branchName}/.gitignore`, method: "GET"}
-      ).catch(e => console.error(`AgenticAlert: fetching .gitignore failed with ${e}`));
+      // the cool thing about this is that it avoids CORS all together, and works with permissions!
+      const gitIgnoreContents =
+        await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/raw/refs/heads/${branchName}/.gitignore`, {});
 
-      if (response.status === 200) {
-        const gitIgnoreContents = response.responseText;
+      if (gitIgnoreContents !== null) {
         const matches = gitIgnoreContents.match(aiFileNameRegex);
         const hasAgents = (/agents\.md/ig).test(gitIgnoreContents);
         if (matches !== null && matches.length > 0) {
