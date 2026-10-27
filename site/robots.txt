@@ -1,4 +1,5 @@
 User-agent: *
 Disallow: /agenticalert.user.js
+Disallow: /get
 
 Sitemap: https://agenticalert.download/sitemap.xml
