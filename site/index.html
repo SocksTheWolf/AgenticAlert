@@ -49,23 +49,25 @@
       <a href="#download">Download</a>
       <a href="#features">Features</a>
       <a href="#screenshots">Screenshots</a>
-      <a target="_blank" href="https://github.com/socksthewolf/agenticalert/wiki">Docs</a>
+      <a target="_blank" href="https://agenticalert.download/docs">Docs</a>
+      <a target="_blank" href="https://agenticalert.download/faq">FAQ</a>
       <a target="_blank" href="https://github.com/socksthewolf/agenticalert/">
         <svg class="github-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 0.25rem; fill: currentColor;"><path d="M256.004 6.321c-141.369 0-256.004 114.609-256.004 255.999 0 113.107 73.352 209.066 175.068 242.918 12.793 2.369 17.496-5.555 17.496-12.316 0-6.102-0.24-26.271-0.348-47.662-71.224 15.488-86.252-30.205-86.252-30.205-11.641-29.588-28.424-37.458-28.424-37.458-23.226-15.889 1.755-15.562 1.755-15.562 25.7 1.805 39.238 26.383 39.238 26.383 22.836 39.135 59.888 27.82 74.502 21.279 2.294-16.543 8.926-27.84 16.253-34.232-56.865-6.471-116.638-28.425-116.638-126.516 0-27.949 10.002-50.787 26.38-68.714-2.658-6.45-11.427-32.486 2.476-67.75 0 0 21.503-6.876 70.42 26.245 20.418-5.674 42.318-8.518 64.077-8.617 21.751 0.099 43.668 2.943 64.128 8.617 48.867-33.122 70.328-26.245 70.328-26.245 13.936 35.264 5.175 61.3 2.518 67.75 16.41 17.928 26.347 40.766 26.347 68.714 0 98.327-59.889 119.975-116.895 126.312 9.182 7.945 17.362 23.523 17.362 47.406 0 34.254-0.298 61.822-0.298 70.254 0 6.814 4.611 14.797 17.586 12.283 101.661-33.888 174.921-129.813 174.921-242.884 0-141.39-114.617-255.999-255.996-255.999z" fill="currentColor"/></svg>Source</a>
-    </nav>
-    <p>A robust userscript that attempts to alert you if a GitHub repo uses genAI.</p>
-  </header>
+      </nav>
+      <p>A robust userscript that attempts to alert you if a GitHub repo uses genAI.</p>
+    </header>
 
-  <main>
-    <h3>Is this you?</h3>
-    <p>Are you tired of slop vibecoded garbage genAI game mods?<br />Did a recomp game crash your GPU?</p>
-    <p>Is it too frustrating, difficult, and/or time consuming to check a project for genAI?</p>
-    <p>Upset that your favorite YouTuber keeps shlocking about how "AI is the future"?</p>
-    <p>Tired of seeing youtubers claim they made a <a href="https://youtu.be/wajoP_5Cpw8?t=230" target="_blank">program that shows your Premiere timeline
-      but actually is just a breakout clone</a>?</p>
-      <p>Have you ended up sharing slop projects with your community without knowing better?</p>
-      <center><h3>THEN GET AgenticAlert!!</h3></center>
-      <hr />
+    <main>
+      <section>
+        <h3>Is this you?</h3>
+        <p>Are you tired of slop vibecoded garbage genAI game mods?<br />Did a recomp game crash your GPU?</p>
+        <p>Is it too frustrating, difficult, and/or time consuming to check a project for genAI?</p>
+        <p>Upset that your favorite YouTuber keeps shlocking about how "AI is the future"?</p>
+        <p>Tired of seeing youtubers claim they reversed engineered <a href="https://youtu.be/wajoP_5Cpw8?t=230" target="_blank">Adobe Premiere
+          but actually just ended up making a breakout clone</a>?</p>
+        <p>Have you shared slop projects with your community without knowing better?</p>
+        <center><h3>THEN GET AgenticAlert!!</h3></center>
+      </section>
 
       <div id="download" class="notice"><b>Download AgenticAlert</b><br />
         <p>This is a super simple and easy install process. Just follow these <u>two</u> steps!</p>
@@ -83,59 +85,63 @@
         </ol>
       </div>
 
-      <h3 id="features">AgenticAlert Features</h3>
-      <p>You don't need to be a programmer to use it nor understand it!</p>
-      <p>AgenticAlert has <a href="#screenshots">very easy to understand outputs</a> that alert you if something is slopcoded!</p>
-      <p>Here's a short feature list:</p>
-      <ul>
-        <li>Detects over 75+ AI LLM GPT Agents (including ones you cannot block on GitHub)</li>
-        <li>Instantly recognizes many common slop Recomp Modules</li>
-        <li>Scans for over 100+ LLM file markers in a repository</li>
-        <li>All processing is done locally, no external servers used</li>
-        <li>Scans .gitignore and GitHub metadata without user input</li>
-        <li>Automatically updates with the latest ruleset</li>
-        <li>No ads, no tracking, no bs</li>
-        <li>Written by hand by someone that knows what they're doing (<a target="_blank" href="https://socksthewolf.com/projects">for real</a>)</li>
-        <li>Open Source!</li>
-        <li>Free <small>(<a href="https://wolf.stream/tip">tips</a> would be appreciated)</small></li>
-      </ul>
+      <article id="features">
+        <h3>Features</h3>
+        <p>You don't need to be a programmer to use it nor understand it!</p>
+        <p>AgenticAlert has <a href="#screenshots">very easy to understand outputs</a> that alert you if something is slopcoded!</p>
+        <p>Here's a short feature list:</p>
+        <ul>
+          <li>Detects over 75+ AI LLM GPT Agents (including ones you cannot block on GitHub)</li>
+          <li>Instantly recognizes many common slop Recomp Modules</li>
+          <li>Scans for over 100+ LLM file markers in a repository</li>
+          <li>All processing is done locally, no external servers used</li>
+          <li>Scans .gitignore and GitHub metadata without user input</li>
+          <li>Automatically updates with the latest ruleset</li>
+          <li>No ads, no tracking, no bs</li>
+          <li>Written by hand by someone that knows what they're doing (<a target="_blank" href="https://socksthewolf.com/projects">for real</a>)</li>
+          <li>Open Source!</li>
+          <li>Free <small>(<a href="https://wolf.stream/tip">tips</a> would be appreciated)</small></li>
+        </ul>
+      </article>
 
       <!-- rip all this html from github lol -->
-      <h3 id="screenshots">Screenshots</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Detection</th>
-            <th>Image</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>AI Tool Usage</td>
-            <td><img loading="lazy" src="screenshots/screenshot.jpg?raw=true" alt="Detection Badge Example" style="max-width: 100%;"></td>
-          </tr>
-          <tr>
-            <td>genAI Files</td>
-            <td><img loading="lazy" src="screenshots/screenshot5.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
-          </tr>
-          <tr>
-            <td>Hidden genAI File Markers</td>
-            <td><img loading="lazy" src="screenshots/screenshot2.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
-          </tr>
-          <tr>
-            <td>genAI Submodule Usage</td>
-            <td><img loading="lazy" src="screenshots/screenshot6.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
-          </tr>
-          <tr>
-            <td>Potential Copilot AI Usage</td>
-            <td><img loading="lazy" src="screenshots/screenshot4.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
-          </tr>
-          <tr>
-            <td>Safe Repo</td>
-            <td><img loading="lazy" src="screenshots/screenshot3.jpg?raw=true" alt="Example of a safe repo" style="max-width: 100%;"></td>
-          </tr>
-        </tbody>
-      </table>
+      <article id="screenshots">
+        <h3>Screenshots</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Detection</th>
+              <th>Image</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>AI Tool Usage</td>
+              <td><img loading="lazy" src="screenshots/screenshot.jpg?raw=true" alt="Detection Badge Example" style="max-width: 100%;"></td>
+            </tr>
+            <tr>
+              <td>genAI Files</td>
+              <td><img loading="lazy" src="screenshots/screenshot5.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
+            </tr>
+            <tr>
+              <td>Hidden genAI File Markers</td>
+              <td><img loading="lazy" src="screenshots/screenshot2.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
+            </tr>
+            <tr>
+              <td>genAI Submodule Usage</td>
+              <td><img loading="lazy" src="screenshots/screenshot6.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
+            </tr>
+            <tr>
+              <td>Potential Copilot AI Usage</td>
+              <td><img loading="lazy" src="screenshots/screenshot4.jpg?raw=true" alt="Example of a repo that has genAI markers" style="max-width: 100%;"></td>
+            </tr>
+            <tr>
+              <td>Safe Repo</td>
+              <td><img loading="lazy" src="screenshots/screenshot3.jpg?raw=true" alt="Example of a safe repo" style="max-width: 100%;"></td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
     </main>
     <footer>
       <p>AgenticAlert was created by <a rel="me" href="https://socksthewolf.com">SocksTheWolf</a> and is licensed under the GPL-3<br />

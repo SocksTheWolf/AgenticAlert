@@ -60,7 +60,7 @@ However, if something is marked as slop, it's slop.
   * Submodule genAI usage has to be completely based on a list of known slop modules. This won't be perfect, which is why it's a warning.
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _**Another limitation** of GitHub_.
   * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of GitHub_.
-* copilot has some fun bs that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
+* copilot has some fun bs that only applies to it because of Microsoft's meddling. See [FAQ](https://github.com/SocksTheWolf/AgenticAlert/wiki/FAQ).
 * requires an userscript runner (more than one-click install).
 
 ## Bugs
@@ -74,19 +74,6 @@ However, if something is marked as slop, it's slop.
 * GitHub metadata can sometimes fail => Fixed in 1.2.0
 * GitHub metadata can have different ids for users => Fixed in 1.2.0
 * the word `agent` got flagged if it was in any filename due to a malformed wildcard => Broke in 1.2.3, Fixed in 1.2.4
-
-## Contributing
-
-I'm looking for:
-
-* more genai coding agents
-* known slop recomp modules
-* files that genAI agents/bots/tools leave in the file/folder structure
-* ideas for how to improve the script's judgement
-
-If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose).
-
-You can also help by [leaving a tip](https://wolf.stream/tip) too!
 
 ## Notes
 
@@ -122,42 +109,4 @@ It looks like this:
 
 ## FAQ
 
-### Why
-
-Because shit's too hard and it should just be on the tin. I'm tired of having to play "uh...did they or didn't they?"
-
-### Does this use genAI?
-
-Dude, no.
-
-### Is AGENTS.md detected?
-
-Yes, **but** it _ONLY COUNTS IF_ other genAI markers are present.
-
-If no other markers are present, then it is ignored.
-
-### Should dependabot be in here?
-
-No. It doesn't use LLMs to function. We're not alerting you to automation, we're alerting you to agentic usage (LLM/GPT/genAI).
-
-Automation is not Agentic Behavior. Agents can automate, but they are not the source of all automation.
-
-### This missed a repository, why?
-
-Couple reasons:
-
-* Could have been affected by one of the [caveats](#caveats) (git submodules, fork networks, etc)
-* The GPT agent tool/marker is not known (please [open an issue](#contributing))
-* Agent usage history is incomplete for the repository
-* GitHub only returned partial data, so [this bug was involved](https://github.com/SocksTheWolf/AgenticAlert/issues/8)
-  * Mitigated as of version 1.0.16
-
-### My repo was tagged and I did not use genAI
-
-Besides the:
-
-* Copilot incident
-* Submodule flags
-
-This is 100% accurate if it detects you used genAI.
-If the script is not sure, findings are marked as a warning.
+[This has been moved to the wiki](https://github.com/SocksTheWolf/AgenticAlert/wiki/FAQ)
