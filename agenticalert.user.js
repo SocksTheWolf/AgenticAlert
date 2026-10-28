@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.8
+// @version      1.3.9
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -320,14 +320,12 @@ const aiMutationObservation = new MutationObserver(async (_mutations) => {
 // The actual scanner
 /*************************************************/
 class AgenticAlertScan {
-  // username: undefined|string
-  // repo: undefined|string
+  // user: undefined|string
+  // project: undefined|string
   // url: undefined|string
 
-  // hadNetworkError: undefined|true
-  // hasGitIgnore: undefined|true
-  // hasPotentialCopilot: undefined|true
-  // hasAgents: undefined|true
+  // debug: {}
+  // repo: {}
 
   constructor(url) {
     this.create(url);
@@ -338,10 +336,12 @@ class AgenticAlertScan {
       skipContrib: false,
       skipMetadata: false,
     };
-    delete this.hasPotentialCopilot;
-    delete this.hadNetworkError;
-    delete this.hasGitIgnore;
-    delete this.hasAgents;
+    this.repo = {
+      // copilot: undefined|true
+      // hasIgnore: undefined|true
+      // networkError: undefined|true
+      // hasAgents: undefined|true
+    };
   }
 
   create(url) {
@@ -349,8 +349,8 @@ class AgenticAlertScan {
     const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/([a-z0-9_-]+)\/([\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
-      this.username = match[1];
-      this.repo = match[2];
+      this.user = match[1];
+      this.project = match[2];
       this.url = url;
       return true;
     }
@@ -358,36 +358,59 @@ class AgenticAlertScan {
   }
 
   isValid() {
-    return this.username !== undefined && this.repo !== undefined;
+    return this.user !== undefined && this.project !== undefined;
   }
 
-  countAgents(agents) {
-    return `${agents.length} genAI agent${agents.length>1?"s":""}`;
+  countResults(items, word) {
+    return `${items.length} ${word}${items.length>1?"s":""}`;
   }
 
-  async fetchGithub(url, headers=null, max_attempts=5) {
+  async fetchGithub(url, headers=null, max_attempts=5, timeout=13000) {
     let attempts = 0, gotData = false, data = null;
     const initialText = aiLabelElement.innerText;
+    // lambda for writing out progress text good
+    const getAttemptString = (words) => {
+      return `${initialText} - ${words}. Attempt: ${attempts}/${max_attempts}`;
+    };
+    // lambda for adding a delay between requests, default ~5s
+    const sleepRequest = async (time=5000) => {
+      await new Promise(r => setTimeout(r, time));
+    };
     while (attempts < max_attempts) {
+      const fetchTimeout = new AbortController();
       updateAILabelElement("text", `${initialText} - Fetching GitHub data...`);
-      data = await fetch(url, {
-        headers: headers ?? {
-          "X-Requested-With": "XMLHttpRequest",
-          "Github-Verified-Fetch": true,
+      try {
+        ++attempts;
+        const timeoutWatcher = setTimeout(function(){ fetchTimeout.abort(); }, timeout);
+        // go fetch, setTimeout will sit in the bg
+        data = await fetch(url, {
+          headers: headers ?? {
+            "X-Requested-With": "XMLHttpRequest",
+            "Github-Verified-Fetch": true,
+          },
+          signal: fetchTimeout.signal
+        });
+        // if we get a promise return, kill the timeout so we don't throw
+        clearTimeout(timeoutWatcher);
+        if (data.ok && data.status === 200) {
+          gotData = true;
+          break;
+        } else if (data.status === 429) {
+          // we have hit a rate limit, so we're going to just break out
+          // it's unlikely this will happen to anyone
+          break;
+        } else if (data.status > 500) {
+          // github is down, break out.
+          break;
         }
-      });
-      if (data.ok && data.status === 200) {
-        gotData = true;
-        break;
-      } else if (data.status === 429) {
-        // we have hit a rate limit, so we're going to just break out
-        // it's unlikely this will happen to anyone
-        break;
+        updateAILabelElement("text", getAttemptString("Waiting 5s to retry"));
+        await sleepRequest(5000);
+      } catch (err) {
+        console.warn(`AgenticAlert - Encountered timeout on ${url} - ${attempts}`);
+        // Ignore all errors, retry (nearly) immediately
+        updateAILabelElement("text", getAttemptString("Timed out, retrying"));
+        await sleepRequest(2000);
       }
-      ++attempts;
-      // dumb attempt at sleeping
-      updateAILabelElement("text", `${initialText} - Waiting to retry in 5s. Attempt: ${attempts}/${max_attempts}`);
-      await new Promise(r => setTimeout(r, 5000));
     }
     if (gotData) {
       return await data.text();
@@ -402,7 +425,7 @@ class AgenticAlertScan {
     updateAILabelElement("text", "Loading Repo Git Data");
 
     const contribData =
-      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/graphs/contributors-data`);
+      await this.fetchGithub(`https://github.com/${this.user}/${this.project}/graphs/contributors-data`);
 
     if (contribData !== null) {
       updateAILabelElement("text", "Parsing Repo Data Results...");
@@ -422,17 +445,17 @@ class AgenticAlertScan {
           return aiAgents.get(num).name;
         });
         if (copilotCount === 1 && nonCopilot === 0) {
-          this.hasPotentialCopilot = true;
+          this.repo.copilot = true;
           return false;
         } else {
-          updateAILabelElement("style", "color: red");
-          updateAILabelElement("title", `Git contribution data shows the usage of ${this.countAgents(matchResults)}`);
+          updateAILabelElement("status", "danger");
+          updateAILabelElement("title", `Git contribution data shows the usage of ${this.countResults(matchResults, "genAI agent")}`);
           updateAILabelElement("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
         }
         return true;
       }
     } else {
-      this.hadNetworkError = true;
+      this.repo.networkError = true;
     }
     return false;
   }
@@ -442,7 +465,7 @@ class AgenticAlertScan {
     }
     updateAILabelElement("text", "Checking Github Metadata");
     const sidebarData =
-      await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/commits/deferred_commit_contributors`);
+      await this.fetchGithub(`https://github.com/${this.user}/${this.project}/commits/deferred_commit_contributors`);
 
     if (sidebarData !== null) {
       updateAILabelElement("text", "Calculating Integration Ids...");
@@ -481,17 +504,17 @@ class AgenticAlertScan {
       // if we have any name data, then AI was detected.
       if (names.length > 0) {
         if (copilotCount === 1 && nonCopilot === 0) {
-          this.hasPotentialCopilot = true;
+          this.repo.copilot = true;
           return false;
         } else {
-          updateAILabelElement("style", "color: red");
-          updateAILabelElement("title", `Github metadata shows the usage of ${this.countAgents(names)}`);
+          updateAILabelElement("status", "danger");
+          updateAILabelElement("title", `Github metadata shows the usage of ${this.countResults(names, "genAI agent")}`);
           updateAILabelElement("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
         }
         return true;
       }
     } else {
-      this.hadNetworkError = true;
+      this.repo.networkError = true;
     }
     return false;
   }
@@ -499,7 +522,7 @@ class AgenticAlertScan {
     updateAILabelElement("text", "Checking for AI Submodules");
     const submoduleMatches = [];
     const submoduleRegex = new RegExp(`^(${aiRecompModules.join("|")})`, 'i');
-    const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.username}/${this.repo}"]) span`);
+    const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.user}/${this.project}"]) span`);
     submodules.forEach((itm) => {
       if (submoduleRegex.test(itm.innerText)) {
         // we just want the submodule name, so remove everything else
@@ -510,12 +533,10 @@ class AgenticAlertScan {
         }
       }
     });
-
-    // submodule result check!!!!
     if (submoduleMatches.length > 0) {
-      updateAILabelElement("style", "color: orangered");
+      updateAILabelElement("status", "alert");
       updateAILabelElement("title", "This isn't perfect because it has to check name data, which can be inaccurate");
-      updateAILabelElement("text", `Detected: Potential genAI submodules: ${submoduleMatches.join(", ")}`);
+      updateAILabelElement("text", `Detected: Potential ${this.countResults(submoduleMatches, "genAI submodule")}: ${submoduleMatches.join(", ")}`);
       return true;
     }
     return false;
@@ -524,7 +545,7 @@ class AgenticAlertScan {
     const results = {
       items: content.match(aiFileNameRegex) ?? [],
       count: 0,
-      color: "orangered",
+      color: "alert",
       hasAgents: false,
       hasZed: false
     };
@@ -532,7 +553,7 @@ class AgenticAlertScan {
     results.count = results.items.length;
     // determine if we should elevate the response
     if (results.count >= 2) {
-      results.color = "red";
+      results.color = "danger";
     }
     // push our special detections if we have other markers
     if ((/agents\.md/ig).test(content)) {
@@ -545,7 +566,7 @@ class AgenticAlertScan {
     }
     // if you have both special flags, that's a massive red flag
     if (results.hasZed && results.hasAgents) {
-      results.color = "red";
+      results.color = "danger";
       results.count += 2;
     }
     return results;
@@ -560,28 +581,28 @@ class AgenticAlertScan {
         filesList.push(fileName);
       }
       if (fileName === ".gitignore") {
-        this.hasGitIgnore = true;
+        this.repo.hasIgnore = true;
       }
     });
     const matches = this.contentJudge(filesList.join("\n"));
     if (matches.count > 0) {
-      updateAILabelElement("style", `color: ${matches.color}`);
-      updateAILabelElement("text", `Detected ${matches.items.length} genAI file markers: ${matches.items.join(", ")}`);
+      updateAILabelElement("status", matches.color);
+      updateAILabelElement("text", `Detected ${this.countResults(matches.items, "genAI file marker")}: ${matches.items.join(", ")}`);
       return true;
     }
-    if (matches.hasAgents) {
-      this.hasAgents = true;
+    if (matches.hasAgents) { // make sure to save if we found AGENTS.md
+      this.repo.hasAgents = true;
     }
     return false;
   }
   async scanGitIgnore() {
     updateAILabelElement("text", "Checking for hidden AI markers");
     const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
-    if (branchPicker && this.hasGitIgnore) {
+    if (branchPicker && this.repo.hasIgnore) {
       const branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
       // the cool thing about this is that it avoids CORS all together, and works with permissions!
       const gitIgnoreContents =
-        await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/raw/refs/heads/${branchName}/.gitignore`, {});
+        await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${branchName}/.gitignore`, {});
 
       if (gitIgnoreContents !== null) {
         // just the nastiest of manipulations
@@ -589,28 +610,28 @@ class AgenticAlertScan {
         const matches = this.contentJudge(globCleanedIgnore);
         // for the .gitignore, if you have any sus files, then initiate judgement
         if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
-          updateAILabelElement("style", `color: ${matches.color}`);
-          updateAILabelElement("text", `Detected ${matches.items.length} hidden genAI file markers: ${matches.items.join(", ")}`);
+          updateAILabelElement("status", matches.color);
+          updateAILabelElement("text", `Detected ${this.countResults(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
           return true;
         }
       } else {
         console.warn(`AgenticAlert: Could not get .gitignore file data, no data returned`);
-        this.hadNetworkError = true;
+        this.repo.networkError = true;
       }
     }
     return false;
   }
   finalizeRepo() {
     // The copilot check
-    if (this.hasPotentialCopilot) {
-      updateAILabelElement("style", "color: orange");
+    if (this.repo.copilot) {
+      updateAILabelElement("status", "alert");
       updateAILabelElement("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
       updateAILabelElement("text", "Detected: Potential Copilot usage");
       return;
     }
 
-    if (this.hasAgents) {
-      updateAILabelElement("style", "color: greenyellow");
+    if (this.repo.hasAgents) {
+      updateAILabelElement("status", "warning");
       updateAILabelElement("title", "Many repos use AGENTS.md to clarify their stance on genAI usage, but it can also used for LLMs.");
       updateAILabelElement("text", "Potentially Safe: However, an AGENTS.md file was detected. Manual review needed");
       return;
@@ -620,9 +641,9 @@ class AgenticAlertScan {
     updateAILabelElement("title", null);
 
     // if we encountered any errors
-    if (this.hadNetworkError) {
-      updateAILabelElement("text", "Encountered Network Error, but other scans were clean, try refresh");
-      updateAILabelElement("style", "color: yellow");
+    if (this.repo.networkError) {
+      updateAILabelElement("text", "Encountered Network Error, but other scans were clean, click to try refresh");
+      updateAILabelElement("status", "error");
       return;
     }
 
@@ -634,12 +655,13 @@ class AgenticAlertScan {
       // we're all clear to go!!!
       updateAILabelElement("text", "Potentially Safe: No known genAI detected");
     }
-    updateAILabelElement("style", "color: green");
+    updateAILabelElement("status", "safe");
   }
   async runScan() {
     // reset
     updateAILabelElement("title", null);
-    updateAILabelElement("style", "color: gray");
+    updateAILabelElement("processing", true);
+    updateAILabelElement("status", "none");
     updateAILabelElement("text", "Scanning for genAI...");
 
     // dante's genAI inferno
@@ -665,9 +687,10 @@ class AgenticAlertScan {
       }
     } catch (err) {
       console.error(`AgenticAlert: encountered error: ${err}`);
-      updateAILabelElement("style", "style: yellow");
+      updateAILabelElement("status", "error");
       updateAILabelElement("text", "Encountered Error, submit bug report with data from console");
     }
+    updateAILabelElement("processing", null);
   }
   async shouldRunScan(url) {
     if (this.url !== url) {
@@ -679,9 +702,8 @@ class AgenticAlertScan {
     }
 
     if (!this.isValid()) {
-      console.warn(`AgenticAlert: Repo/User info is invalid!`);
       updateAILabelElement("text", "Warning! Unable to determine repo data, try refreshing");
-      updateAILabelElement("style", "color: yellow");
+      updateAILabelElement("status", "error");
       return;
     }
 
@@ -697,10 +719,23 @@ await (async function() {
     // create our scanner object
     scanCheck = new AgenticAlertScan(document.location.href);
 
-    // add a style in here so that we stay readable at other sizes.
-    GM_addStyle(`#agenticAlertLabel {max-width: 65%; height: unset !important;
-      min-height: var(--base-size-20,1.25rem);
-      white-space: normal; padding: 0.34rem;}`);
+    // our styles to make it easier to persist renders
+    GM_addStyle(`
+      #agenticAlertLabel {
+        max-width: 65%; padding: 0.34rem;
+        height: unset !important; min-height: var(--base-size-20,1.25rem);
+        white-space: normal; text-align: center;
+        color-scheme: light dark;
+
+        &[status="none"], &[status="msg"] { color: gray; }
+        &[status="safe"] { color: green; }
+        &[status="danger"] { color: red; }
+        &[status="alert"], &[status="highwarning"] { color: orangered; }
+        &[status="sus"] { color: orange; }
+        &[status="error"] { color: yellow; }
+        &[status="warning"] { color: greenyellow; }
+      }
+    `);
 
     // Create results object
     aiLabelElement = document.createElement("span");
@@ -708,11 +743,14 @@ await (async function() {
     aiLabelElement.setAttribute("data-size", "small");
     aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
     aiLabelElement.setAttribute("data-component", "Label");
+    aiLabelElement.addEventListener("click", async (ev) => {
+      if (!ev.target.hasAttribute("processing") && scanCheck) {
+        await scanCheck.runScan();
+      } else {
+        console.log(`AgenticAlert: Skipping reprocess as we are not ready`);
+      }
+    });
     addAILabelElement(true);
-
     await scanCheck.runScan();
-
-  } else {
-    console.warn(`AgenticAlert: could not determine repository layout`);
   }
 })();
