@@ -191,6 +191,7 @@ const aiFileMarkers = [
   ".fleet",
   ".air",
   ".senpi",
+  ".superset",
   ".?openai",
   ".langgraph_api",
   ".?langgraph.json",
