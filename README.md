@@ -1,8 +1,9 @@
 # AgenticAlert
 
-![GitHub Created At](https://img.shields.io/github/created-at/socksthewolf/agenticalert?logo=github&logoColor=white)
-![GitHub file size in bytes](https://img.shields.io/github/size/socksthewolf/agenticalert/agenticalert.user.js?logo=javascript)
-![GitHub Repo stars](https://img.shields.io/github/stars/socksthewolf/agenticalert)
+[![GitHub Created At](https://img.shields.io/github/created-at/socksthewolf/agenticalert?logo=github&logoColor=white)](https://github.com/socksthewolf/agenticalert)
+[![GitHub License](https://img.shields.io/github/license/socksthewolf/agenticalert?logo=gplv3&logoColor=yellow&color=green)](https://github.com/SocksTheWolf/AgenticAlert?tab=GPL-3.0-1-ov-file)
+[![GitHub script size](https://img.shields.io/github/size/socksthewolf/agenticalert/agenticalert.user.js?logo=javascript)](https://agenticalert.download/get)
+[![GitHub Repo stars](https://img.shields.io/github/stars/socksthewolf/agenticalert)](https://github.com/SocksTheWolf/AgenticAlert/stargazers)
 
 A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can be installed in pretty much everything.
 
