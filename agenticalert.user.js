@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.5
+// @version      1.3.6
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -307,7 +307,6 @@ class AgenticAlertScan {
   // repo: undefined|string
   // url: undefined|string
 
-  // skipAINetworkScan: boolean
   // hadNetworkError: undefined|true
   // hasGitIgnore: undefined|true
   // hasPotentialCopilot: undefined|true
@@ -317,7 +316,10 @@ class AgenticAlertScan {
   }
 
   reset() {
-    this.skipAINetworkScan = false;
+    this.debug = {
+      skipContrib: false,
+      skipMetadata: false,
+    };
     delete this.hasPotentialCopilot;
     delete this.hadNetworkError;
     delete this.hasGitIgnore;
@@ -338,6 +340,10 @@ class AgenticAlertScan {
 
   isValid() {
     return this.username !== undefined && this.repo !== undefined;
+  }
+
+  countAgents(agents) {
+    return `${agents.length} genAI agent${agents.length>1?"s":""}`;
   }
 
   async fetchGithub(url, headers=null, max_attempts=5) {
@@ -371,7 +377,7 @@ class AgenticAlertScan {
   }
 
   async scanContribData() {
-    if (this.skipAINetworkScan) {
+    if (this.debug.skipContrib) {
       return false;
     }
     updateAILabelElement("text", "Loading Repo Git Data");
@@ -401,7 +407,7 @@ class AgenticAlertScan {
           return false;
         } else {
           updateAILabelElement("style", "color: red");
-          updateAILabelElement("title", "Git contribution data shows genAI agent usage");
+          updateAILabelElement("title", `Git contribution data shows the usage of ${this.countAgents(matchResults)}`);
           updateAILabelElement("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
         }
         return true;
@@ -412,7 +418,7 @@ class AgenticAlertScan {
     return false;
   }
   async scanMetadata() {
-    if (this.skipAINetworkScan) {
+    if (this.debug.skipMetadata) {
       return false;
     }
     updateAILabelElement("text", "Checking Github Metadata");
@@ -460,7 +466,7 @@ class AgenticAlertScan {
           return false;
         } else {
           updateAILabelElement("style", "color: red");
-          updateAILabelElement("title", "Github metadata shows genAI agent usage");
+          updateAILabelElement("title", `Github metadata shows the usage of ${this.countAgents(names)}`);
           updateAILabelElement("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
         }
         return true;
