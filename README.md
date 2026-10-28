@@ -1,5 +1,9 @@
 # AgenticAlert
 
+![GitHub Created At](https://img.shields.io/github/created-at/socksthewolf/agenticalert?logo=github&logoColor=white)
+![GitHub file size in bytes](https://img.shields.io/github/size/socksthewolf/agenticalert/agenticalert.user.js?logo=javascript)
+![GitHub Repo stars](https://img.shields.io/github/stars/socksthewolf/agenticalert)
+
 A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can be installed in pretty much everything.
 
 ## Install
