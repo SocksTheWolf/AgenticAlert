@@ -236,7 +236,6 @@ const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   [...aiFileMarkers, ...aiRecompModules, ...matchAnywhereAIRule].map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"))
   // then join the entire array with OR gates, and that builds our regex.
 .join("|")}).*)`, "igm");
-//console.log(aiFileNameRegex);
 
 /*************************************************/
 // Label and Reflow Prevention
