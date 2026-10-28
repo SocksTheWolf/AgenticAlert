@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.2
+// @version      1.3.3
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -153,14 +153,16 @@ const aiRecompModules = [
   "recomp-ui",
 ];
 
+// This is separate because we do not want any modifications to happen when building this regex
+// only delicate regexes should go be in this array
+const rawAiRegexFileMarkers = [
+  "^[^#\\s]*skills?.*$"
+]
+
 // AGENTS.md SHOULD NEVER BE IN THIS LIST.
-// checks are done without casing but we can leave
-// this list as lower case, but it doesn't have to be
 const aiFileMarkers = [
-  "claude.md",
-  "claude.local.md",
-  "gemini.md",
-  "gemini.local.md",
+  "claude(?:.local)?.md",
+  "gemini(?:.local)?.md",
   "copilot-instructions.md",
   "adal.md",
   "sweep.md",
@@ -173,7 +175,6 @@ const aiFileMarkers = [
   ".superpowers",
   ".codex",
   ".hermes",
-  ".?skills",
   ".claude",
   ".adal",
   ".agents?",
@@ -197,12 +198,12 @@ const aiFileMarkers = [
   ".?openclaw",
   "openclaw.mjs",
   "llms-full.txt",
-  "gemini-extension",
+  "gemini-extensions?(?:.json)?",
   ".?mcp.json",
   ".?coderabbit.ya?ml",
   ".?cubic.ya?ml",
-  ".?kimi[\\q{-code}]?",
-  ".?kilo[\\q{code}]?",
+  ".?kimi(?:-code)?",
+  ".?kilo(?:code)?",
   ".playwright-mcp",
   ".fleet",
   ".air",
@@ -231,7 +232,11 @@ const aiFileMarkers = [
 ];
 
 // dynamic regex of the above, global because it's used in two places with no changes.
-const aiFileNameRegex = new RegExp(`(${[...aiFileMarkers, ...aiRecompModules].map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1")).join("|")})`, "ig");
+const aiFileNameRegex = new RegExp(`(${[...rawAiRegexFileMarkers,
+  // dynamically escape any ., * and - characters so they are the literals
+  ...[...aiFileMarkers, ...aiRecompModules].map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"))]
+// then join the entire array with OR gates, and that builds our regex.
+.join("|")})`, "igm");
 
 /*************************************************/
 // Label and Reflow Prevention
@@ -474,36 +479,54 @@ class AgenticAlertScan {
     }
     return false;
   }
+  contentJudge(content) {
+    const results = {
+      items: content.match(aiFileNameRegex) ?? [],
+      count: 0,
+      color: "orange",
+      hasAgents: false,
+      hasZed: false
+    };
+    // snapshot of the results before we add special items
+    results.count = results.items.length;
+    // determine if we should elevate the response
+    if (results.count >= 2) {
+      results.color = "red";
+    }
+    // push our special detections if we have other markers
+    if ((/agents\.md/ig).test(content)) {
+      results.items.push("AGENTS.md");
+      results.hasAgents = true;
+    }
+    if ((/^\.zed/igm).test(content)) {
+      results.items.push(".zed");
+      results.hasZed = true;
+    }
+    // if you have both special flags, that's a massive red flag
+    if (results.hasZed && results.hasAgents) {
+      results.color = "red";
+      results.count += 2;
+    }
+    return results;
+  }
   scanFiles() {
     updateAILabelElement("text", "Checking for AI files");
-    const fileList = document.querySelectorAll(".react-directory-filename-cell a"), matches = [];
-    let hasAgents = false;
-    fileList.forEach((itm) => {
+    const fileElements = document.querySelectorAll(".react-directory-filename-cell a"), filesList = [];
+    // dedupe the element list, as github will give us duplicates
+    fileElements.forEach((itm) => {
       const fileName = itm.innerText;
-      // I hate this check, but GitHub will otherwise send us duplicate elements
-      if (!matches.includes(fileName)) {
-        if (fileName === ".gitignore") {
-          this.hasGitIgnore = true;
-        } else if (fileName === "AGENTS.md") {
-          hasAgents = true;
-        } else if (aiFileNameRegex.test(fileName)) {
-          matches.push(fileName);
-        }
+      if (!filesList.includes(fileName)) {
+        filesList.push(fileName);
+      }
+      if (fileName === ".gitignore") {
+        this.hasGitIgnore = true;
       }
     });
-    if (matches.length > 0) {
-      if (matches.length >= 2) {
-        updateAILabelElement("style", "color: red");
-      } else {
-        updateAILabelElement("style", "color: orange");
-      }
-      let findings = matches.join("\n"), count = matches.length;
-      if (hasAgents) {
-        findings += "\nAGENTS.md";
-        ++count;
-      }
-      updateAILabelElement("title", `Markers are:\n${findings}`);
-      updateAILabelElement("text", `Detected ${count} genAI file markers: ${findings.replace(/\n/g, ", ")}`);
+    const matches = this.contentJudge(filesList.join("\n"));
+    if (matches.count > 0) {
+      updateAILabelElement("style", `color: ${matches.color}`);
+      updateAILabelElement("title", `Markers are:\n${matches.items.join("\n")}`);
+      updateAILabelElement("text", `Detected ${matches.items.length} genAI file markers: ${matches.items.join(", ")}`);
       return true;
     }
     return false;
@@ -518,30 +541,16 @@ class AgenticAlertScan {
         await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/raw/refs/heads/${branchName}/.gitignore`, {});
 
       if (gitIgnoreContents !== null) {
-        const matches = gitIgnoreContents.match(aiFileNameRegex);
-        const hasAgents = (/agents\.md/ig).test(gitIgnoreContents);
-        if (matches !== null && matches.length > 0) {
-          if (matches.length >= 2) {
-            updateAILabelElement("style", "color: red");
-          } else {
-            updateAILabelElement("style", "color: orange");
-          }
-          let findings = matches.join("\n"), count = matches.length;
-          if (hasAgents) {
-            findings += "\nAGENTS.md";
-            ++count;
-          }
-          updateAILabelElement("title", `Hidden markers are:\n${findings}`);
-          updateAILabelElement("text", `Detected ${count} hidden genAI file markers: ${findings.replace(/\n/g, ", ")}`);
-          return true;
-        } else if (hasAgents) {
-          updateAILabelElement("style", "color: orange");
-          updateAILabelElement("title", `Hidden markers are:\nAGENTS.md`);
-          updateAILabelElement("text", `Detected hidden genAI file marker: AGENTS.md`);
+        const matches = this.contentJudge(gitIgnoreContents);
+        // for the .gitignore, if you have any sus files, then initiate judgement
+        if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
+          updateAILabelElement("style", `color: ${matches.color}`);
+          updateAILabelElement("title", `Hidden markers are:\n${matches.items.join("\n")}`);
+          updateAILabelElement("text", `Detected ${matches.items.length} hidden genAI file markers: ${matches.items.join(", ")}`);
           return true;
         }
       } else {
-        console.warn(`AgenticAlert: Could not get .gitignore file data, got return ${response.status}`);
+        console.warn(`AgenticAlert: Could not get .gitignore file data, no data returned`);
         this.hadNetworkError = true;
       }
     }
@@ -600,7 +609,7 @@ class AgenticAlertScan {
       }
     } catch (err) {
       console.error(`AgenticAlert: encountered error: ${err}`);
-      updateAILabelElement("style", "style: orange");
+      updateAILabelElement("style", "style: yellow");
       updateAILabelElement("text", "Encountered Error, submit bug report with data from console");
     }
   }
@@ -616,7 +625,7 @@ class AgenticAlertScan {
     if (!this.isValid()) {
       console.warn(`AgenticAlert: Repo/User info is invalid!`);
       updateAILabelElement("text", "Warning! Unable to determine repo data, try refreshing");
-      updateAILabelElement("style", "color: orange");
+      updateAILabelElement("style", "color: yellow");
       return;
     }
 
