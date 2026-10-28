@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.7
+// @version      1.3.8
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -141,6 +141,13 @@ const aiAgents = new Map([
   [157669933, {name: "devloai"}],
   [108416695, {name: "speakeasybot"}],
   [128539517, {i: 308252, name: "speakeasy ai"}],
+  [260729474, {name: "ozagent"}],
+  [243858445, {name: "warp agent"}],
+  [243557089, {i: 2278701, name: "warp factories pr"}],
+  [217976483, {name: "aider chat"}],
+  [247260674, {name: "junie agent"}],
+  [298867840, {name: "augmentbot"}],
+  [254434275, {name: "rp1bot"}]
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -167,6 +174,8 @@ const aiFileMarkers = [
   "autosde.ya?ml",
   "qwen.md",
   "cursor.md",
+  "codex.md",
+  "agent_docs",
   "install_for_agents.md",
   ".codebuddy",
   ".superpowers",
@@ -175,9 +184,14 @@ const aiFileMarkers = [
   ".adal",
   ".agents?",
   "agent.ya?ml",
+  ".aider.conf.ya?ml",
   ".cline(?:rules)?",
   ".continue",
   ".kiro",
+  ".warp",
+  ".ona",
+  ".junie",
+  ".rp1",
   ".aieditoragent",
   ".qwen",
   ".chatgpt",
@@ -188,7 +202,7 @@ const aiFileMarkers = [
   ".?opencode",
   ".windsurf",
   ".strix",
-  ".ori",
+  ".ori$",
   ".metabob",
   ".?openclaw",
   "openclaw.mjs",
@@ -215,17 +229,19 @@ const aiFileMarkers = [
   ".rooignore",
   ".commandcode",
   ".roomote",
+  "warp.md",
   "agents.local.md",
   ".?agenthistory.json",
   ".?graphify",
   ".orca",
+  ".sprite$",
   "orca.ya?ml",
   ".bito.ya?ml",
   "bito-cra(?:.properties)?",
   // fairly loose rules, these guys are sure-fires
   ".?(trae|grok|gemini|claude|qoder)(?:-plugin)?",
   // like the above rules but a bit tighter, to prevent false positives
-  ".(cursor|codex)(?:-plugin)?",
+  ".(augment|cursor|codex)(?:-plugin)?",
 ].map((itm) => `^${itm}`);
 
 // words that can be matched anywhere
@@ -235,6 +251,7 @@ const matchAnywhereAIRule = [
   // this one is a stretch but in testing turned out to be fairly solid
   "skills?",
   "llms-full.txt",
+  "junie.local.json",
   "LLAMA_CPP_VERSION",
 ];
 
