@@ -2,7 +2,7 @@
 
 I'm looking for:
 
-* more genai coding agents
+* more genAI coding agents on GitHub
 * known slop recomp modules
 * files that genAI agents/bots/tools leave in the file/folder structure
 * ideas for how to improve the script's judgement

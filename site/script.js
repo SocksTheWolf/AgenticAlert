@@ -1,6 +1,6 @@
 kofiWidgetOverlay.draw('socksthewolf', {
   'type': 'floating-chat',
-  'floating-chat.donateButton.text': 'Support us',
+  'floating-chat.donateButton.text': 'Support me',
   'floating-chat.donateButton.background-color': '#ffb300',
   'floating-chat.donateButton.text-color': '#323842'
 });
