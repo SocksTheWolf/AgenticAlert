@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.6
+// @version      1.3.7
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -310,6 +310,7 @@ class AgenticAlertScan {
   // hadNetworkError: undefined|true
   // hasGitIgnore: undefined|true
   // hasPotentialCopilot: undefined|true
+  // hasAgents: undefined|true
 
   constructor(url) {
     this.create(url);
@@ -323,6 +324,7 @@ class AgenticAlertScan {
     delete this.hasPotentialCopilot;
     delete this.hadNetworkError;
     delete this.hasGitIgnore;
+    delete this.hasAgents;
   }
 
   create(url) {
@@ -494,7 +496,7 @@ class AgenticAlertScan {
 
     // submodule result check!!!!
     if (submoduleMatches.length > 0) {
-      updateAILabelElement("style", "color: orange");
+      updateAILabelElement("style", "color: orangered");
       updateAILabelElement("title", "This isn't perfect because it has to check name data, which can be inaccurate");
       updateAILabelElement("text", `Detected: Potential genAI submodules: ${submoduleMatches.join(", ")}`);
       return true;
@@ -505,7 +507,7 @@ class AgenticAlertScan {
     const results = {
       items: content.match(aiFileNameRegex) ?? [],
       count: 0,
-      color: "orange",
+      color: "orangered",
       hasAgents: false,
       hasZed: false
     };
@@ -550,6 +552,9 @@ class AgenticAlertScan {
       updateAILabelElement("text", `Detected ${matches.items.length} genAI file markers: ${matches.items.join(", ")}`);
       return true;
     }
+    if (matches.hasAgents) {
+      this.hasAgents = true;
+    }
     return false;
   }
   async scanGitIgnore() {
@@ -587,13 +592,20 @@ class AgenticAlertScan {
       return;
     }
 
+    if (this.hasAgents) {
+      updateAILabelElement("style", "color: greenyellow");
+      updateAILabelElement("title", "Many repos use AGENTS.md to clarify their stance on genAI usage, but it can also used for LLMs.");
+      updateAILabelElement("text", "Potentially Safe: However, an AGENTS.md file was detected. Manual review needed");
+      return;
+    }
+
     // clear out the title
     updateAILabelElement("title", null);
 
     // if we encountered any errors
     if (this.hadNetworkError) {
       updateAILabelElement("text", "Encountered Network Error, but other scans were clean, try refresh");
-      updateAILabelElement("style", "color: orange");
+      updateAILabelElement("style", "color: yellow");
       return;
     }
 

@@ -55,6 +55,7 @@ However, if something is marked as slop, it's slop.
 | Hidden genAI File Markers | ![Example of a repo that has genAI markers](/site/screenshots/screenshot2.jpg?raw=true) |
 | genAI Submodule Usage | ![Example of a repo that has genAI markers](/site/screenshots/screenshot6.jpg?raw=true) |
 | Potential Copilot Usage | ![Example of a repo that has genAI markers](/site/screenshots/screenshot4.jpg?raw=true) |
+| Safe but has `Agents.md` | ![Example of a maybe safe repo](/site/screenshots/screenshot7.jpg?raw=true) |
 | Safe Repo | ![Example of a safe repo](/site/screenshots/screenshot3.jpg?raw=true) |
 
 ---
