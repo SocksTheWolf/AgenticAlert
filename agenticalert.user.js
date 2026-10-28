@@ -175,6 +175,7 @@ const aiFileMarkers = [
   ".aieditoragent",
   ".qwen",
   ".chatgpt",
+  ".codebuffignore",
   ".?cursorrules",
   ".devin",
   ".serena",
