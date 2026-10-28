@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.4
+// @version      1.3.5
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -66,7 +66,7 @@ const aiAgents = new Map([
   [223556219, {i: 1693627, name: "copilot cli"}],
   [267193182, {name: "codex"}],
   [207944715, {name: "replit agent"}],
-  [200291788, {name: "gemini bot"}],
+  [200291788, {name: "gemini code"}],
   [176961590, {i: 956858, name: "gemini"}],
   [136622811, {i: 347564, name: "coderabbit pr"}],
   [191113872, {i: 1082092, name: "cubicdev pr"}],
@@ -136,6 +136,11 @@ const aiAgents = new Map([
   [188872107, {i: 1061978, name: "bito pr"}],
   [128439645, {i: 307814, name: "sweep ai"}],
   [140088366, {i: 364074, name: "ctonew"}],
+  [267743959, {name: "codesmith-bot"}],
+  [174234987, {i: 933528, name: "baz pr"}],
+  [157669933, {name: "devloai"}],
+  [108416695, {name: "speakeasybot"}],
+  [128539517, {i: 308252, name: "speakeasy ai"}],
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -165,6 +170,7 @@ const aiFileMarkers = [
   "install_for_agents.md",
   ".codebuddy",
   ".superpowers",
+  "docs\/superpowers",
   ".hermes",
   ".adal",
   ".agents?",
@@ -179,8 +185,10 @@ const aiFileMarkers = [
   ".?cursorrules",
   ".devin",
   ".serena",
-  ".opencode",
+  ".?opencode",
   ".windsurf",
+  ".strix",
+  ".ori",
   ".metabob",
   ".?openclaw",
   "openclaw.mjs",
