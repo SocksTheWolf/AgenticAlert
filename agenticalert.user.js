@@ -548,7 +548,9 @@ class AgenticAlertScan {
         await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/raw/refs/heads/${branchName}/.gitignore`, {});
 
       if (gitIgnoreContents !== null) {
-        const matches = this.contentJudge(gitIgnoreContents);
+        // just the nastiest of manipulations
+        const globCleanedIgnore = gitIgnoreContents.replace(/^[\/|\*]+/gm, "").replace(/\?/g, "").replace(/\[!.*\]/g, "");
+        const matches = this.contentJudge(globCleanedIgnore);
         // for the .gitignore, if you have any sus files, then initiate judgement
         if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
           updateAILabelElement("style", `color: ${matches.color}`);
