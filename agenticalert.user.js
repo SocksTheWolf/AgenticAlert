@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.3
+// @version      1.3.4
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -153,43 +153,29 @@ const aiRecompModules = [
   "recomp-ui",
 ];
 
-// This is separate because we do not want any modifications to happen when building this regex
-// only delicate regexes should go be in this array
-const rawAiRegexFileMarkers = [
-  "^[^#\\s]*skills?.*$"
-]
-
-// AGENTS.md SHOULD NEVER BE IN THIS LIST.
+// AGENTS.md ITSELF SHOULD NEVER BE IN THIS LIST.
 const aiFileMarkers = [
-  "claude(?:.local)?.md",
-  "gemini(?:.local)?.md",
+  "soul.md",
   "copilot-instructions.md",
   "adal.md",
   "sweep.md",
   "autosde.ya?ml",
   "qwen.md",
-  "skills?.md",
   "cursor.md",
   "install_for_agents.md",
-  "LLAMA_CPP_VERSION",
+  ".codebuddy",
   ".superpowers",
-  ".codex",
   ".hermes",
-  ".claude",
   ".adal",
   ".agents?",
-  ".clinerules",
+  "agent.ya?ml",
+  ".cline(?:rules)?",
   ".continue",
   ".kiro",
   ".aieditoragent",
-  ".qoder",
-  ".?trae",
   ".qwen",
-  ".gemini",
   ".chatgpt",
-  ".grok-plugin",
-  ".cursor",
-  "^mcp",
+  ".?cursorrules",
   ".devin",
   ".serena",
   ".opencode",
@@ -197,23 +183,20 @@ const aiFileMarkers = [
   ".metabob",
   ".?openclaw",
   "openclaw.mjs",
-  "llms-full.txt",
-  "gemini-extensions?(?:.json)?",
-  ".?mcp.json",
+  ".braxis.ya?ml",
   ".?coderabbit.ya?ml",
   ".?cubic.ya?ml",
   ".?kimi(?:-code)?",
   ".?kilo(?:code)?",
-  ".playwright-mcp",
   ".fleet",
   ".air",
-  "freebuff",
   ".senpi",
   ".?openai",
   ".langgraph_api",
   ".?langgraph.json",
   ".?greptile.json",
-  ".omc?p?",
+  ".omc",
+  ".omo",
   ".pi\/?\*?\*?$",
   ".promptflow",
   ".abstra",
@@ -223,20 +206,36 @@ const aiFileMarkers = [
   ".commandcode",
   ".roomote",
   "agents.local.md",
-  "agenthistory.json",
+  ".?agenthistory.json",
   ".?graphify",
   ".orca",
   "orca.ya?ml",
   ".bito.ya?ml",
-  "bito-cra.properties",
+  "bito-cra(?:.properties)?",
+  // fairly loose rules, these guys are sure-fires
+  ".?(trae|grok|gemini|claude|qoder)(?:-plugin)?",
+  // like the above rules but a bit tighter, to prevent false positives
+  ".(cursor|codex)(?:-plugin)?",
+].map((itm) => `^${itm}`);
+
+// words that can be matched anywhere
+const matchAnywhereAIRule = [
+  "freebuff",
+  "mcp",
+  // this one is a stretch but in testing turned out to be fairly solid
+  "skills?",
+  "llms-full.txt",
+  "LLAMA_CPP_VERSION",
 ];
 
 // dynamic regex of the above, global because it's used in two places with no changes.
-const aiFileNameRegex = new RegExp(`(${[...rawAiRegexFileMarkers,
+// good luck understanding how this works, I'm not going to bother explaining it in much detail
+const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   // dynamically escape any ., * and - characters so they are the literals
-  ...[...aiFileMarkers, ...aiRecompModules].map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"))]
-// then join the entire array with OR gates, and that builds our regex.
-.join("|")})`, "igm");
+  [...aiFileMarkers, ...aiRecompModules, ...matchAnywhereAIRule].map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"))
+  // then join the entire array with OR gates, and that builds our regex.
+.join("|")}).*)`, "igm");
+//console.log(aiFileNameRegex);
 
 /*************************************************/
 // Label and Reflow Prevention
@@ -299,6 +298,7 @@ class AgenticAlertScan {
   // repo: undefined|string
   // url: undefined|string
 
+  // skipAINetworkScan: boolean
   // hadNetworkError: undefined|true
   // hasGitIgnore: undefined|true
   // hasPotentialCopilot: undefined|true
@@ -308,6 +308,7 @@ class AgenticAlertScan {
   }
 
   reset() {
+    this.skipAINetworkScan = false;
     delete this.hasPotentialCopilot;
     delete this.hadNetworkError;
     delete this.hasGitIgnore;
@@ -361,6 +362,9 @@ class AgenticAlertScan {
   }
 
   async scanContribData() {
+    if (this.skipAINetworkScan) {
+      return false;
+    }
     updateAILabelElement("text", "Loading Repo Git Data");
 
     const contribData =
@@ -399,6 +403,9 @@ class AgenticAlertScan {
     return false;
   }
   async scanMetadata() {
+    if (this.skipAINetworkScan) {
+      return false;
+    }
     updateAILabelElement("text", "Checking Github Metadata");
     const sidebarData =
       await this.fetchGithub(`https://github.com/${this.username}/${this.repo}/commits/deferred_commit_contributors`);
@@ -525,7 +532,6 @@ class AgenticAlertScan {
     const matches = this.contentJudge(filesList.join("\n"));
     if (matches.count > 0) {
       updateAILabelElement("style", `color: ${matches.color}`);
-      updateAILabelElement("title", `Markers are:\n${matches.items.join("\n")}`);
       updateAILabelElement("text", `Detected ${matches.items.length} genAI file markers: ${matches.items.join(", ")}`);
       return true;
     }
@@ -545,7 +551,6 @@ class AgenticAlertScan {
         // for the .gitignore, if you have any sus files, then initiate judgement
         if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
           updateAILabelElement("style", `color: ${matches.color}`);
-          updateAILabelElement("title", `Hidden markers are:\n${matches.items.join("\n")}`);
           updateAILabelElement("text", `Detected ${matches.items.length} hidden genAI file markers: ${matches.items.join(", ")}`);
           return true;
         }
@@ -556,7 +561,7 @@ class AgenticAlertScan {
     }
     return false;
   }
-  clearRepo() {
+  finalizeRepo() {
     // The copilot check
     if (this.hasPotentialCopilot) {
       updateAILabelElement("style", "color: orange");
@@ -564,6 +569,9 @@ class AgenticAlertScan {
       updateAILabelElement("text", "Detected: Potential Copilot usage");
       return;
     }
+
+    // clear out the title
+    updateAILabelElement("title", null);
 
     // if we encountered any errors
     if (this.hadNetworkError) {
@@ -597,11 +605,13 @@ class AgenticAlertScan {
           // check submodules
           if (!this.scanSubModules()) {
             // check files
+            // this title write will be deleted if/when we get to finalizeRepo
+            updateAILabelElement("title", `Due to optimization, "duplicates" are actually multiple instances, but we only print what we match`);
             if (!this.scanFiles()) {
               // check the .gitignore file
               if (!(await this.scanGitIgnore())) {
                 // Clear the repository from using genAI
-                this.clearRepo();
+                this.finalizeRepo();
               }
             }
           }
