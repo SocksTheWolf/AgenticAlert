@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "AgenticAlert",
+  "description": "Puts a notice if an AI Agent was used in a GitHub repository",
+  "version": "1.3.11",
+  "author": "SocksTheWolf",
+  "developer": {
+    "name": "SocksTheWolf",
+    "url": "https://socksthewolf.com"
+  },
+  "homepage_url": "https://agenticalert.download/",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "icons": {
+    "64": "icon.png"
+  },
+  "host_permissions": [
+    "https://github.com/*/*",
+    "https://www.github.com/*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*/*",
+        "https://www.github.com/*/*"
+      ],
+      "js": [
+        "agenticalert.user.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_end"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "agenticalert@agenticalert.download",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      },
+      "strict_min_version": "109.0"
+    }
+  }
+}

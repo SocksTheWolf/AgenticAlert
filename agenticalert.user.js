@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.10
+// @version      1.3.11
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @grant        none
@@ -16,7 +16,6 @@
 // @include      https://www.github.com/*/*
 // @downloadURL  https://agenticalert.download/agenticalert.user.js
 // @updateURL    https://agenticalert.download/agenticalert.user.js
-// @top-level-await
 // @noframes
 // ==/UserScript==
 
@@ -711,7 +710,7 @@ class AgenticAlertScan {
   }
 }
 
-await (async function() {
+async function runAgenticAlert() {
   'use strict';
 
   // check to see if we're on a repo page or not
@@ -719,7 +718,7 @@ await (async function() {
     // create our scanner object
     scanCheck = new AgenticAlertScan(document.location.href);
 
-    // our styles to make it easier to persist renders
+    // our styles to make it easier to persist between gh renders
     const agenticAlertStyle = document.createElement("style");
     agenticAlertStyle.setAttribute("id",
       `agenticAlertStyle-${btoa(crypto.getRandomValues(new Uint32Array(5)).join(""))}`);
@@ -755,4 +754,6 @@ await (async function() {
     addAILabelElement(true);
     await scanCheck.runScan();
   }
-})();
+}
+
+runAgenticAlert();
