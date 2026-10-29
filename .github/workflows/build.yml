@@ -31,6 +31,8 @@ jobs:
         with:
           node-version-file: ".node-version"
           package-manager-cache: true
+          cache-dependency-path: "package-lock.json"
+          cache: "npm"
 
       - name: Install Packages
         run: npm ci
