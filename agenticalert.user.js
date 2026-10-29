@@ -8,6 +8,7 @@
 // @version      1.3.10
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
+// @grant        none
 // @icon         https://agenticalert.download/icon.png
 // @iconURL      https://agenticalert.download/icon.png
 // @icon64URL    https://agenticalert.download/icon.png
@@ -15,7 +16,6 @@
 // @include      https://www.github.com/*/*
 // @downloadURL  https://agenticalert.download/agenticalert.user.js
 // @updateURL    https://agenticalert.download/agenticalert.user.js
-// @grant        GM_addStyle
 // @top-level-await
 // @noframes
 // ==/UserScript==
@@ -720,7 +720,10 @@ await (async function() {
     scanCheck = new AgenticAlertScan(document.location.href);
 
     // our styles to make it easier to persist renders
-    GM_addStyle(`
+    const agenticAlertStyle = document.createElement("style");
+    agenticAlertStyle.setAttribute("id",
+      `agenticAlertStyle-${btoa(crypto.getRandomValues(new Uint32Array(5)).join(""))}`);
+    agenticAlertStyle.textContent = `
       #agenticAlertLabel {
         max-width: 65%; padding: 0.34rem;
         height: unset !important; min-height: var(--base-size-20,1.25rem);
@@ -733,7 +736,8 @@ await (async function() {
         &[status="error"] { color: var(--ansi-yellowBright); }
         &[status="warning"] { color: var(--ansi-blue); }
       }
-    `);
+    `;
+    document.head.appendChild(agenticAlertStyle);
 
     // Create results object
     aiLabelElement = document.createElement("span");
