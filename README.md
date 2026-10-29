@@ -11,6 +11,8 @@ A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can 
 
 ### STEP ONE
 
+> Coming soon: Native Extensions
+
 Get an userscript runner. You can download either:
 
 * [TamperMonkey](https://www.tampermonkey.net/) (supported)
@@ -67,7 +69,6 @@ However, if something is marked as slop, it's slop.
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _**Another limitation** of GitHub_.
   * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of GitHub_.
 * copilot has some fun bs that only applies to it because of Microsoft's meddling. See [FAQ](https://github.com/SocksTheWolf/AgenticAlert/wiki/FAQ).
-* requires an userscript runner (more than one-click install).
 
 ## Bugs
 
