@@ -1,0 +1,77 @@
+name: Build Extension
+on:
+  workflow_run:
+    workflows: [Release Completed]
+    types:
+      - completed
+
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+  deployments: write
+
+jobs:
+  deployClean:
+    name: Clean Deployments
+    uses: socksthewolf/workflows/.github/workflows/clean_deploys.yml@main
+    secrets: inherit
+    with:
+      environment: submission
+
+  build:
+    runs-on: "ubuntu-latest"
+    environment: submission
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".node-version"
+          package-manager-cache: true
+
+      - name: Install Packages
+        run: npm ci
+
+      - name: Extract version
+        id: version
+        run: |-
+          VERSIONSTR=$(cat agenticalert.user.js | sed -n "s/^\/\/ \@version\s*\([0-9]*\.[0-9]*\.[0-9]*\)/\1/p")
+          echo "version=$VERSIONSTR" >> "$GITHUB_OUTPUT"
+
+      - name: Replace version number
+        uses: SocksTheWolf/github-action-json@v1.5.2
+        with:
+          path: "manifest.json"
+          replaceWith: |
+            {
+              "version": "${{ steps.version.outputs.version }}"
+            }
+
+      - name: Build Extension Zip
+        run: npm run extbuild
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: ext/extension.zip
+          archive: false
+          name: "WebPackedExt"
+
+      - name: Push to Stores
+        if: ${{ false }}
+        uses: creeperkatze/extension-publish@67710e469fb1db85eac50c0cfe18779f9de5bdfb
+        with:
+          chrome-client-id:     ${{ secrets.CHROME_CLIENT_ID }}
+          chrome-client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          chrome-refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          chrome-publisher-id:  ${{ secrets.CHROME_PUBLISHER_ID }}
+          chrome-extension-id:  ${{ secrets.CHROME_EXTENSION_ID }}
+          chrome-zip-path: ext/extension.zip
+          firefox-xpi-path: ext/extension.zip
+          firefox-license: "GPL-3.0-only"
+          firefox-api-key:      ${{ secrets.FIREFOX_API_KEY }}
+          firefox-api-secret:   ${{ secrets.FIREFOX_API_SECRET }}
+          firefox-extension-id: ${{ secrets.FIREFOX_EXTENSION_ID }}
