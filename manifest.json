@@ -16,10 +16,6 @@
     "64": "icon64.png",
     "128": "icon128.png"
   },
-  "host_permissions": [
-    "https://github.com/*/*",
-    "https://www.github.com/*/*"
-  ],
   "content_scripts": [
     {
       "matches": [

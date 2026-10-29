@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.11
+// @version      1.3.12
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @grant        none
