@@ -9,9 +9,9 @@ A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can 
 
 ## Install
 
-### STEP ONE
-
 > Coming soon: Native Extensions
+
+### STEP ONE
 
 Get an userscript runner. You can download either:
 
