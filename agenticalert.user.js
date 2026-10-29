@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.9
+// @version      1.3.10
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @icon         https://agenticalert.download/icon.png
@@ -725,15 +725,13 @@ await (async function() {
         max-width: 65%; padding: 0.34rem;
         height: unset !important; min-height: var(--base-size-20,1.25rem);
         white-space: normal; text-align: center;
-        color-scheme: light dark;
 
-        &[status="none"], &[status="msg"] { color: gray; }
-        &[status="safe"] { color: green; }
-        &[status="danger"] { color: red; }
-        &[status="alert"], &[status="highwarning"] { color: orangered; }
-        &[status="sus"] { color: orange; }
-        &[status="error"] { color: yellow; }
-        &[status="warning"] { color: greenyellow; }
+        &[status="none"], &[status="msg"] { color: var(--ansi-gray); }
+        &[status="safe"] { color: var(--button-primary-bgColor-rest); }
+        &[status="danger"] { color: var(--ansi-red); filter: contrast(29); }
+        &[status="alert"] { color: var(--borderColor-severe-emphasis); filter: brightness(1.6); }
+        &[status="error"] { color: var(--ansi-yellowBright); }
+        &[status="warning"] { color: var(--ansi-blue); }
       }
     `);
 
