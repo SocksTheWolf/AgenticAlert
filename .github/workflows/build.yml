@@ -44,7 +44,7 @@ jobs:
           echo "version=$VERSIONSTR" >> "$GITHUB_OUTPUT"
 
       - name: Replace version number
-        uses: SocksTheWolf/github-action-json@main
+        uses: SocksTheWolf/github-action-json@16bc21c07e9d1742439f43d3060f2debce83b247
         with:
           path: "manifest.json"
           replaceWith: |
