@@ -1,0 +1,25 @@
+name: "Refresh Chrome Access Tokens"
+on:
+  schedule:
+    - cron:  '0 3 2 * *' # At 03:00 on day-of-month 2
+
+permissions:
+  deployments: write
+
+jobs:
+  deployClean:
+    name: Clean Deployments
+    uses: socksthewolf/workflows/.github/workflows/clean_deploys.yml@main
+    secrets: inherit
+    with:
+      environment: refresh_token
+
+  fetchToken:
+    runs-on: ubuntu-latest
+    environment: refresh_token
+    steps:
+      - uses: cardinalby/google-api-fetch-token-action@24c99245e2a2494cc4c4b1037203d319a184b15b
+        with:
+          clientId: ${{ secrets.G_API_CLIENT_ID }}
+          clientSecret: ${{ secrets.G_API_CLIENT_SECRET }}
+          refreshToken: ${{ secrets.G_API_REFRESH_TOKEN }}

@@ -1,0 +1,13 @@
+name: Release Completed
+on:
+  release:
+    types: [published]
+
+permissions:
+  actions: write
+
+jobs:
+  clean:
+    name: Cleanup Actions
+    uses: socksthewolf/workflows/.github/workflows/clean_actions.yml@main
+    secrets: inherit
