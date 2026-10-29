@@ -9,9 +9,6 @@
     "url": "https://socksthewolf.com"
   },
   "homepage_url": "https://agenticalert.download/",
-  "permissions": [
-    "activeTab"
-  ],
   "icons": {
     "64": "icon64.png",
     "128": "icon128.png"
