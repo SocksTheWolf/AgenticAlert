@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "build": "npx cpy agenticalert.user.js site && npx cpy icon.png site",
-    "extbuild": "npx web-ext build -o -n extension.zip -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon.png\" \"!LICENSE\" \"!manifest.json\"",
-    "extrun": "npx web-ext run -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon.png\" \"!LICENSE\" \"!manifest.json\"",
-    "extlint": "npx web-ext lint -i=\"*\" \"!agenticalert.user.js\" \"!icon.png\" \"!LICENSE\" \"!manifest.json\""
+    "build": "npx cpy agenticalert.user.js site && npx cpy icon64.png site/icon.png",
+    "extbuild": "npx web-ext build -o -n extension.zip -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
+    "extrun": "npx web-ext run -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
+    "extlint": "npx web-ext lint -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\""
   },
   "devDependencies": {
     "cpy-cli": "^7.0.0",

@@ -14,7 +14,8 @@
     "scripting"
   ],
   "icons": {
-    "64": "icon.png"
+    "64": "icon64.png",
+    "128": "icon128.png"
   },
   "host_permissions": [
     "https://github.com/*/*",
