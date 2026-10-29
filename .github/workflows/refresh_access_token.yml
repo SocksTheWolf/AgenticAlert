@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: refresh_token
     steps:
-      - uses: cardinalby/google-api-fetch-token-action@24c99245e2a2494cc4c4b1037203d319a184b15b
+      - uses: cardinalby/google-api-fetch-token-action@f455422472a558d48d939e77a65cdcec38e707b5
         with:
           clientId: ${{ secrets.G_API_CLIENT_ID }}
           clientSecret: ${{ secrets.G_API_CLIENT_SECRET }}
