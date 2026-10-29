@@ -1,4 +1,10 @@
 /get /agenticalert.user.js
 /source https://github.com/socksthewolf/agenticalert/
+
+# Github Wiki stuff
 /faq https://github.com/SocksTheWolf/AgenticAlert/wiki/FAQ
 /docs https://github.com/socksthewolf/agenticalert/wiki
+
+# Web extension install links
+/chrome https://chromewebstore.google.com/detail/agenticalert/ilpgadplglhdoeoaoibkjfncinoonajc
+/firefox https://addons.mozilla.org/en-US/firefox/addon/agenticalert/
