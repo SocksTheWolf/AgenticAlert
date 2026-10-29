@@ -399,7 +399,7 @@ class AgenticAlertScan {
           // we have hit a rate limit, so we're going to just break out
           // it's unlikely this will happen to anyone
           break;
-        } else if (data.status > 500) {
+        } else if (data.status >= 500) {
           // github is down, break out.
           break;
         }
