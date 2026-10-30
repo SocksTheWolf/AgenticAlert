@@ -1,10 +1,24 @@
 import { statSync } from "node:fs";
-import { glob, readFile, writeFile } from "node:fs/promises";
+import { glob, readFile, writeFile, copyFile } from "node:fs/promises";
 
 // The absolute most garbage SSG system ever lmao
 // A lot of code from adapted from my other project SkyScheduler
 // which has a much better custom built SSG lol
 async function buildSite() {
+  // copying files
+  const copyFileInstructions = [
+    {source: "agenticalert.user.js", dest: "site"},
+    {source: "icon64.png", dest: "site/icon.png"},
+  ];
+
+  for (const fileCopy of copyFileInstructions) {
+    let destFile = fileCopy.dest;
+    if (!destFile.includes("/")) {
+      destFile += `/${fileCopy.source}`;
+    }
+    await copyFile(fileCopy.source, destFile);
+  }
+
   // for sitemap, literally stolen from skyscheduler lmao
   const SITE_URL = "https://agenticalert.download";
 
