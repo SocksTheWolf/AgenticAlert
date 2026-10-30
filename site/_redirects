@@ -1,4 +1,4 @@
-/get /agenticalert.user.js
+/script /agenticalert.user.js
 /source https://github.com/socksthewolf/agenticalert/
 
 # Github Wiki stuff
