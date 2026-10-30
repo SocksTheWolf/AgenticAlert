@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.13
+// @version      1.4.0
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -245,6 +245,10 @@ const matchAnywhereAIRule = [
   "LLAMA_CPP_VERSION",
 ];
 
+// Claude config rules (good lord)
+const claudeDenyConfigDirectives = ["Read","Edit","Write","MultiEdit","NotebookEdit","NotebookRead","Bash",
+  "BashOutput","KillBash","Glob","Grep","WebFetch","WebSearch","Task","SlashCommand"];
+
 // dynamic regex of the above, global because it's used in two places with no changes.
 // good luck understanding how this works, I'm not going to bother explaining it in much detail
 const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
@@ -320,6 +324,7 @@ class AgenticAlertScan {
 
   // debug: {}
   // repo: {}
+  // output: {}
 
   constructor(url) {
     this.create(url);
@@ -333,10 +338,32 @@ class AgenticAlertScan {
     this.repo = {
       // copilot: undefined|true
       // hasIgnore: undefined|true
+      // hasClaudeDir: undefined|true
       // networkError: undefined|true
       // hasAgents: undefined|true
       // branchName: undefined|string
     };
+    this.output = {
+      // text
+      // title
+      // status
+      // link
+    }
+  }
+
+  updateOutput(key, value) {
+    if (value === null) {
+      delete this.output[key];
+    } else {
+      this.output[key] = value;
+    }
+  }
+
+  writeOutput() {
+    const propertiesDefined = Object.getOwnPropertyNames(this.output);
+    propertiesDefined.forEach((prop) => {
+      updateAILabelElement(prop, this.output[prop]);
+    });
   }
 
   create(url) {
@@ -391,7 +418,7 @@ class AgenticAlertScan {
         if (data.ok && data.status === 200) {
           gotData = true;
           break;
-        } else if (data.status === 429) {
+        } else if (data.status === 429 || data.status === 404) {
           // we have hit a rate limit, so we're going to just break out
           // it's unlikely this will happen to anyone
           break;
@@ -402,7 +429,7 @@ class AgenticAlertScan {
         updateAILabelElement("text", getAttemptString("Waiting 5s to retry"));
         await sleepRequest(5000);
       } catch (err) {
-        console.warn(`AgenticAlert - Encountered timeout on ${url} - ${attempts}`);
+        console.warn(`AgenticAlert - Encountered timeout on ${url} - ${attempts} of ${max_attempts}`);
         // Ignore all errors, retry (nearly) immediately
         updateAILabelElement("text", getAttemptString("Timed out, retrying"));
         await sleepRequest(2000);
@@ -444,9 +471,9 @@ class AgenticAlertScan {
           this.repo.copilot = true;
           return false;
         } else {
-          updateAILabelElement("status", "danger");
-          updateAILabelElement("title", `Git contribution data shows the usage of ${this.countResults(matchResults, "genAI agent")}`);
-          updateAILabelElement("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
+          this.updateOutput("status", "danger");
+          this.updateOutput("title", `Git contribution data shows the usage of ${this.countResults(matchResults, "genAI agent")}`);
+          this.updateOutput("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
         }
         return true;
       }
@@ -503,9 +530,9 @@ class AgenticAlertScan {
           this.repo.copilot = true;
           return false;
         } else {
-          updateAILabelElement("status", "danger");
-          updateAILabelElement("title", `Github metadata shows the usage of ${this.countResults(names, "genAI agent")}`);
-          updateAILabelElement("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
+          this.updateOutput("status", "danger");
+          this.updateOutput("title", `Github metadata shows the usage of ${this.countResults(names, "genAI agent")}`);
+          this.updateOutput("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
         }
         return true;
       }
@@ -530,9 +557,9 @@ class AgenticAlertScan {
       }
     });
     if (submoduleMatches.length > 0) {
-      updateAILabelElement("status", "alert");
-      updateAILabelElement("title", "This isn't perfect because it has to check name data, which can be inaccurate");
-      updateAILabelElement("text", `Detected: Potential ${this.countResults(submoduleMatches, "genAI submodule")}: ${submoduleMatches.join(", ")}`);
+      this.updateOutput("status", "warning");
+      this.updateOutput("title", "This isn't perfect because it has to check name data, which can be inaccurate");
+      this.updateOutput("text", `Detected: Potential ${this.countResults(submoduleMatches, "genAI submodule")}: ${submoduleMatches.join(", ")}`);
       return true;
     }
     return false;
@@ -541,8 +568,9 @@ class AgenticAlertScan {
     const results = {
       items: content.match(aiFileNameRegex) ?? [],
       count: 0,
-      color: "alert",
+      color: "warning",
       hasAgents: false,
+      hasClaudeDir: false,
       hasZed: false
     };
     // snapshot of the results before we add special items
@@ -552,13 +580,16 @@ class AgenticAlertScan {
       results.color = "danger";
     }
     // push our special detections if we have other markers
-    if ((/agents\.md/ig).test(content)) {
+    if ((/agents\.md/i).test(content)) {
       results.items.push("AGENTS.md");
       results.hasAgents = true;
     }
-    if ((/^\.zed/igm).test(content)) {
+    if ((/^\.zed/im).test(content)) {
       results.items.push(".zed");
       results.hasZed = true;
+    }
+    if ((/^\.claude/im).test(content)) {
+      results.hasClaudeDir = true;
     }
     // if you have both special flags, that's a massive red flag
     if (results.hasZed && results.hasAgents) {
@@ -568,7 +599,14 @@ class AgenticAlertScan {
     return results;
   }
   scanFiles() {
+    // this title write will be deleted if/when we get to finalizeRepo
+    this.updateOutput("title", `Due to optimization, "duplicates" are actually multiple instances, but we only print what we match`);
     updateAILabelElement("text", "Checking for AI files");
+    // capture the branch name
+    const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
+    if (branchPicker) {
+      this.repo.branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
+    }
     const fileElements = document.querySelectorAll(".react-directory-filename-cell a"), filesList = [];
     // dedupe the element list, as github will give us duplicates
     fileElements.forEach((itm) => {
@@ -582,8 +620,12 @@ class AgenticAlertScan {
     });
     const matches = this.contentJudge(filesList.join("\n"));
     if (matches.count > 0) {
-      updateAILabelElement("status", matches.color);
-      updateAILabelElement("text", `Detected ${this.countResults(matches.items, "genAI file marker")}: ${matches.items.join(", ")}`);
+      this.updateOutput("status", matches.color);
+      this.updateOutput("text", `Detected ${this.countResults(matches.items, "genAI file marker")}: ${matches.items.join(", ")}`);
+      if (matches.hasClaudeDir && matches.count <= 2) {
+        this.repo.hasClaudeDir = true;
+        return false;
+      }
       return true;
     }
     if (matches.hasAgents) { // make sure to save if we found AGENTS.md
@@ -591,30 +633,75 @@ class AgenticAlertScan {
     }
     return false;
   }
+  // This is so much work for so little gain.
+  async scanClaudeConfig() {
+    if (this.repo.hasClaudeDir !== true || this.repo.branchName === undefined) {
+      // skip anything that doesn't have a claude dir
+      return false;
+    }
+    updateAILabelElement("text", "Fetching .claude settings for poison");
+    // Attempt to grab the claude config file
+    const claudeConfig =
+      await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${this.repo.branchName}/.claude/settings.json`, {}, 2, 6000);
+    if (claudeConfig !== null) {
+      // don't bother processing if anything is "allowed"/"ask"
+      if ((/\"(allow|ask)\"/mi).test(claudeConfig)) {
+        console.debug(`AgenticAlert - Claude config had "allow" or "ask" which is not allowed.`);
+        return true;
+      }
+      updateAILabelElement("text", "Scanning .claude settings data");
+      // Now we have to check denials to make sure you're not false flagging us
+      // this will look for denials anywhere in the structure and only capture denials
+      const claudeDenyCapture = /"permissions":\s*{.+?"deny":\s*\[\s*("[^\[\]]*?")\s*\]/ims;
+      const claudeConfigDeny = (claudeConfig.match(claudeDenyCapture) ?? []).pop() ?? null;
+      // if no matches, use previous judgement
+      if (claudeConfigDeny === null) {
+        return true;
+      }
+
+      const claudeConfigDenyCleaned = claudeConfigDeny.replace(/\s|"/g, "");
+      const claudeDenialCompRegex = new RegExp(`(${claudeDenyConfigDirectives.join("|")})`, "ig");
+      const claudeConfigDenialMatches = [];
+      // yet another awful match, with a bonus dedupe operation
+      (claudeConfigDenyCleaned.match(claudeDenialCompRegex) ?? []).forEach((val) => {
+        if (!claudeConfigDenialMatches.includes(val)) {
+          claudeConfigDenialMatches.push(val);
+        }
+      });
+
+      const claudeSafeMatchAmt = Math.floor(claudeDenyConfigDirectives.length * .7);
+      if (claudeConfigDenialMatches.length >= claudeSafeMatchAmt) {
+        // Change the response, they have enough denials to give them an alert.
+        this.updateOutput("status", "info");
+        this.updateOutput("title", `The .claude/settings.json has poison instructions to hurt Claude from working.
+          Detected ${claudeConfigDenialMatches.length} actions`);
+        this.updateOutput("text", "Detected: Presence of LLM files but they have anti-LLM data in them. Might be safe");
+        return true;
+      }
+    }
+    // They were previously judged. You cannot last this long here, so kill.
+    return true;
+  }
   async scanGitIgnore() {
     updateAILabelElement("text", "Checking for hidden AI markers");
-    const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
-    if (branchPicker) {
-      this.repo.branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
-      if (this.repo.hasIgnore) {
-        // the cool thing about this endpoint is that it avoids CORS all together, and works with permissions!
-        const gitIgnoreContents =
-          await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${this.repo.branchName}/.gitignore`, {});
+    if (this.repo.hasIgnore && this.repo.branchName !== undefined) {
+      // the cool thing about this endpoint is that it avoids CORS all together, and works with permissions!
+      const gitIgnoreContents =
+        await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${this.repo.branchName}/.gitignore`, {});
 
-        if (gitIgnoreContents !== null) {
-          // just the nastiest of manipulations
-          const globCleanedIgnore = gitIgnoreContents.replace(/^[\/|\*]+/gm, "").replace(/\?/g, "").replace(/\[!.*\]/g, "");
-          const matches = this.contentJudge(globCleanedIgnore);
-          // for the .gitignore, if you have any sus files, then initiate judgement
-          if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
-            updateAILabelElement("status", matches.color);
-            updateAILabelElement("text", `Detected ${this.countResults(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
-            return true;
-          }
-        } else {
-          console.warn(`AgenticAlert: Could not get .gitignore file data, no data returned`);
-          this.repo.networkError = true;
+      if (gitIgnoreContents !== null) {
+        // just the nastiest of manipulations
+        const globCleanedIgnore = gitIgnoreContents.replace(/^[\/|\*]+/gm, "").replace(/\?/g, "").replace(/\[!.*\]/g, "");
+        const matches = this.contentJudge(globCleanedIgnore);
+        // for the .gitignore, if you have any sus files, then initiate judgement
+        if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
+          this.updateOutput("status", matches.color);
+          this.updateOutput("text", `Detected ${this.countResults(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
+          return true;
         }
+      } else {
+        console.warn(`AgenticAlert: Could not get .gitignore file data, no data returned`);
+        this.repo.networkError = true;
       }
     }
     return false;
@@ -622,52 +709,51 @@ class AgenticAlertScan {
   finalizeRepo() {
     // The copilot check
     if (this.repo.copilot) {
-      updateAILabelElement("status", "alert");
-      updateAILabelElement("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
-      updateAILabelElement("text", "Detected: Potential Copilot usage");
+      this.updateOutput("status", "warning");
+      this.updateOutput("title", "Copilot usage may have been intentional or a fallout from Microsoft's many mistakes");
+      this.updateOutput("text", "Detected: Potential Copilot usage");
       return;
     }
 
     // Agents.md handling
     if (this.repo.hasAgents) {
-      updateAILabelElement("status", "warning");
+      this.updateOutput("status", "info");
       let agentsAction = "Manual review needed.";
       if (this.repo.branchName) {
-        updateAILabelElement("data-agent-url", `https://github.com/${this.user}/${this.project}/blob/${this.repo.branchName}/AGENTS.md`);
+        this.updateOutput("link", `https://github.com/${this.user}/${this.project}/blob/${this.repo.branchName}/AGENTS.md`);
         agentsAction = "Click to manually review."
       }
-      updateAILabelElement("title", "Many repos use AGENTS.md to clarify their stance on genAI usage, but it can also used for LLMs.");
-      updateAILabelElement("text", `Potentially Safe: However, an AGENTS.md file was detected. ${agentsAction}`);
+      this.updateOutput("title", "Many repos use AGENTS.md to clarify their stance on genAI usage, but it can also used for LLMs.");
+      this.updateOutput("text", `Potentially Safe: However, an AGENTS.md file was detected. ${agentsAction}`);
       return;
     }
 
     // clear out the title
-    updateAILabelElement("title", null);
+    this.updateOutput("title", null);
 
     // if we encountered any errors
     if (this.repo.networkError) {
-      updateAILabelElement("text", "Encountered Network Error, but other scans were clean, click to try to refresh");
-      updateAILabelElement("status", "error");
+      this.updateOutput("text", "Encountered Network Error, but other scans were clean, click to try to refresh");
+      this.updateOutput("status", "error");
       return;
     }
 
     // fork check!!!!!!
     const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
     if (checkFork !== null) {
-      updateAILabelElement("text", "Potentially Safe: Parent repo may use AI, but this fork has no genAI additions");
+      this.updateOutput("text", "Potentially Safe: Parent repo may use AI, but this fork has no genAI additions");
     } else {
       // we're all clear to go!!!
-      updateAILabelElement("text", "Potentially Safe: No known genAI detected");
+      this.updateOutput("text", "Potentially Safe: No known genAI detected");
     }
-    updateAILabelElement("status", "safe");
+    this.updateOutput("status", "safe");
   }
   async runScan() {
     // reset all attributes from label
     updateAILabelElement("title", null);
-    updateAILabelElement("data-agent-url", null);
+    updateAILabelElement("link", null);
 
     // set initial scan label data
-    updateAILabelElement("processing", true);
     updateAILabelElement("status", "none");
     updateAILabelElement("text", "Scanning for genAI...");
 
@@ -680,13 +766,14 @@ class AgenticAlertScan {
           // check submodules
           if (!this.scanSubModules()) {
             // check files
-            // this title write will be deleted if/when we get to finalizeRepo
-            updateAILabelElement("title", `Due to optimization, "duplicates" are actually multiple instances, but we only print what we match`);
             if (!this.scanFiles()) {
-              // check the .gitignore file
-              if (!(await this.scanGitIgnore())) {
-                // Clear the repository from using genAI
-                this.finalizeRepo();
+              // check .claude settings config for poison pills (duckstation)
+              if (!(await this.scanClaudeConfig())) {
+                // check the .gitignore file
+                if (!(await this.scanGitIgnore())) {
+                  // Clear the repository from using genAI
+                  this.finalizeRepo();
+                }
               }
             }
           }
@@ -694,10 +781,12 @@ class AgenticAlertScan {
       }
     } catch (err) {
       console.error(`AgenticAlert: encountered error: ${err}`);
-      updateAILabelElement("status", "error");
-      updateAILabelElement("text", "Encountered Error, submit bug report with data from console");
+      this.updateOutput("status", "error");
+      this.updateOutput("title", null);
+      this.updateOutput("link", null);
+      this.updateOutput("text", "Encountered Error, submit bug report with data from console");
     }
-    updateAILabelElement("processing", null);
+    this.writeOutput();
   }
   async shouldRunScan(url) {
     if (this.url !== url) {
@@ -736,9 +825,9 @@ async function runAgenticAlert() {
           &[status="none"], &[status="msg"] { color: var(--ansi-gray); }
           &[status="safe"] { color: var(--button-primary-bgColor-rest); }
           &[status="danger"] { color: var(--ansi-red); filter: contrast(29); }
-          &[status="alert"] { color: var(--borderColor-severe-emphasis); filter: brightness(1.6); }
+          &[status="warning"] { color: var(--borderColor-severe-emphasis); filter: brightness(1.6); }
           &[status="error"] { color: var(--ansi-yellowBright); }
-          &[status="warning"] { color: var(--ansi-blue); }
+          &[status="info"] { color: var(--ansi-blue); }
         }
       `;
       document.head.appendChild(agenticAlertStyle);
@@ -771,8 +860,8 @@ async function runAgenticAlert() {
         return;
       }
       // if we have an easy access link to the AGENTS file, go ahead and open it.
-      if (ev.target.hasAttribute("data-agent-url")) {
-        window.open(ev.target.getAttribute("data-agent-url"));
+      if (ev.target.hasAttribute("link")) {
+        window.open(ev.target.getAttribute("link"));
         return;
       }
     });
