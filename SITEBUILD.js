@@ -18,10 +18,12 @@ async function buildSite() {
     sections.set(fileKey, fileContents);
   }
 
-  const skipPages = [];
+  const skipBuildPages = [];
+  const skipSitemapPages = ["**/404.html"];
   if (process.env["IS_TEST"] !== 'true') {
-    skipPages.push("**/get.html");
+    skipSitemapPages.push("**/get.html");
   }
+  const skipSitemapRegex = new RegExp(`(${skipSitemapPages.map((itm) => itm.replace(/(\.|\/)/g, "\\$1").replace(/(\*\*)/, ".*")).join("|")})`, "i");
 
   // match swap with dynamic content
   const sectionInjection = (_match, p1) => {
@@ -31,15 +33,15 @@ async function buildSite() {
     }
     return sections.get(p1);
   };
-  
-  // build each page in the pages dir
-  for await (const pageFile of glob("site/pages/*", {exclude: skipPages})) {
-    // store data for the sitemap
-    sitemap_pages.push({
-      url: pageFile.replace(/(site\\pages\\|site\/pages\/|index|\.html)/g, ""),
-      lastMod: statSync(pageFile).mtime.toISOString()
-    });
 
+  // build each page in the pages dir
+  for await (const pageFile of glob("site/pages/*", {exclude: skipBuildPages})) {
+    if (skipSitemapRegex.test(pageFile) === false) {
+      sitemap_pages.push({
+        url: pageFile.replace(/(site\\pages\\|site\/pages\/|index|\.html)/g, ""),
+        lastMod: statSync(pageFile).mtime.toISOString()
+      });
+    }
     // god this is so awful
     const outputPageFile = pageFile.replace(/(\\pages|\/pages)/g, "");
     let pageContents = await readFile(pageFile, {encoding: "utf-8"});

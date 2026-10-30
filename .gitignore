@@ -17,7 +17,6 @@ ext
 # Site output files
 site/sitemap.xml
 site/*.html
-!site/404.html
 
 # site development folders
 test/

@@ -1,6 +1,3 @@
-# note, remove this redirect once all the web extensions have been initially reviewed
-/get /#get
-
 /script /agenticalert.user.js
 /source https://github.com/socksthewolf/agenticalert/
 
