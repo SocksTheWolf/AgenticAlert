@@ -1,11 +1,36 @@
-import { statSync } from "node:fs";
-import { glob, readFile, writeFile, copyFile } from "node:fs/promises";
+import { accessSync, constants, statSync, writeFileSync } from "node:fs";
+import { copyFile, glob, readFile, writeFile } from "node:fs/promises";
+
+const lockFile = "page-lock";
+function checkPageLock() {
+  try {
+    accessSync(lockFile, constants.R_OK | constants.W_OK);
+  } catch(_err) {
+    return false;
+  }
+
+  const currentTime = new Date();
+  // if modification is within a 3s window, drop the change
+  let modTime = statSync(lockFile).mtime;
+  modTime.setSeconds(modTime.getSeconds() + 3);
+  return modTime > currentTime;
+}
 
 // The absolute most garbage SSG system ever lmao
 // A lot of code from adapted from my other project SkyScheduler
 // which has a much better custom built SSG lol
 async function buildSite() {
-  // copying files
+  // check for lock file modifications
+  if (checkPageLock()) {
+    console.warn("build skipped");
+    return;
+  }
+
+  // touch the file, we'll check mod times later
+  // use the sync so we don't have to worry about flushing as much
+  writeFileSync(lockFile, new Date().toISOString());
+
+  // copying file rules
   const copyFileInstructions = [
     {source: "agenticalert.user.js", dest: "site"},
     {source: "icon64.png", dest: "site/icon.png"},
@@ -72,6 +97,7 @@ async function buildSite() {
   </urlset>`;
 
   await writeFile("site/sitemap.xml", sitemap);
+  console.info("build complete");
 }
 
 buildSite();

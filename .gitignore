@@ -6,6 +6,7 @@
 node_modules/
 .wrangler/
 .env
+page-lock
 
 # deploy will always copy the latest script into the site directory
 site/agenticalert.user.js
