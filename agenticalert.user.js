@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.3.12
+// @version      1.3.13
 // @description  Puts a notice if an AI Agent was used in a GitHub repository
 // @tag          utilities
 // @grant        none
@@ -300,8 +300,12 @@ function addAILabelElement(watchMutation) {
   }
   // this is the dumbest thing but it helps fight against GitHub's DOM reflows
   if (watchMutation) {
-    aiMutationObservation.observe(document.body, { subtree: true, childList: true });
+    observeAIMutation();
   }
+}
+
+function observeAIMutation() {
+  aiMutationObservation.observe(document.body, { subtree: true, childList: true });
 }
 const aiMutationObservation = new MutationObserver(async (_mutations) => {
   if (!document.getElementById("agenticAlertLabel")) {
@@ -340,6 +344,7 @@ class AgenticAlertScan {
       // hasIgnore: undefined|true
       // networkError: undefined|true
       // hasAgents: undefined|true
+      // branchName: undefined|string
     };
   }
 
@@ -597,25 +602,27 @@ class AgenticAlertScan {
   async scanGitIgnore() {
     updateAILabelElement("text", "Checking for hidden AI markers");
     const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
-    if (branchPicker && this.repo.hasIgnore) {
-      const branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
-      // the cool thing about this is that it avoids CORS all together, and works with permissions!
-      const gitIgnoreContents =
-        await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${branchName}/.gitignore`, {});
+    if (branchPicker) {
+      this.repo.branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
+      if (this.repo.hasIgnore) {
+        // the cool thing about this endpoint is that it avoids CORS all together, and works with permissions!
+        const gitIgnoreContents =
+          await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${this.repo.branchName}/.gitignore`, {});
 
-      if (gitIgnoreContents !== null) {
-        // just the nastiest of manipulations
-        const globCleanedIgnore = gitIgnoreContents.replace(/^[\/|\*]+/gm, "").replace(/\?/g, "").replace(/\[!.*\]/g, "");
-        const matches = this.contentJudge(globCleanedIgnore);
-        // for the .gitignore, if you have any sus files, then initiate judgement
-        if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
-          updateAILabelElement("status", matches.color);
-          updateAILabelElement("text", `Detected ${this.countResults(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
-          return true;
+        if (gitIgnoreContents !== null) {
+          // just the nastiest of manipulations
+          const globCleanedIgnore = gitIgnoreContents.replace(/^[\/|\*]+/gm, "").replace(/\?/g, "").replace(/\[!.*\]/g, "");
+          const matches = this.contentJudge(globCleanedIgnore);
+          // for the .gitignore, if you have any sus files, then initiate judgement
+          if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
+            updateAILabelElement("status", matches.color);
+            updateAILabelElement("text", `Detected ${this.countResults(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
+            return true;
+          }
+        } else {
+          console.warn(`AgenticAlert: Could not get .gitignore file data, no data returned`);
+          this.repo.networkError = true;
         }
-      } else {
-        console.warn(`AgenticAlert: Could not get .gitignore file data, no data returned`);
-        this.repo.networkError = true;
       }
     }
     return false;
@@ -631,8 +638,13 @@ class AgenticAlertScan {
 
     if (this.repo.hasAgents) {
       updateAILabelElement("status", "warning");
+      let agentsAction = "Manual review needed.";
+      if (this.repo.branchName) {
+        updateAILabelElement("data-agent-url", `https://github.com/${this.user}/${this.project}/blob/${this.repo.branchName}/AGENTS.md`);
+        agentsAction = "Click to manually review."
+      }
       updateAILabelElement("title", "Many repos use AGENTS.md to clarify their stance on genAI usage, but it can also used for LLMs.");
-      updateAILabelElement("text", "Potentially Safe: However, an AGENTS.md file was detected. Manual review needed");
+      updateAILabelElement("text", `Potentially Safe: However, an AGENTS.md file was detected. ${agentsAction}`);
       return;
     }
 
@@ -641,7 +653,7 @@ class AgenticAlertScan {
 
     // if we encountered any errors
     if (this.repo.networkError) {
-      updateAILabelElement("text", "Encountered Network Error, but other scans were clean, click to try refresh");
+      updateAILabelElement("text", "Encountered Network Error, but other scans were clean, click to try to refresh");
       updateAILabelElement("status", "error");
       return;
     }
@@ -657,8 +669,11 @@ class AgenticAlertScan {
     updateAILabelElement("status", "safe");
   }
   async runScan() {
-    // reset
+    // reset all attributes from label
     updateAILabelElement("title", null);
+    updateAILabelElement("data-agent-url", null);
+
+    // set initial scan label data
     updateAILabelElement("processing", true);
     updateAILabelElement("status", "none");
     updateAILabelElement("text", "Scanning for genAI...");
@@ -715,43 +730,63 @@ async function runAgenticAlert() {
 
   // check to see if we're on a repo page or not
   if (document.getElementById("repo-title-component")) {
+
+    // inject our style to persist between gh renders if there's no injection like it so far
+    if (!document.querySelector("style[id^=\"agenticAlertStyle-\"]")) {
+      const agenticAlertStyle = document.createElement("style");
+      agenticAlertStyle.setAttribute("id",
+        `agenticAlertStyle-${btoa(crypto.getRandomValues(new Uint32Array(5)).join(""))}`);
+      agenticAlertStyle.textContent = `
+        #agenticAlertLabel {
+          max-width: 65%; padding: 0.34rem;
+          height: unset !important; min-height: var(--base-size-20,1.25rem);
+          white-space: normal; text-align: center;
+
+          &[status="none"], &[status="msg"] { color: var(--ansi-gray); }
+          &[status="safe"] { color: var(--button-primary-bgColor-rest); }
+          &[status="danger"] { color: var(--ansi-red); filter: contrast(29); }
+          &[status="alert"] { color: var(--borderColor-severe-emphasis); filter: brightness(1.6); }
+          &[status="error"] { color: var(--ansi-yellowBright); }
+          &[status="warning"] { color: var(--ansi-blue); }
+        }
+      `;
+      document.head.appendChild(agenticAlertStyle);
+    }
+
     // create our scanner object
     scanCheck = new AgenticAlertScan(document.location.href);
 
-    // our styles to make it easier to persist between gh renders
-    const agenticAlertStyle = document.createElement("style");
-    agenticAlertStyle.setAttribute("id",
-      `agenticAlertStyle-${btoa(crypto.getRandomValues(new Uint32Array(5)).join(""))}`);
-    agenticAlertStyle.textContent = `
-      #agenticAlertLabel {
-        max-width: 65%; padding: 0.34rem;
-        height: unset !important; min-height: var(--base-size-20,1.25rem);
-        white-space: normal; text-align: center;
-
-        &[status="none"], &[status="msg"] { color: var(--ansi-gray); }
-        &[status="safe"] { color: var(--button-primary-bgColor-rest); }
-        &[status="danger"] { color: var(--ansi-red); filter: contrast(29); }
-        &[status="alert"] { color: var(--borderColor-severe-emphasis); filter: brightness(1.6); }
-        &[status="error"] { color: var(--ansi-yellowBright); }
-        &[status="warning"] { color: var(--ansi-blue); }
-      }
-    `;
-    document.head.appendChild(agenticAlertStyle);
-
     // Create results object
-    aiLabelElement = document.createElement("span");
-    aiLabelElement.setAttribute("id", "agenticAlertLabel");
-    aiLabelElement.setAttribute("data-size", "small");
-    aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
-    aiLabelElement.setAttribute("data-component", "Label");
-    aiLabelElement.addEventListener("click", async (ev) => {
-      if (!ev.target.hasAttribute("processing") && scanCheck) {
+    const resultLabel = document.getElementById("agenticAlertLabel");
+    // do not create the element if it's already been injected (development case)
+    if (!resultLabel) {
+      aiLabelElement = document.createElement("span");
+      aiLabelElement.setAttribute("id", "agenticAlertLabel");
+      aiLabelElement.setAttribute("data-size", "small");
+      aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
+      aiLabelElement.setAttribute("data-component", "Label");
+      addAILabelElement(true);
+    } else {
+      // create a clone of existing DOM
+      aiLabelElement = resultLabel.cloneNode();
+      // reObserve
+      observeAIMutation();
+    }
+
+    // hook our event listener up
+    (resultLabel ?? aiLabelElement).addEventListener("click", async (ev) => {
+      if (ev.target.getAttribute("status") == "error" && scanCheck) {
+        // if we have an error, allow for rescanning
         await scanCheck.runScan();
-      } else {
-        console.log(`AgenticAlert: Skipping reprocess as we are not ready`);
+        return;
+      }
+      // if we have an easy access link to the AGENTS file, go ahead and open it.
+      if (!ev.target.hasAttribute("processing") && ev.target.hasAttribute("data-agent-url")) {
+        window.open(ev.target.getAttribute("data-agent-url"));
+        return;
       }
     });
-    addAILabelElement(true);
+
     await scanCheck.runScan();
   }
 }
