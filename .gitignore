@@ -6,25 +6,8 @@
 page-lock
 ext
 
-.metabob/test
-
-# do not pick up on .zed
-
 AGENTS.md
-CLAUDE.md
-
-# I really love skills, they are so good, skills skills
-# .windsurf
 
 site/
 node_modules
 .wrangler
-
-# Glob removals
-/.devin
-**/.opencode
-.?commandcode/**
-
-# More shadow fuckery
-.clin?e[!abc]?rules
-**/**/.claude
