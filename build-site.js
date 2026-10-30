@@ -29,7 +29,8 @@ async function buildSite() {
     console.log(pageContents);
     pageContents = pageContents.toString().replace(/\{(.*)\}/g, sectionInjection);
 
-    await writeFile(`test/${outputPageFile}`, pageContents);
+    const outputFile = process.env.IS_TEST ? `test/${outputPageFile}` : outputPageFile;
+    await writeFile(outputFile, pageContents);
   }
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
