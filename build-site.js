@@ -23,7 +23,7 @@ async function buildSite() {
     }
     return sections.get(p1);
   }
-  for await (const pageFile of glob("site/pages/*")) {
+  for await (const pageFile of glob("site/pages/*", {exclude: ["**/get.html"]})) {
     sitemap_page.push({
       url: pageFile.replace(/(site\\pages\\|site\/pages\/|index|\.html)/g, ""),
       lastMod: statSync(pageFile).mtime.toISOString()
