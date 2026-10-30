@@ -1,5 +1,5 @@
 name="agenticalert"
-compatibility_date = "2026-11-25"
+compatibility_date = "2026-10-25"
 preview_urls = false
 workers_dev = false
 send_metrics = false
