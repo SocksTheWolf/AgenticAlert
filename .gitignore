@@ -5,6 +5,7 @@
 # Node and wrangler crap
 node_modules/
 .wrangler/
+.env
 
 # deploy will always copy the latest script into the site directory
 site/agenticalert.user.js
