@@ -3,9 +3,10 @@
 [![GitHub Created At](https://img.shields.io/github/created-at/socksthewolf/agenticalert?logo=github&logoColor=white)](https://github.com/socksthewolf/agenticalert)
 [![GitHub License](https://img.shields.io/github/license/socksthewolf/agenticalert?logo=gplv3&logoColor=yellow&color=green)](https://github.com/SocksTheWolf/AgenticAlert?tab=GPL-3.0-1-ov-file)
 [![GitHub script size](https://img.shields.io/github/size/socksthewolf/agenticalert/agenticalert.user.js?logo=javascript)](https://agenticalert.download/get)
+[![Website](https://img.shields.io/website?logo=cloudflare&color=teal&cacheSeconds=7200&down_color=red&url=https%3A%2F%2Fagenticalert.download)](https://agenticalert.download)
 [![GitHub Repo stars](https://img.shields.io/github/stars/socksthewolf/agenticalert)](https://github.com/SocksTheWolf/AgenticAlert/stargazers)
 
-A robust userscript that attempts to alert you if a GitHub repo uses genAI. Can be installed in pretty much everything.
+A robust extension that scans and alerts you if a GitHub repo uses genAI. Can be installed in pretty much everything.
 
 ## Install
 
@@ -34,9 +35,9 @@ AgenticAlert has a few advantages over other alternatives:
 * Scans .gitignore and GitHub metadata without user input
 * Comprehensive deep search
 
-> **NOTE**: you should continue to use your eyes if something is marked as "potentially safe", as there's always the chance of new ai agents we don't detect yet.
+> **NOTE**: you should continue to use your eyes if something is marked as "potentially safe", as there's always the chance of new genAI agents we don't detect yet.
 
-However, if something is marked as slop, it's slop.
+However, if something is marked as slop, it's very likely slop.
 
 ## Detection List
 

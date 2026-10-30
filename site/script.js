@@ -29,7 +29,8 @@ function handleSatNav() {
   }
   let lookupName;
   // this is dumb but it avoids XSS
-  // and I don't want to bother sanitizing code for a static site
+  // and I don't want to bother adding sanitizing code for a static site
+  // that I threw together so quickly
   switch (currentPage) {
     case "get":
       lookupName = "get";

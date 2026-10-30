@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AgenticAlert",
-  "description": "Puts a notice if an AI Agent was used in a GitHub repository",
+  "description": "AgenticAlert scans and alerts you if a GitHub repo uses genAI",
   "version": "",
   "author": "SocksTheWolf",
   "developer": {
