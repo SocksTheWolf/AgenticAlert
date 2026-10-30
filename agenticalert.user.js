@@ -6,7 +6,7 @@
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
 // @version      1.3.13
-// @description  Puts a notice if an AI Agent was used in a GitHub repository
+// @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
 // @icon         https://agenticalert.download/icon.png
@@ -18,14 +18,6 @@
 // @updateURL    https://agenticalert.download/agenticalert.user.js
 // @noframes
 // ==/UserScript==
-
-// If you got a notice about the URLs changing, that's intentional
-// GitHub is caching the script url and serving old versions.
-// The script on the repository is the exact same script as the one in the download url
-// it's automatically copied over to the site whenever a new script/site update is pushed
-//
-// This comment will be here for the next couple of versions.
-// it'll be removed in the future
 
 /*
   AgenticAlert - a notifier for slop/vibe/gpt repositories
@@ -51,7 +43,6 @@
 // DATA TRACKING
 /*************************************************/
 // these are up here for easy access to edit, but they do waste (the most insubstantial) memory if we aren't on our matches
-// TODO: Consider encapsulation to prevent less cases of potential var stomps (as unlikely as that is).
 
 // GitHub account ids -> {integration id/agent names}
 const aiAgents = new Map([
@@ -365,6 +356,7 @@ class AgenticAlertScan {
     return this.user !== undefined && this.project !== undefined;
   }
 
+  // pluralizes words
   countResults(items, word) {
     return `${items.length} ${word}${items.length>1?"s":""}`;
   }
@@ -636,6 +628,7 @@ class AgenticAlertScan {
       return;
     }
 
+    // Agents.md handling
     if (this.repo.hasAgents) {
       updateAILabelElement("status", "warning");
       let agentsAction = "Manual review needed.";
@@ -726,8 +719,6 @@ class AgenticAlertScan {
 }
 
 async function runAgenticAlert() {
-  'use strict';
-
   // check to see if we're on a repo page or not
   if (document.getElementById("repo-title-component")) {
 
@@ -769,7 +760,6 @@ async function runAgenticAlert() {
     } else {
       // create a clone of existing DOM
       aiLabelElement = resultLabel.cloneNode();
-      // reObserve
       observeAIMutation();
     }
 
@@ -781,7 +771,7 @@ async function runAgenticAlert() {
         return;
       }
       // if we have an easy access link to the AGENTS file, go ahead and open it.
-      if (!ev.target.hasAttribute("processing") && ev.target.hasAttribute("data-agent-url")) {
+      if (ev.target.hasAttribute("data-agent-url")) {
         window.open(ev.target.getAttribute("data-agent-url"));
         return;
       }
