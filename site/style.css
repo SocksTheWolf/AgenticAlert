@@ -1,6 +1,37 @@
 td img { max-width: 100%; } .sitelogo {padding-top: 5px;}
-.github-icon {width: 1em; height: 1em; vertical-align: middle; margin-right: 0.25rem; fill: currentColor;}
 header { padding-top: 2rem !important; }
 .download-tag {margin-top: 0px !important;}
 .recommend {margin-block: 1rem !important;}
 .ymmv {padding-top: 10px !important;}
+summary { user-select: none; }
+
+.logo-icon {
+  width: 1em; height: 1em;
+  vertical-align: middle;
+  margin-right: 0.25rem;
+  background-color: var(--text);
+}
+.github-icon {
+  -webkit-mask-image: url(icons/github.svg);
+  mask-image: url(icons/github.svg);
+}
+.github-src {
+  &:hover img {
+    background-color: var(--accent)
+  }
+}
+.firefox-icon {
+  -webkit-mask-image: url(icons/firefox.svg);
+  mask-image: url(icons/firefox.svg);
+}
+.chrome-icon {
+  -webkit-mask-image: url(icons/chrome.svg);
+  mask-image: url(icons/chrome.svg);
+}
+.javascript-icon {
+  -webkit-mask-image: url(icons/javascript.svg);
+  mask-image: url(icons/javascript.svg);
+}
+.hide {
+  display: none !important;
+}
