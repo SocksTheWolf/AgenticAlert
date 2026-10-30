@@ -12,3 +12,6 @@ site/icon.png
 
 # remove any artifact folders
 ext
+
+# site development folders
+test/
