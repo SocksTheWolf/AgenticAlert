@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "npx wrangler dev --live-reload",
     "prebuild": "npx cpy agenticalert.user.js site && npx cpy icon64.png site/icon.png",
-    "build": "node --env-file-if-exists=.env build-site.js",
+    "build": "node --env-file-if-exists=.env SITEBUILD.js",
     "extbuild": "npx web-ext build -o -n extension.zip -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
     "extrun": "npx web-ext run -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
     "extlint": "npx web-ext lint -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\""
