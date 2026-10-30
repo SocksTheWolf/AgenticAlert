@@ -4,6 +4,8 @@ header { padding-top: 2rem !important; }
 .recommend {margin-block: 1rem !important;}
 .ymmv {padding-top: 10px !important;}
 summary { user-select: none; }
+.hide { display: none !important;}
+.download-script {padding-top: 5px; padding-bottom: 5px;}
 
 .logo-icon {
   width: 1em; height: 1em;
@@ -31,7 +33,4 @@ summary { user-select: none; }
 .javascript-icon {
   -webkit-mask-image: url(icons/javascript.svg);
   mask-image: url(icons/javascript.svg);
-}
-.hide {
-  display: none !important;
 }
