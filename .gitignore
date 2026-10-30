@@ -1,6 +1,11 @@
 .github/collage.jpg
 *.pdn
 
+# remove all other files
+.env
+page-lock
+ext
+
 .metabob/test
 
 # do not pick up on .zed
