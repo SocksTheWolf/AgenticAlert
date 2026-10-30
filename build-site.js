@@ -17,6 +17,10 @@ async function buildSite() {
   }
   // build the pages
   const sectionInjection = (match, p1) => {
+    if (!sections.has(p1)) {
+      console.warn(`Missing section key ${p1}`);
+      return "";
+    }
     return sections.get(p1);
   }
   for await (const pageFile of glob("site/pages/*")) {
@@ -26,7 +30,6 @@ async function buildSite() {
     });
     const outputPageFile = pageFile.replace(/(\\pages|\/pages)/g, "");
     let pageContents = await readFile(pageFile, {encoding: "utf-8"});
-    console.log(pageContents);
     pageContents = pageContents.toString().replace(/\{(.*)\}/g, sectionInjection);
 
     const outputFile = process.env.IS_TEST ? `test/${outputPageFile}` : outputPageFile;
