@@ -84,6 +84,7 @@ However, if something is marked as slop, it's very likely slop.
 * GitHub metadata can sometimes fail => Fixed in 1.2.0
 * GitHub metadata can have different ids for users => Fixed in 1.2.0
 * the word `agent` got flagged if it was in any filename due to a malformed wildcard => Broke in 1.2.3, Fixed in 1.2.4
+* some genAI poison pill files would be flagged as the repo using LLMs => Mitigated in 1.4.0
 
 ## Notes
 
