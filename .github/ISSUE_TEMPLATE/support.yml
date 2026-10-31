@@ -1,0 +1,57 @@
+name: Support Request
+description: Request for Support (that's not a bug)
+title: '[SUPPORT]: '
+labels: ["support"]
+assignees: 'socksthewolf'
+
+body:
+  - type: textarea
+    attributes:
+      label: Describe the problem
+      description: A clear and concise description of what the issue is.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Things tried
+      description: Please explain what you have tried
+      placeholder: |
+        - tried to eat a sandwich
+        - thought about dogs
+        - used sunscreen
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: OS
+      description: What operating system platform did you notice this?
+      options:
+        - label: Desktop
+        - label: Mobile
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Browser
+      description: What browser did this occur in?
+      placeholder: firefox, edge, chrome, etc
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Runtime
+      description: What version of AgenticAlert did you notice this in?
+      options:
+        - label: Userscript
+        - label: Extension
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Userscript Engine
+      description: What userscript runner do you use (if applicable)?

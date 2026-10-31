@@ -1,0 +1,52 @@
+name: Add a new genAI agent
+description: For adding new genAI agent accounts on Github
+title: '[AGENT]: '
+labels: ['genAI agent']
+
+body:
+  - type: input
+    attributes:
+      label: What is the name of the agent?
+      description: This should either be the github name or name of the software
+      placeholder: claude
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Are we already tracking it?
+      description: Please check to see if we're already tracking this agent (the project Wiki has a list)
+      options:
+        - label: Yes
+        - label: No
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Example Repository that uses the agent
+      description: |
+        Please include a link of the repository where you found this agent being used.
+        It should have made commits.
+
+        If you do not have a link, write "no repo"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Link to the account
+      description: |
+        If possible, please include a link to the bot's account.
+        If you are unable to get a link, please just write "no link".
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: GitHub metadata
+      description: |
+        If possible, please include the account/integration ID.
+        This is advanced so do not worry if you don't have it, someone will be able to find it.
+        Issues with metadata included will be processed faster.
+        (you can get this from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)

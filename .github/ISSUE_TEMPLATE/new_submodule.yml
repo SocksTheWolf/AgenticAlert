@@ -1,0 +1,28 @@
+name: Add a new submodule to track
+description: Generally for recomps, this is for adding tracking for repos that use submodules made with LLMs
+title: '[MODULE]: '
+labels: ['submodule']
+
+body:
+  - type: input
+    attributes:
+      label: What are the names of the LLM submodules?
+      placeholder: psxrecomp, gbarecomp, etc
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What are the projects that should be added?
+      description: |
+        Please include the links to the repos that are being used as submodules.
+        This would be the ones named above
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What repos are the projects above used in as a submodule?
+      description: Please include links to repos that use the above as submodules.
+    validations:
+      required: true

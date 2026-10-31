@@ -1,0 +1,73 @@
+name: Bug report
+description: Create a report to help fix issues
+title: '[BUG]: '
+labels: ["bug"]
+
+body:
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: OS
+      description: What operating system platform did you notice this?
+      options:
+        - label: Desktop
+        - label: Mobile
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Browser
+      description: What browser did this occur in?
+      placeholder: firefox, edge, chrome, etc
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Runtime
+      description: What version of AgenticAlert did you notice this in?
+      options:
+        - label: Userscript
+        - label: Extension
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Userscript Engine
+      description: What userscript runner do you use (if applicable)?
+
+  - type: textarea
+    attributes:
+      label: Console Log
+      description: |
+        If possible, please do the following:
+        1. Right click and inspect the page.
+        2. Go to the Console section and in the Filter Bar type `agenticalert`.
+        3. Please screenshot/copy any warnings (yellow) or errors (red) that appear.

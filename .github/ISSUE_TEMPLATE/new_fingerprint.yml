@@ -1,0 +1,28 @@
+name: Add a new file fingerprint
+description: For adding new file structures that known LLMs create/use
+title: '[FILE]: '
+labels: ['fingerprinting']
+
+body:
+  - type: textarea
+    attributes:
+      label: What are the file/files/directories that should be added?
+      description: |
+        Please make sure that we are not already tracking them.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: What agent makes these files?
+      description: Please provide name/link to said agent
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Where can we see these folders in use?
+      description: Please list links to repositories that demonstrate this file structure.
+    validations:
+      required: true
+
