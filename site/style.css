@@ -12,13 +12,14 @@ summary { user-select: none; }
   vertical-align: middle;
   margin-right: 0.25rem;
   background-color: var(--text);
+  display: inline-block;
 }
 .github-icon {
   -webkit-mask-image: url(icons/github.svg);
   mask-image: url(icons/github.svg);
 }
 .github-src {
-  &:hover img {
+  &:hover div {
     background-color: var(--accent)
   }
 }

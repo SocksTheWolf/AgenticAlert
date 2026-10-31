@@ -60,7 +60,7 @@ async function buildSite() {
   const skipBuildPages = [];
   const skipSitemapPages = ["**/404.html"];
   if (process.env["IS_TEST"] !== 'true') {
-    skipSitemapPages.push("**/get.html");
+    skipSitemapPages.push("**/now.html");
   }
   const skipSitemapRegex = new RegExp(`(${skipSitemapPages.map((itm) => itm.replace(/(\.|\/)/g, "\\$1").replace(/(\*\*)/, ".*")).join("|")})`, "i");
 

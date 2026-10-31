@@ -33,7 +33,8 @@ function handleSatNav() {
   // that I threw together so quickly
   switch (currentPage) {
     case "get":
-      lookupName = "get";
+    case "now":
+      lookupName = "now";
     break;
     case "features":
       lookupName = "features";
