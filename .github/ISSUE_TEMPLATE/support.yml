@@ -56,3 +56,4 @@ body:
     attributes:
       label: Userscript Engine
       description: What userscript runner do you use (if applicable)?
+      placeholder: tampermonkey, violentmonkey, etc

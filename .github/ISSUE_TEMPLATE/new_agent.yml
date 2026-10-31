@@ -8,7 +8,7 @@ body:
     attributes:
       label: What is the name of the agent?
       description: This should either be the github name or name of the software
-      placeholder: claude
+      placeholder: claude, gemini, etc
     validations:
       required: true
 
