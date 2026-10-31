@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.0
+// @version      1.4.1
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -327,7 +327,10 @@ class AgenticAlertScan {
   // output: {}
 
   constructor(url) {
-    this.create(url);
+    this.reset();
+    if (url !== null) {
+      this.create(url);
+    }
   }
 
   reset() {
@@ -351,6 +354,19 @@ class AgenticAlertScan {
     }
   }
 
+  create(url) {
+    this.reset();
+    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/([a-z0-9_-]+)\/([\w\.\-]+)/i;
+    const match = githubURIRegex.exec(url);
+    if (match !== null && match.length === 3) {
+      this.user = match[1];
+      this.project = match[2];
+      this.url = url;
+      return true;
+    }
+    return false;
+  }
+
   updateOutput(key, value) {
     if (value === null) {
       delete this.output[key];
@@ -364,19 +380,6 @@ class AgenticAlertScan {
     propertiesDefined.forEach((prop) => {
       updateAILabelElement(prop, this.output[prop]);
     });
-  }
-
-  create(url) {
-    this.reset();
-    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/([a-z0-9_-]+)\/([\w\.\-]+)/i;
-    const match = githubURIRegex.exec(url);
-    if (match !== null && match.length === 3) {
-      this.user = match[1];
-      this.project = match[2];
-      this.url = url;
-      return true;
-    }
-    return false;
   }
 
   isValid() {
@@ -749,6 +752,10 @@ class AgenticAlertScan {
     this.updateOutput("status", "safe");
   }
   async runScan() {
+    if (this.url === null) {
+      console.warn("AgenticAlert - attempted to run scan on null URL");
+      return;
+    }
     // reset all attributes from label
     updateAILabelElement("title", null);
     updateAILabelElement("link", null);
@@ -808,66 +815,71 @@ class AgenticAlertScan {
 }
 
 async function runAgenticAlert() {
-  // check to see if we're on a repo page or not
-  if (document.getElementById("repo-title-component")) {
+  // inject our style to persist between gh renders if there's no injection like it so far
+  if (!document.querySelector("style[id^=\"agenticAlertStyle-\"]")) {
+    const agenticAlertStyle = document.createElement("style");
+    agenticAlertStyle.setAttribute("id",
+      `agenticAlertStyle-${btoa(crypto.getRandomValues(new Uint32Array(5)).join(""))}`);
+    agenticAlertStyle.textContent = `
+      #agenticAlertLabel {
+        max-width: 65%; padding: 0.34rem;
+        height: unset !important; min-height: var(--base-size-20,1.25rem);
+        white-space: normal; text-align: center;
 
-    // inject our style to persist between gh renders if there's no injection like it so far
-    if (!document.querySelector("style[id^=\"agenticAlertStyle-\"]")) {
-      const agenticAlertStyle = document.createElement("style");
-      agenticAlertStyle.setAttribute("id",
-        `agenticAlertStyle-${btoa(crypto.getRandomValues(new Uint32Array(5)).join(""))}`);
-      agenticAlertStyle.textContent = `
-        #agenticAlertLabel {
-          max-width: 65%; padding: 0.34rem;
-          height: unset !important; min-height: var(--base-size-20,1.25rem);
-          white-space: normal; text-align: center;
+        &[status="none"], &[status="msg"] { color: var(--ansi-gray); }
+        &[status="safe"] { color: var(--button-primary-bgColor-rest); }
+        &[status="danger"] { color: var(--ansi-red); filter: contrast(29); }
+        &[status="warning"] { color: var(--borderColor-severe-emphasis); filter: brightness(1.6); }
+        &[status="error"] { color: var(--ansi-yellowBright); }
+        &[status="info"] { color: var(--ansi-blue); }
+      }
+    `;
+    document.head.appendChild(agenticAlertStyle);
+  }
 
-          &[status="none"], &[status="msg"] { color: var(--ansi-gray); }
-          &[status="safe"] { color: var(--button-primary-bgColor-rest); }
-          &[status="danger"] { color: var(--ansi-red); filter: contrast(29); }
-          &[status="warning"] { color: var(--borderColor-severe-emphasis); filter: brightness(1.6); }
-          &[status="error"] { color: var(--ansi-yellowBright); }
-          &[status="info"] { color: var(--ansi-blue); }
-        }
-      `;
-      document.head.appendChild(agenticAlertStyle);
-    }
-
-    // create our scanner object
-    scanCheck = new AgenticAlertScan(document.location.href);
-
-    // Create results object
-    const resultLabel = document.getElementById("agenticAlertLabel");
-    // do not create the element if it's already been injected (development case)
-    if (!resultLabel) {
-      aiLabelElement = document.createElement("span");
-      aiLabelElement.setAttribute("id", "agenticAlertLabel");
-      aiLabelElement.setAttribute("data-size", "small");
-      aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
-      aiLabelElement.setAttribute("data-component", "Label");
+  const hasRepoTitle = document.getElementById("repo-title-component");
+  // Create results object
+  const resultLabel = document.getElementById("agenticAlertLabel");
+  // do not create the element if it's already been injected (development case)
+  if (!resultLabel) {
+    aiLabelElement = document.createElement("span");
+    aiLabelElement.setAttribute("id", "agenticAlertLabel");
+    aiLabelElement.setAttribute("data-size", "small");
+    aiLabelElement.setAttribute("class", "mr-1 v-align-middle prc-Label-Label-qG-Zu");
+    aiLabelElement.setAttribute("data-component", "Label");
+    // if we do have a title, inject our label, if we don't observe for when
+    // we may get a label
+    if (hasRepoTitle) {
       addAILabelElement(true);
     } else {
-      // create a clone of existing DOM
-      aiLabelElement = resultLabel.cloneNode();
       observeAIMutation();
     }
+  } else {
+    // create a clone of existing DOM
+    aiLabelElement = resultLabel.cloneNode();
+    observeAIMutation();
+  }
 
-    // hook our event listener up
-    (resultLabel ?? aiLabelElement).addEventListener("click", async (ev) => {
-      if (ev.target.getAttribute("status") == "error" && scanCheck) {
-        // if we have an error, allow for rescanning
-        await scanCheck.runScan();
-        return;
-      }
-      // if we have an easy access link to the AGENTS file, go ahead and open it.
-      if (ev.target.hasAttribute("link")) {
-        window.open(ev.target.getAttribute("link"));
-        return;
-      }
-    });
+  // hook our event listener up
+  (resultLabel ?? aiLabelElement).addEventListener("click", async (ev) => {
+    if (ev.target.getAttribute("status") == "error" && scanCheck) {
+      // if we have an error, allow for rescanning
+      await scanCheck.runScan();
+      return;
+    }
+    // if we have an easy access link to the AGENTS file, go ahead and open it.
+    if (ev.target.hasAttribute("link")) {
+      window.open(ev.target.getAttribute("link"));
+      return;
+    }
+  });
 
+  // check to see if we're on a repo page or not
+  if (hasRepoTitle) {
+    scanCheck = new AgenticAlertScan(document.location.href);
     await scanCheck.runScan();
+  } else {
+    scanCheck = new AgenticAlertScan(null);
   }
 }
-
 runAgenticAlert();
