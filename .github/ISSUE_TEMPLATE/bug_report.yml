@@ -35,8 +35,8 @@ body:
       label: OS
       description: What operating system platform did you notice this?
       options:
-        - label: Desktop
-        - label: Mobile
+        - Desktop
+        - Mobile
     validations:
       required: true
 
@@ -53,8 +53,9 @@ body:
       label: Runtime
       description: What version of AgenticAlert did you notice this in?
       options:
-        - label: Userscript
-        - label: Extension
+        - Userscript
+        - Extension
+      default: 0
     validations:
       required: true
 

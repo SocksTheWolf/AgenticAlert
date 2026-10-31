@@ -17,8 +17,9 @@ body:
       label: Are we already tracking it?
       description: Please check to see if we're already tracking this agent (the project Wiki has a list)
       options:
-        - label: Yes
-        - label: No
+        - Yes (this is an update)
+        - No (this is new)
+      default: 1
     validations:
       required: true
 
