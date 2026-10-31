@@ -56,11 +56,11 @@ However, if something is marked as slop, it's very likely slop.
 | --- | --- |
 | AI Tool Usage | ![Detection Badge Example](/site/screenshots/screenshot.jpg?raw=true) |
 | genAI Files | ![Example of a repo that has genAI markers](/site/screenshots/screenshot5.jpg?raw=true) |
-| Hidden genAI File Markers | ![Example of a repo that has genAI markers](/site/screenshots/screenshot2.jpg?raw=true) |
-| genAI Submodule Usage | ![Example of a repo that has genAI markers](/site/screenshots/screenshot6.jpg?raw=true) |
-| Potential Copilot Usage | ![Example of a repo that has genAI markers](/site/screenshots/screenshot4.jpg?raw=true) |
-| Safe but has `Agents.md` | ![Example of a maybe safe repo](/site/screenshots/screenshot7.jpg?raw=true) |
-| Detection of LLM poison pills | ![Example of a maybe safe repo](/site/screenshots/screenshot8.jpg?raw=true) |
+| Hidden genAI File Markers | ![Example of a repo that has hidden genAI markers](/site/screenshots/screenshot2.jpg?raw=true) |
+| genAI Submodule Usage | ![Example of a repo that has genAI submodules](/site/screenshots/screenshot6.jpg?raw=true) |
+| Potential Copilot Usage | ![Example of a repo that maybe has Copilot](/site/screenshots/screenshot4.jpg?raw=true) |
+| Detection of only `AGENTS.md` | ![Detection of ONLY AGENTS.md](/site/screenshots/screenshot7.jpg?raw=true) |
+| Detection of LLM poison pills | ![Detection of LLM poison pills](/site/screenshots/screenshot8.jpg?raw=true) |
 | Safe Repo | ![Example of a safe repo](/site/screenshots/screenshot3.jpg?raw=true) |
 
 ---
