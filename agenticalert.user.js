@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.1
+// @version      1.4.2
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -137,7 +137,10 @@ const aiAgents = new Map([
   [217976483, {name: "aider chat"}],
   [247260674, {name: "junie agent"}],
   [298867840, {name: "augmentbot"}],
-  [254434275, {name: "rp1bot"}]
+  [254434275, {name: "rp1bot"}],
+  [221195757, {name: "charmcrush"}],
+  [252268055, {i: 2567586, name: "supersetbot"}],
+  [227682567, {i: 1815759, name: "sazabi pr"}],
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -168,21 +171,34 @@ const aiFileMarkers = [
   "agent_docs",
   "install_for_agents.md",
   ".codebuddy",
+  ".cortex",
+  ".factory",
   ".superpowers",
+  ".omb-scratch",
   "docs\/superpowers",
   ".hermes",
   ".adal",
+  ".zcode",
+  ".vibe",
+  ".augment",
+  ".kode",
+  ".iflow",
+  ".goose",
   ".agents?",
   "agent.ya?ml",
   ".aider.conf.ya?ml",
   ".cline(?:rules)?",
   ".continue",
   ".kiro",
+  ".openhands",
   ".warp",
   ".ona",
   ".junie",
+  ".mux",
   ".rp1",
+  ".fx",
   ".aieditoragent",
+  ".deepagents",
   ".qwen",
   ".chatgpt",
   ".codebuffignore",
@@ -211,16 +227,24 @@ const aiFileMarkers = [
   ".?greptile.json",
   ".omc",
   ".omo",
+  ".omp",
   ".pi\/?\*?\*?$",
   ".promptflow",
   ".abstra",
   ".?paperclip",
+  ".conductor",
+  ".?crushrc",
+  ".crush",
   ".herenow",
-  ".rooignore",
+  ".roo(?:ignore|mote)?",
   ".commandcode",
-  ".roomote",
+  ".zencoder",
+  ".neovate",
+  ".pochi",
+  ".forge",
   "warp.md",
   "agents.local.md",
+  "agents.override.md",
   ".?agenthistory.json",
   ".?graphify",
   ".orca",
