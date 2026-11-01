@@ -10,9 +10,17 @@ A robust extension that scans and alerts you if a GitHub repo uses genAI. Can be
 
 ## Install
 
-> Coming soon: Native Extensions
+### Firefox
 
-### STEP ONE
+Firefox and derived browsers can get the extension from [here](https://agenticalert.download/firefox)
+
+### Chrome
+
+Chrome based browsers can [go here to install](https://agenticalert.download/chrome)
+
+### UserScripts (for everyone else)/Nightly
+
+#### STEP ONE
 
 Get an userscript runner. You can download either:
 
@@ -22,7 +30,7 @@ Get an userscript runner. You can download either:
 
 Skip this if you already have an userscript runner.
 
-### STEP TWO
+#### STEP TWO
 
 <h3 align="center"><a target="_blank" href="https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/main/agenticalert.user.js">Click Here to Install AgenticAlert</a></h3>
 

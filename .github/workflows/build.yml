@@ -63,7 +63,6 @@ jobs:
           name: "WebPackedExt"
 
       - name: Push to Stores
-        if: ${{ false }}
         uses: creeperkatze/extension-publish@67710e469fb1db85eac50c0cfe18779f9de5bdfb
         with:
           chrome-client-id:     ${{ secrets.CHROME_CLIENT_ID }}
