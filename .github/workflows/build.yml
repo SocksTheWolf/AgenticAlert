@@ -70,7 +70,6 @@ jobs:
           chrome-refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
           chrome-publisher-id:  ${{ secrets.CHROME_PUBLISHER_ID }}
           chrome-extension-id:  ${{ secrets.CHROME_EXTENSION_ID }}
-          chrome-skip-review:   true
           chrome-zip-path:      "ext/extension.zip"
           firefox-xpi-path:     "ext/extension.zip"
           firefox-license:      "GPL-3.0-only"
