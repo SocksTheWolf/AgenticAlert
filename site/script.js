@@ -16,7 +16,8 @@ if (document.getElementById("getAA")) {
     browserTag = "dl-fx";
   }
   document.getElementById(browserTag).setAttribute("open", true);
-  document.getElementById(browserTag).scrollIntoView();
+  if (document.location.pathname === "/now")
+    document.getElementById(browserTag).scrollIntoView();
 }
 
 // this is really poor and could probably be made better
