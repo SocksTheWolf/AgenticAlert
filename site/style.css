@@ -11,7 +11,7 @@
   --preformatted: #ccc;
   --disabled: #111;
 }
-
+code { font-size: 0.9rem; }
 td img { max-width: 100%; } .sitelogo {padding-top: 5px;}
 header { padding-top: 2rem !important; }
 .download-tag {margin-top: 0px !important;}
