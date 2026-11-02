@@ -18,7 +18,7 @@ Firefox and derived browsers can [get the extension from here](https://agentical
 
 Chrome based browsers can [go here to install](https://agenticalert.download/chrome)
 
-**NOTE**: Chrome typically takes longer to update their extensions on the webstore, so this version may be out of date compared to other methods in terms of detection.
+**NOTE**: Chrome typically takes longer to update extensions on the webstore, so this version may be out of date compared to other methods in terms of detection.
 
 ### UserScripts (for everyone else)/Nightly
 
