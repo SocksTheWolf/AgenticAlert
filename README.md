@@ -12,11 +12,13 @@ A robust extension that scans and alerts you if a GitHub repo uses genAI. Can be
 
 ### Firefox
 
-Firefox and derived browsers can get the extension from [here](https://agenticalert.download/firefox)
+Firefox and derived browsers can [get the extension from here](https://agenticalert.download/firefox)
 
 ### Chrome
 
 Chrome based browsers can [go here to install](https://agenticalert.download/chrome)
+
+**NOTE**: Chrome typically takes longer to update their extensions on the webstore, so this version may be out of date compared to other methods in terms of detection.
 
 ### UserScripts (for everyone else)/Nightly
 
@@ -41,7 +43,7 @@ AgenticAlert has a few advantages over other alternatives:
 * Can check for genAI GitHub integrations that you cannot block on GitHub
 * Checks a lot of different file markers/recomp modules very quickly
 * Can detect some intentional LLM poison pill tricks (intentional flags to harm an LLM)
-* Scans .gitignore and GitHub metadata without user input
+* Scans `.gitignore` and GitHub metadata without user input
 * Comprehensive deep search
 
 > **NOTE**: you should continue to use your eyes if something is marked as "potentially safe", as there's always the chance of new genAI agents we don't detect yet.
