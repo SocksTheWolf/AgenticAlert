@@ -1,3 +1,17 @@
+:root {
+  color-scheme: dark;
+  --bg: #212121;
+  --accent-bg: #2b2b2b;
+  --text: #dcdcdc;
+  --text-light: #ababab;
+  --accent: #ffb300;
+  --accent-hover: #ffe099;
+  --accent-text: var(--bg);
+  --code: #f06292;
+  --preformatted: #ccc;
+  --disabled: #111;
+}
+
 td img { max-width: 100%; } .sitelogo {padding-top: 5px;}
 header { padding-top: 2rem !important; }
 .download-tag {margin-top: 0px !important;}
@@ -15,8 +29,8 @@ summary { user-select: none; }
   display: inline-block;
 }
 .github-icon {
-  -webkit-mask-image: url(icons/github.svg);
-  mask-image: url(icons/github.svg);
+  -webkit-mask-image: url(/icons/github.svg);
+  mask-image: url(/icons/github.svg);
 }
 .github-src {
   &:hover div {
@@ -24,14 +38,14 @@ summary { user-select: none; }
   }
 }
 .firefox-icon {
-  -webkit-mask-image: url(icons/firefox.svg);
-  mask-image: url(icons/firefox.svg);
+  -webkit-mask-image: url(/icons/firefox.svg);
+  mask-image: url(/icons/firefox.svg);
 }
 .chrome-icon {
-  -webkit-mask-image: url(icons/chrome.svg);
-  mask-image: url(icons/chrome.svg);
+  -webkit-mask-image: url(/icons/chrome.svg);
+  mask-image: url(/icons/chrome.svg);
 }
 .javascript-icon {
-  -webkit-mask-image: url(icons/javascript.svg);
-  mask-image: url(icons/javascript.svg);
+  -webkit-mask-image: url(/icons/javascript.svg);
+  mask-image: url(/icons/javascript.svg);
 }
