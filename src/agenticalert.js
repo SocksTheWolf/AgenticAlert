@@ -9,7 +9,7 @@
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
-// @require      https://agenticalert.download/{-VERSION-}/agentdetections.js#{-HASH-}
+// @addreq
 // @icon         https://agenticalert.download/icon.png
 // @iconURL      https://agenticalert.download/icon.png
 // @icon64URL    https://agenticalert.download/icon.png
@@ -40,11 +40,10 @@
 
   Home: https://github.com/socksthewolf/agenticalert
 */
-
+// {-DEFINITIONS-}
 /*************************************************/
 // Label and Reflow Prevention
 /*************************************************/
-
 // this is our label element, if it ever gets removed, this is reinjected.
 let aiLabelElement = null;
 // this is our scan class, and we use it for evil.

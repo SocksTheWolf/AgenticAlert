@@ -27,6 +27,8 @@ async function buildSite() {
     return;
   }
 
+  const IN_DEV = process.env["IS_DEV"] === 'true';
+
   // touch the file, we'll check mod times later
   // use the sync so we don't have to worry about flushing as much
   writeFileSync(lockFile, new Date().toISOString());
@@ -52,16 +54,22 @@ async function buildSite() {
   // modify the userscript once moved to change the resource file and add the SRI hash
   {
     let userScriptFile = await readFile(scriptFinalLocation, {encoding: "utf-8"});
+    const definitionsKey = "// {-DEFINITIONS-}";
     // Figure out the version number
     const versionNum = (/^\/\/\s+\@version\s+(.*)$/im.exec(userScriptFile))[1];
-    // Write the version number into the require url for violentmonkey
-    userScriptFile = userScriptFile.replace("{-VERSION-}", versionNum);
 
     // Get the hash
     const definitionsFile = await readFile(defFinalLocation, {encoding: "utf-8"});
     const hashString = createHash('sha256').update(definitionsFile).digest('hex');
+    const requireDeclare = `// @require      https://agenticalert.download/${versionNum}/agentdetections.js#sha256=${hashString}`;
 
-    userScriptFile = userScriptFile.replace("{-HASH-}", `sha256=${hashString}`);
+    // if in dev, write the definitions into the script for ez testing
+    if (IN_DEV) {
+      userScriptFile = userScriptFile.replace("// {-DEFINITIONS-}", definitionsFile);
+    } else {
+      userScriptFile = userScriptFile.replace("// @addreq", requireDeclare);
+      userScriptFile = userScriptFile.replace(definitionsKey, "");
+    }
     await writeFile(scriptFinalLocation, userScriptFile);
   }
 
@@ -80,9 +88,6 @@ async function buildSite() {
 
   const skipBuildPages = [];
   const skipSitemapPages = ["**/404.html"];
-  if (process.env["IS_TEST"] !== 'true') {
-    skipSitemapPages.push("**/now.html");
-  }
   const skipSitemapRegex = new RegExp(`(${skipSitemapPages.map((itm) => itm.replace(/(\.|\/)/g, "\\$1").replace(/(\*\*)/, ".*")).join("|")})`, "i");
 
   // match swap with dynamic content
