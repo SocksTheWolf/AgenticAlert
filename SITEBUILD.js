@@ -27,6 +27,10 @@ async function buildSite() {
     return;
   }
 
+  let scriptHash = "", scriptVersion = "";
+  const sections = new Map();
+  const skipBuildPages = [];
+  const skipSitemapPages = ["**/404.html"];
   const IN_DEV = process.env["IS_DEV"] === 'true';
 
   // touch the file, we'll check mod times later
@@ -56,12 +60,12 @@ async function buildSite() {
     let userScriptFile = await readFile(scriptFinalLocation, {encoding: "utf-8"});
     const definitionsKey = "// {-DEFINITIONS-}";
     // Figure out the version number
-    const versionNum = (/^\/\/\s+\@version\s+(.*)$/im.exec(userScriptFile))[1];
+    scriptVersion = (/^\/\/\s+\@version\s+(.*)$/im.exec(userScriptFile))[1];
 
     // Get the hash
     const definitionsFile = await readFile(defFinalLocation, {encoding: "utf-8"});
     const hashString = createHash('sha256').update(definitionsFile).digest('hex');
-    const requireDeclare = `// @require      https://agenticalert.download/${versionNum}/agentdetections.js#sha256=${hashString}`;
+    const requireDeclare = `// @require      https://agenticalert.download/${scriptVersion}/agentdetections.js#sha256=${hashString}`;
 
     // if in dev, write the definitions into the script for ez testing
     if (IN_DEV) {
@@ -71,23 +75,20 @@ async function buildSite() {
       userScriptFile = userScriptFile.replace(definitionsKey, "");
     }
     await writeFile(scriptFinalLocation, userScriptFile);
+    scriptHash = createHash('sha256').update(userScriptFile).digest('hex');
   }
 
   // for sitemap, literally stolen from skyscheduler lmao
   const SITE_URL = "https://agenticalert.download";
 
-  const sections = new Map();
-  const sitemap_pages = [];
   // build out the HTML replacement code from each section file
   // keys are the filenames all uppercased
   for await (const sectionFile of glob("site/sections/*")) {
     const fileKey = sectionFile.replace(/(site\\sections\\|site\/sections\/|index|\.html)/g, "").toUpperCase();
     const fileContents = await readFile(sectionFile, {encoding: "utf-8"});
-    sections.set(fileKey, fileContents);
+    sections.set(fileKey, fileContents.replace("{HASH}", scriptHash).replace("{VERSION}", scriptVersion));
   }
 
-  const skipBuildPages = [];
-  const skipSitemapPages = ["**/404.html"];
   const skipSitemapRegex = new RegExp(`(${skipSitemapPages.map((itm) => itm.replace(/(\.|\/)/g, "\\$1").replace(/(\*\*)/, ".*")).join("|")})`, "i");
 
   // match swap with dynamic content
@@ -99,6 +100,7 @@ async function buildSite() {
     return sections.get(p1);
   };
 
+  const sitemap_pages = [];
   // build each page in the pages dir
   for await (const pageFile of glob("site/pages/*", {exclude: skipBuildPages})) {
     if (skipSitemapRegex.test(pageFile) === false) {

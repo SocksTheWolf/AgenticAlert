@@ -14,12 +14,16 @@
 code { font-size: 0.9rem; }
 td img { max-width: 100%; } .sitelogo {padding-top: 5px;}
 header { padding-top: 2rem !important; }
-.download-tag {margin-top: 0px !important;}
+.download-tag {margin-top: 0px !important; margin-bottom: 1rem;}
 .recommend {margin-block: 1rem !important;}
 .ymmv {padding-top: 10px !important;}
 summary { user-select: none; }
 .hide { display: none !important;}
 .download-script {padding-top: 5px; padding-bottom: 5px;}
+
+.version-tag {
+  margin-left: 1.3rem;
+}
 
 .logo-icon {
   width: 1em; height: 1em;
