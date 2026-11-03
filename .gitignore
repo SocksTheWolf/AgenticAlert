@@ -9,7 +9,8 @@ node_modules/
 page-lock
 
 # deploy will always copy the latest script into the site directory
-site/agenticalert.user.js
+site/*.js
+!site/script.js
 site/icon.png
 
 # remove any artifact folders
