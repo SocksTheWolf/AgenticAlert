@@ -110,6 +110,11 @@ const aiAgents = new Map([
   // same behavior as herdr
   [317908118, {name: "kimi agent"}],
   [170038800, {i: 900172, name: "macroscope pr"}],
+  [291245097, {i: 3978882, name: "codaban pr"}],
+  [313167257, {i: 4489546, name: "evlogai"}],
+  [220660587, {name: "ironclaw work bot"}],
+  [160964065, {i: 837875, name: "mentatbot pr"}],
+  [206114724, {i: 1203049, name: "posthog ai"}],
 ]);
 
 // helpful pre-transfer of ids to regexian style string
@@ -210,6 +215,11 @@ const aiFileMarkers = [
   ".commandcode",
   ".zencoder",
   ".neovate",
+  ".codebase-memory",
+  ".cbmignore$",
+  ".ai-context",
+  ".evlog",
+  "evlog.config.m?t?j?s$",
   // this is not an official git file, and is used by claude et. al for worktree spawns
   // very low chance of false positive
   "^.worktreeinclude",
