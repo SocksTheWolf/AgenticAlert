@@ -3,9 +3,9 @@
   "scripts": {
     "dev": "npx wrangler dev --live-reload",
     "build": "node --env-file-if-exists=.env SITEBUILD.js",
-    "extbuild": "npx web-ext build -o -n extension.zip -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
-    "extrun": "npx web-ext run -a ext -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
-    "extlint": "npx web-ext lint -i=\"*\" \"!agenticalert.user.js\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\""
+    "extbuild": "npx web-ext build -o -n extension.zip -a ext -i=\"*\" \"!src\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
+    "extrun": "npx web-ext run -a ext -i=\"*\" \"!src\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\"",
+    "extlint": "npx web-ext lint -i=\"*\" \"!src\" \"!icon*.png\" \"!LICENSE\" \"!manifest.json\""
   },
   "devDependencies": {
     "web-ext": "^10.8.0",

@@ -20,7 +20,8 @@
         "https://www.github.com/*/*"
       ],
       "js": [
-        "agenticalert.user.js"
+        "src/agentdetections.js",
+        "src/agenticalert.user.js"
       ],
       "all_frames": false,
       "run_at": "document_end"

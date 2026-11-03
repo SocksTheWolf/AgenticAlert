@@ -1,5 +1,6 @@
 import { accessSync, constants, statSync, writeFileSync } from "node:fs";
 import { copyFile, glob, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 
 const lockFile = "page-lock";
 function checkPageLock() {
@@ -30,9 +31,13 @@ async function buildSite() {
   // use the sync so we don't have to worry about flushing as much
   writeFileSync(lockFile, new Date().toISOString());
 
+  const scriptFinalLocation = "site/agenticalert.user.js";
+  const defFinalLocation = "site/agentdetections.js";
+
   // copying file rules
   const copyFileInstructions = [
-    {source: "agenticalert.user.js", dest: "site"},
+    {source: "src/agenticalert.user.js", dest: scriptFinalLocation},
+    {source: "src/agentdetections.js", dest: defFinalLocation},
     {source: "icon64.png", dest: "site/icon.png"},
   ];
 
@@ -42,6 +47,22 @@ async function buildSite() {
       destFile += `/${fileCopy.source}`;
     }
     await copyFile(fileCopy.source, destFile);
+  }
+
+  // modify the userscript once moved to change the resource file and add the SRI hash
+  {
+    let userScriptFile = await readFile(scriptFinalLocation, {encoding: "utf-8"});
+    // Figure out the version number
+    const versionNum = (/^\/\/\s+\@version\s+(.*)$/im.exec(userScriptFile))[1];
+    // Write the version number into the require url for violentmonkey
+    userScriptFile = userScriptFile.replace("{-VERSION-}", versionNum);
+
+    // Get the hash
+    const definitionsFile = await readFile(defFinalLocation, {encoding: "utf-8"});
+    const hashString = createHash('sha256').update(definitionsFile).digest('hex');
+
+    userScriptFile = userScriptFile.replace("{-HASH-}", `sha256=${hashString}`);
+    await writeFile(scriptFinalLocation, userScriptFile);
   }
 
   // for sitemap, literally stolen from skyscheduler lmao
