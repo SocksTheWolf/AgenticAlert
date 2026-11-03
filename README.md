@@ -2,7 +2,7 @@
 
 [![GitHub Created At](https://img.shields.io/github/created-at/socksthewolf/agenticalert?logo=github&logoColor=white)](https://github.com/socksthewolf/agenticalert)
 [![GitHub License](https://img.shields.io/github/license/socksthewolf/agenticalert?logo=gplv3&logoColor=yellow&color=green)](https://github.com/SocksTheWolf/AgenticAlert?tab=GPL-3.0-1-ov-file)
-[![GitHub script size](https://img.shields.io/github/size/socksthewolf/agenticalert/agenticalert.user.js?logo=javascript)](https://agenticalert.download/get)
+[![GitHub script size](https://img.shields.io/github/size/socksthewolf/agenticalert/src/agenticalert.js?logo=javascript)](https://agenticalert.download/get)
 [![Website](https://img.shields.io/website?logo=cloudflare&color=teal&cacheSeconds=7200&down_color=red&url=https%3A%2F%2Fagenticalert.download)](https://agenticalert.download)
 [![GitHub Repo stars](https://img.shields.io/github/stars/socksthewolf/agenticalert)](https://github.com/SocksTheWolf/AgenticAlert/stargazers)
 
