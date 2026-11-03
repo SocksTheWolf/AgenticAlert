@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.5
+// @version      1.4.6
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -571,10 +571,15 @@ class AgenticAlertScan {
       }
     } catch (err) {
       console.error(`AgenticAlert: encountered error: ${err}`);
-      this.updateOutput("status", "error");
       this.updateOutput("title", null);
-      this.updateOutput("link", null);
-      this.updateOutput("text", "Encountered Error, submit bug report with data from console");
+      this.updateOutput("status", "error");
+      if (typeof aiFileNameRegex === 'undefined') {
+        this.updateOutput("text", "Detection file is out of date, please update!");
+        this.updateOutput("link", "");
+      } else {
+        this.updateOutput("text", "Encountered Error, submit bug report with data from console");
+        this.updateOutput("link", null);
+      }
     }
     this.writeOutput();
   }
@@ -646,14 +651,16 @@ async function runAgenticAlert() {
 
   // hook our event listener up
   (resultLabel ?? aiLabelElement).addEventListener("click", async (ev) => {
-    if (ev.target.getAttribute("status") == "error" && scanCheck) {
+    const hasLink = ev.target.hasAttribute("link");
+    if (ev.target.getAttribute("status") == "error" && !hasLink && scanCheck) {
       // if we have an error, allow for rescanning
       await scanCheck.runScan();
       return;
     }
     // if we have an easy access link to the AGENTS file, go ahead and open it.
-    if (ev.target.hasAttribute("link")) {
-      window.open(ev.target.getAttribute("link"));
+    const linkData = ev.target.getAttribute("link");
+    if (hasLink && linkData !== "") {
+      window.open(linkData);
       return;
     }
   });
