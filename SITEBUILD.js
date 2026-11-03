@@ -27,7 +27,7 @@ async function buildSite() {
     return;
   }
 
-  let scriptHash = "", scriptVersion = "";
+  let scriptHash = "", scriptVersion = "", defHash = "";
   const sections = new Map();
   const skipBuildPages = [];
   const skipSitemapPages = ["**/404.html"];
@@ -64,8 +64,8 @@ async function buildSite() {
 
     // Get the hash
     const definitionsFile = await readFile(defFinalLocation, {encoding: "utf-8"});
-    const hashString = createHash('sha256').update(definitionsFile).digest('hex');
-    const requireDeclare = `// @require      https://agenticalert.download/${scriptVersion}/agentdetections.js#sha256=${hashString}`;
+    defHash = createHash('sha256').update(definitionsFile).digest('hex');
+    const requireDeclare = `// @require      https://agenticalert.download/${scriptVersion}/agentdetections.js#sha256=${defHash}`;
 
     // if in dev, write the definitions into the script for ez testing
     if (IN_DEV) {
@@ -86,7 +86,7 @@ async function buildSite() {
   for await (const sectionFile of glob("site/sections/*")) {
     const fileKey = sectionFile.replace(/(site\\sections\\|site\/sections\/|index|\.html)/g, "").toUpperCase();
     const fileContents = await readFile(sectionFile, {encoding: "utf-8"});
-    sections.set(fileKey, fileContents.replace("{HASH}", scriptHash).replace("{VERSION}", scriptVersion));
+    sections.set(fileKey, fileContents.replace("{HASH}", scriptHash).replace("{VERSION}", scriptVersion).replace("{DEFHASH}", defHash));
   }
 
   const skipSitemapRegex = new RegExp(`(${skipSitemapPages.map((itm) => itm.replace(/(\.|\/)/g, "\\$1").replace(/(\*\*)/, ".*")).join("|")})`, "i");

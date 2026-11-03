@@ -21,8 +21,12 @@ summary { user-select: none; }
 .hide { display: none !important;}
 .download-script {padding-top: 5px; padding-bottom: 5px;}
 
-.version-tag {
-  margin-left: 1.3rem;
+.version-tag { margin-left: 1.3rem; }
+.download-hash {
+  h5 {
+    margin-bottom: 5px; margin-top: 0.3rem;
+  }
+  span {margin-left: 0.3rem;}
 }
 
 .logo-icon {
