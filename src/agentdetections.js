@@ -246,6 +246,9 @@ const matchAnywhereAIRule = [
 // Claude config rules (good lord)
 const claudeDenyConfigDirectives = ["Read","Edit","Write","MultiEdit","NotebookEdit","NotebookRead","Bash",
   "BashOutput","KillBash","Glob","Grep","WebFetch","WebSearch","Task","SlashCommand"];
+// config rules must be greater than 70% of the above deny rules to be considered not sloppy from the .claude/config rule
+// still subject to other rules
+const claudeSafeMatchAmt = Math.floor(claudeDenyConfigDirectives.length * .7);
 
 // dynamic regex of the above, global because it's used in two places with no changes.
 // good luck understanding how this works, I'm not going to bother explaining it in much detail

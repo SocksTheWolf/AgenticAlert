@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.4
+// @version      1.4.5
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -456,7 +456,6 @@ class AgenticAlertScan {
         }
       });
 
-      const claudeSafeMatchAmt = Math.floor(claudeDenyConfigDirectives.length * .7);
       if (claudeConfigDenialMatches.length >= claudeSafeMatchAmt) {
         // Change the response, they have enough denials to give them an alert.
         this.updateOutput("status", "info");
