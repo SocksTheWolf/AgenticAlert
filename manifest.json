@@ -21,7 +21,7 @@
       ],
       "js": [
         "src/agentdetections.js",
-        "src/agenticalert.user.js"
+        "src/agenticalert.js"
       ],
       "all_frames": false,
       "run_at": "document_end"

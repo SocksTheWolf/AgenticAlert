@@ -36,7 +36,7 @@ async function buildSite() {
 
   // copying file rules
   const copyFileInstructions = [
-    {source: "src/agenticalert.user.js", dest: scriptFinalLocation},
+    {source: "src/agenticalert.js", dest: scriptFinalLocation},
     {source: "src/agentdetections.js", dest: defFinalLocation},
     {source: "icon64.png", dest: "site/icon.png"},
   ];
