@@ -1,0 +1,7 @@
+.zoomContainer {z-index: 99999; background-color: #000000c0; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;}
+.zoomImg { position: fixed; box-sizing: border-box; max-width: 100vw; max-height: 100vh; margin: auto; top: 0; bottom: 0; left:0; right: 0; padding: 16px; }
+.zoomClose { cursor: pointer; position: fixed; top:0; right: 0; margin: 4px; padding: 0.1em 0.4em; border: 0; background-color: #000000; color: #ffffff; font-size: 32px; 
+  &:hover {
+    color: black;
+  }
+}
