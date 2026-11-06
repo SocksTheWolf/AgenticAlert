@@ -1,0 +1,20 @@
+name: Clean Actions
+on:
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+  deployments: write
+
+jobs:
+  clean:
+    name: Cleanup Actions
+    uses: socksthewolf/workflows/.github/workflows/clean_actions.yml@main
+    secrets: inherit
+
+  deployClean:
+    name: Clean Deployments
+    uses: socksthewolf/workflows/.github/workflows/clean_deploys.yml@main
+    secrets: inherit
+    with:
+      environment: refresh_token

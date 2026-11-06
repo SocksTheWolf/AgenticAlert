@@ -12,6 +12,10 @@ permissions:
   actions: write
   deployments: write
 
+concurrency:
+  group: "submission-${{ github.ref }}"
+  cancel-in-progress: true
+
 jobs:
   deployClean:
     name: Clean Deployments
@@ -21,6 +25,7 @@ jobs:
       environment: submission
 
   build:
+    name: Build
     runs-on: "ubuntu-latest"
     environment: submission
     steps:
@@ -67,13 +72,13 @@ jobs:
         with:
           extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
           publisher_id: ${{ secrets.CHROME_PUBLISHER_ID }}
-          #zip_file: "ext/extension.zip"
+          zip_file: "ext/extension.zip"
+          cancel: true
           publish: default
           json_data: ${{ secrets.CHROME_AUTH }}
 
 
       - name: Push to Firefox
-        if: ${{ false }}
         uses: creeperkatze/extension-publish@67710e469fb1db85eac50c0cfe18779f9de5bdfb
         with:
           firefox-xpi-path:     "ext/extension.zip"

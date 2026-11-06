@@ -15,6 +15,7 @@ jobs:
     uses: socksthewolf/workflows/.github/workflows/clean_actions.yml@main
     secrets: inherit
   get-cache:
+    name: Make Node Cache
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout files
