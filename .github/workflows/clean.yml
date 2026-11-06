@@ -17,4 +17,4 @@ jobs:
     uses: socksthewolf/workflows/.github/workflows/clean_deploys.yml@main
     secrets: inherit
     with:
-      environment: refresh_token
+      environment: submission
