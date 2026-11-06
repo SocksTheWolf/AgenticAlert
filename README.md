@@ -69,6 +69,7 @@ However, if something is marked as slop, it's very likely slop.
 | Hidden genAI File Markers | ![Example of a repo that has hidden genAI markers](/site/screenshots/screenshot2.jpg?raw=true) |
 | genAI Submodule Usage | ![Example of a repo that has genAI submodules](/site/screenshots/screenshot6.jpg?raw=true) |
 | Potential Copilot Usage | ![Example of a repo that maybe has Copilot](/site/screenshots/screenshot4.jpg?raw=true) |
+| genAI branches | ![genAI branch usage](/site/screenshots/screenshot9.jpg?raw=true) |
 | Detection of only `AGENTS.md` | ![Detection of ONLY AGENTS.md](/site/screenshots/screenshot7.jpg?raw=true) |
 | Detection of LLM poison pills | ![Detection of LLM poison pills](/site/screenshots/screenshot8.jpg?raw=true) |
 | Safe Repo | ![Example of a safe repo](/site/screenshots/screenshot3.jpg?raw=true) |
