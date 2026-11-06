@@ -5,11 +5,11 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.8
+// @version      1.4.9
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
-// @addreq
+// @adddef
 // @icon         https://agenticalert.download/icon.png
 // @iconURL      https://agenticalert.download/icon.png
 // @icon64URL    https://agenticalert.download/icon.png
@@ -338,7 +338,7 @@ class AgenticAlertScan {
   scanSubModules() {
     updateAILabelElement("text", "Checking for AI Submodules");
     const submoduleMatches = [];
-    const submoduleRegex = new RegExp(`^(${aiRecompModules.join("|")})`, 'i');
+    const submoduleRegex = new RegExp(`^(${aiRegexSafeArray(aiRecompModules).join("|")})`, 'i');
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.user}/${this.project}"]) span`);
     submodules.forEach((itm) => {
       if (submoduleRegex.test(itm.innerText)) {
@@ -624,7 +624,7 @@ class AgenticAlertScan {
       console.error(`AgenticAlert: encountered error: ${err}`);
       this.updateOutput("title", null);
       this.updateOutput("status", "error");
-      if (typeof aiFileNameRegex === 'undefined') {
+      if (typeof aiRegexSafeArray === 'undefined') {
         this.updateOutput("text", "Detection file is out of date, please update!");
         this.updateOutput("link", "");
       } else {

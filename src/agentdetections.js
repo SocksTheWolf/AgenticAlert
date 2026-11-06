@@ -3,6 +3,10 @@
 //
 // Licensed under GPL: https://agenticalert.download/LICENSE.txt
 
+const aiRegexSafeArray = (arr) => {
+  return arr.map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"));
+}
+
 // GitHub account ids -> {integration id/agent names}
 const aiAgents = new Map([
   [199161495, {name: "cursor"}],
@@ -127,10 +131,18 @@ const aiAgentIds = Array.from(aiAgents.keys()).join("|");
 const aiRecompModules = [
   "psxrecomp",
   "ps3recomp",
+  "ps2xRecomp",
+  "ps2recomp",
+  "ps2xRuntime",
   "segagenesisrecomp",
+  "smsggrecomp",
   "ndsrecomp",
-  "gbarecomp",
-  "snesrecomp",
+  "gba?recomp",
+  "s?nesrecomp",
+  "xboxllr",
+  "xboxlle",
+  "cdirecomp",
+  "gb-?recompiled",
   "recomp-ui",
 ];
 
@@ -278,6 +290,6 @@ const claudeSafeMatchAmt = Math.floor(claudeDenyConfigDirectives.length * .7);
 // good luck understanding how this works, I'm not going to bother explaining it in much detail
 const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   // dynamically escape any ., * and - characters so they are the literals
-  [...aiFileMarkers, ...aiRecompModules, ...matchAnywhereAIRule].map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"))
+  aiRegexSafeArray([...aiFileMarkers, ...aiRecompModules, ...matchAnywhereAIRule])
   // then join the entire array with OR gates, and that builds our regex.
 .join("|")}).*)`, "igm");

@@ -65,13 +65,13 @@ async function buildSite() {
     // Get the hash
     const definitionsFile = await readFile(defFinalLocation, {encoding: "utf-8"});
     defHash = createHash('sha256').update(definitionsFile).digest('hex');
-    const requireDeclare = `// @require      https://agenticalert.download/${scriptVersion}/agentdetections.js#sha256=${defHash}`;
+    const defDeclare = `// @require      https://agenticalert.download/${scriptVersion}/agentdetections.js#sha256=${defHash}`;
 
     // if in dev, write the definitions into the script for ez testing
     if (IN_DEV) {
       userScriptFile = userScriptFile.replace("// {-DEFINITIONS-}", definitionsFile);
     } else {
-      userScriptFile = userScriptFile.replace("// @addreq", requireDeclare);
+      userScriptFile = userScriptFile.replace("// @adddef", defDeclare);
       userScriptFile = userScriptFile.replace(definitionsKey, "");
     }
     await writeFile(scriptFinalLocation, userScriptFile);
