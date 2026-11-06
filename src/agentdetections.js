@@ -143,6 +143,7 @@ const aiRecompModules = [
   "xboxlle",
   "cdirecomp",
   "gb-?recompiled",
+  "snowboardkids2?-decomp",
   "recomp-ui",
 ];
 

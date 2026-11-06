@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.9
+// @version      1.4.10
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -122,11 +122,12 @@ class AgenticAlertScan {
       skipMetadata: false,
     };
     this.repo = {
+      // networkError: undefined|true
       // copilot: undefined|true
       // hasIgnore: undefined|true
       // hasClaudeDir: undefined|true
-      // networkError: undefined|true
       // hasAgents: undefined|true
+      // hasGitModules: undefined|true
       // branchName: undefined|string
     };
     this.output = {
@@ -244,7 +245,6 @@ class AgenticAlertScan {
     updateAILabelElement("text", "Loading Repo Git Data");
 
     const contribData = await this.fetchGithub(`graphs/contributors-data`);
-
     if (contribData !== null) {
       updateAILabelElement("text", "Parsing Repo Data Results...");
       // generate the regex
@@ -335,10 +335,11 @@ class AgenticAlertScan {
     }
     return false;
   }
-  scanSubModules() {
+  async scanSubModules() {
     updateAILabelElement("text", "Checking for AI Submodules");
     const submoduleMatches = [];
-    const submoduleRegex = new RegExp(`^(${aiRegexSafeArray(aiRecompModules).join("|")})`, 'i');
+    const recompDetectionStr = aiRegexSafeArray(aiRecompModules).join("|");
+    const submoduleRegex = new RegExp(`^(${recompDetectionStr})`, 'i');
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.user}/${this.project}"]) span`);
     submodules.forEach((itm) => {
       if (submoduleRegex.test(itm.innerText)) {
@@ -355,6 +356,24 @@ class AgenticAlertScan {
       this.updateOutput("title", "This isn't perfect because it has to check name data, which can be inaccurate");
       this.updateOutput("text", `Detected: Potential ${this.countResults(submoduleMatches, "genAI submodule")} - ${submoduleMatches.join(", ")}`);
       return true;
+    } else if (this.repo.hasGitModules && this.repo.branchName !== undefined) {
+      updateAILabelElement("text", "Fetching Submodule Configuration");
+      const gitModulesContents = await this.fetchGithub(`raw/refs/heads/${this.repo.branchName}/.gitmodules`,
+        {method: "GET", headers: {}});
+      if (gitModulesContents !== null) {
+        updateAILabelElement("text", "Parsing Submodule Configuration");
+        const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(${recompDetectionStr})`, 'igm');
+        const gitModuleMatches = [...gitModulesContents.matchAll(gitmodulesRegex)].map((itm) => itm[1]);
+        if (gitModuleMatches.length > 0) {
+          this.updateOutput("status", "warning");
+          this.updateOutput("title", "This isn't perfect because it has to check name data, which can be inaccurate");
+          this.updateOutput("text", `Detected: Potential ${this.countResults(gitModuleMatches, "genAI submodule")} - ${gitModuleMatches.join(", ")}`);
+          return true;
+        }
+      } else {
+        console.warn(`AgenticAlert: No branches were detected, object was potentially invalid.`);
+        this.repo.networkError = true;
+      }
     }
     return false;
   }
@@ -368,7 +387,7 @@ class AgenticAlertScan {
         const aiBranchPrefixRegex = new RegExp(`^.?(${aiBranchPrefixNames.join("|")})`, "im");
         let nameMatches = [];
         branchNameFetch.refs.forEach((name) => {
-          if (aiBranchPrefixRegex.exec(name) !== null) {
+          if (aiBranchPrefixRegex.test(name)) {
             nameMatches.push(name);
           }
         });
@@ -418,6 +437,9 @@ class AgenticAlertScan {
     }
     if ((/^\.claude/im).test(content)) {
       results.hasClaudeDir = true;
+    }
+    if ((/^\.gitmodules/im).test(content)) {
+      this.repo.hasGitModules = true;
     }
     // if you have both special flags, that's a massive red flag
     if (results.hasZed && results.hasAgents) {
@@ -601,12 +623,12 @@ class AgenticAlertScan {
       if (!(await this.scanContribData())) {
         // check sidebar metadata
         if (!(await this.scanMetadata())) {
-          // check submodules
-          if (!this.scanSubModules()) {
-            // scan branch prefix names
-            if (!(await this.scanBranchPrefixes())) {
-              // check files
-              if (!this.scanFiles()) {
+          // scan branch prefix names
+          if (!(await this.scanBranchPrefixes())) {
+            // check files
+            if (!this.scanFiles()) {
+              // check submodules
+              if (!(await this.scanSubModules())) {
                 // check .claude settings config for poison pills (duckstation)
                 if (!(await this.scanClaudeConfig())) {
                   // check the .gitignore file
