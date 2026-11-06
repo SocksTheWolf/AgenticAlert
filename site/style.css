@@ -21,6 +21,7 @@ summary { user-select: none; }
 .hide { display: none !important;}
 .download-script {padding-top: 5px; padding-bottom: 5px;}
 .homeHeader {margin-top: 0.3rem;}
+#screenshots h3 {margin-bottom: 5px;}
 
 .version-tag { margin-left: 1.3rem; }
 .download-hash {
