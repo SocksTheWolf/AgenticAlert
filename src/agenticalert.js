@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.7
+// @version      1.4.8
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -169,14 +169,20 @@ class AgenticAlertScan {
     return this.user !== undefined && this.project !== undefined;
   }
 
-  // pluralizes words
-  countResults(items, word) {
-    return `${items.length} ${word}${items.length>1?"s":""}`;
+  makeGithubLink(path) {
+    return `https://github.com/${this.user}/${this.project}/${path}`;
   }
 
-  async fetchGithub(url, headers=null, max_attempts=5, timeout=13000) {
+  // pluralizes words
+  countResults(items, word, multiple="s") {
+    const number = items.length ?? items;
+    return `${number} ${word}${number>1?multiple:""}`;
+  }
+
+  async fetchGithub(url, fetchOptions={}, max_attempts=5, timeout=13000) {
     let attempts = 0, gotData = false, data = null;
     const initialText = aiLabelElement.innerText;
+    const githubURL = this.makeGithubLink(url);
     // lambda for writing out progress text good
     const getAttemptString = (words) => {
       return `${initialText} - ${words}. Attempt: ${attempts}/${max_attempts}`;
@@ -192,8 +198,9 @@ class AgenticAlertScan {
         ++attempts;
         const timeoutWatcher = setTimeout(function(){ fetchTimeout.abort(); }, timeout);
         // go fetch, setTimeout will sit in the bg
-        data = await fetch(url, {
-          headers: headers ?? {
+        data = await fetch(githubURL, {
+          method: fetchOptions.method ?? "GET",
+          headers: fetchOptions.headers ?? {
             "X-Requested-With": "XMLHttpRequest",
             "Github-Verified-Fetch": true,
           },
@@ -222,6 +229,9 @@ class AgenticAlertScan {
       }
     }
     if (gotData) {
+      if (fetchOptions.output === "json") {
+        return await data.json();
+      }
       return await data.text();
     }
     return null;
@@ -233,8 +243,7 @@ class AgenticAlertScan {
     }
     updateAILabelElement("text", "Loading Repo Git Data");
 
-    const contribData =
-      await this.fetchGithub(`https://github.com/${this.user}/${this.project}/graphs/contributors-data`);
+    const contribData = await this.fetchGithub(`graphs/contributors-data`);
 
     if (contribData !== null) {
       updateAILabelElement("text", "Parsing Repo Data Results...");
@@ -273,8 +282,7 @@ class AgenticAlertScan {
       return false;
     }
     updateAILabelElement("text", "Checking Github Metadata");
-    const sidebarData =
-      await this.fetchGithub(`https://github.com/${this.user}/${this.project}/commits/deferred_commit_contributors`);
+    const sidebarData = await this.fetchGithub(`commits/deferred_commit_contributors`);
 
     if (sidebarData !== null) {
       updateAILabelElement("text", "Calculating Integration Ids...");
@@ -345,8 +353,42 @@ class AgenticAlertScan {
     if (submoduleMatches.length > 0) {
       this.updateOutput("status", "warning");
       this.updateOutput("title", "This isn't perfect because it has to check name data, which can be inaccurate");
-      this.updateOutput("text", `Detected: Potential ${this.countResults(submoduleMatches, "genAI submodule")}: ${submoduleMatches.join(", ")}`);
+      this.updateOutput("text", `Detected: Potential ${this.countResults(submoduleMatches, "genAI submodule")} - ${submoduleMatches.join(", ")}`);
       return true;
+    }
+    return false;
+  }
+  async scanBranchPrefixes() {
+    updateAILabelElement("text", "Fetching branch names");
+
+    const branchNameFetch = await this.fetchGithub(`refs?type=branch`, {headers: {"Accept": "application/json"}, output: "json"});
+    if (branchNameFetch != null && branchNameFetch.refs !== undefined) {
+      if (branchNameFetch.refs.length > 0) {
+        updateAILabelElement("text", "Scanning branch names");
+        const aiBranchPrefixRegex = new RegExp(`^.?(${aiBranchPrefixNames.join("|")})`, "im");
+        let nameMatches = [];
+        branchNameFetch.refs.forEach((name) => {
+          if (aiBranchPrefixRegex.exec(name) !== null) {
+            nameMatches.push(name);
+          }
+        });
+
+        const matchCount = nameMatches.length;
+        if (matchCount > 0) {
+          const max_results = 10;
+          if (matchCount > max_results) {
+            nameMatches = nameMatches.slice(0, max_results);
+            nameMatches.push("...");
+          }
+          this.updateOutput("status", (matchCount >= 2) ? "danger" : "warning");
+          this.updateOutput("title", `Many cloud agents will fingerprint their branch names. Results are truncated to ${max_results} values`);
+          this.updateOutput("text", `Detected: ${this.countResults(matchCount, "genAI branch prefix", "es")} - ${nameMatches.join(", ")}`);
+          return true;
+        }
+      }
+    } else {
+      console.warn(`AgenticAlert: No branches were detected, object was potentially invalid.`);
+      this.repo.networkError = true;
     }
     return false;
   }
@@ -388,11 +430,6 @@ class AgenticAlertScan {
     // this title write will be deleted if/when we get to finalizeRepo
     this.updateOutput("title", `Due to optimization, "duplicates" are actually multiple instances, but we only print what we match`);
     updateAILabelElement("text", "Checking for AI files");
-    // capture the branch name
-    const branchPicker = document.getElementById("ref-picker-repos-header-ref-selector");
-    if (branchPicker) {
-      this.repo.branchName = branchPicker.getAttribute("aria-label").split(" ")[0];
-    }
     const fileElements = document.querySelectorAll(".react-directory-filename-cell a"), filesList = [];
     // dedupe the element list, as github will give us duplicates
     fileElements.forEach((itm) => {
@@ -427,8 +464,8 @@ class AgenticAlertScan {
     }
     updateAILabelElement("text", "Fetching .claude settings for poison");
     // Attempt to grab the claude config file
-    const claudeConfig =
-      await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${this.repo.branchName}/.claude/settings.json`, {}, 2, 6000);
+    const claudeConfig = await this.fetchGithub(`raw/refs/heads/${this.repo.branchName}/.claude/settings.json`,
+      {method: "GET", headers: {}}, 2, 6000);
     if (claudeConfig !== null) {
       // don't bother processing if anything is "allowed"/"ask"
       if ((/\"(allow|ask)\"/mi).test(claudeConfig)) {
@@ -471,8 +508,8 @@ class AgenticAlertScan {
     updateAILabelElement("text", "Checking for hidden AI markers");
     if (this.repo.hasIgnore && this.repo.branchName !== undefined) {
       // the cool thing about this endpoint is that it avoids CORS all together, and works with permissions!
-      const gitIgnoreContents =
-        await this.fetchGithub(`https://github.com/${this.user}/${this.project}/raw/refs/heads/${this.repo.branchName}/.gitignore`, {});
+      const gitIgnoreContents = await this.fetchGithub(`raw/refs/heads/${this.repo.branchName}/.gitignore`,
+        {method: "GET", headers: {}});
 
       if (gitIgnoreContents !== null) {
         // just the nastiest of manipulations
@@ -505,7 +542,7 @@ class AgenticAlertScan {
       this.updateOutput("status", "info");
       let agentsAction = "Manual review needed.";
       if (this.repo.branchName) {
-        this.updateOutput("link", `https://github.com/${this.user}/${this.project}/blob/${this.repo.branchName}/AGENTS.md`);
+        this.updateOutput("link", this.makeGithubLink(`blob/${this.repo.branchName}/AGENTS.md`));
         agentsAction = "Click to manually review."
       }
       this.updateOutput("title", "Many repos use AGENTS.md to clarify their stance on genAI usage, but it can also used for LLMs.");
@@ -546,7 +583,19 @@ class AgenticAlertScan {
     updateAILabelElement("status", "none");
     updateAILabelElement("text", "Scanning for genAI...");
 
+    // capture the branch name
+    const branchPicker = document.querySelector("#ref-picker-repos-header-ref-selector * span:last-of-type");
+    if (branchPicker) {
+      this.repo.branchName = branchPicker.textContent.trim();
+      console.log(`AgenticAlert: Got branch as ${this.repo.branchName}`);
+    } else {
+      console.warn(`AgenticAlert: Unable to find the branch name for ${this.repo}`);
+    }
+
     // dante's genAI inferno
+    // (probably should just make this better than a cascading if waterfall, but it does fit the DI theme)
+    // TODO: as we add more rules, I really should redo how judgement works, and have a "final judgement"
+    // from all the previous actions that don't involve network fetches (file scan, submodule, etc)
     try {
       // check contribs
       if (!(await this.scanContribData())) {
@@ -554,14 +603,17 @@ class AgenticAlertScan {
         if (!(await this.scanMetadata())) {
           // check submodules
           if (!this.scanSubModules()) {
-            // check files
-            if (!this.scanFiles()) {
-              // check .claude settings config for poison pills (duckstation)
-              if (!(await this.scanClaudeConfig())) {
-                // check the .gitignore file
-                if (!(await this.scanGitIgnore())) {
-                  // Clear the repository from using genAI
-                  this.finalizeRepo();
+            // scan branch prefix names
+            if (!(await this.scanBranchPrefixes())) {
+              // check files
+              if (!this.scanFiles()) {
+                // check .claude settings config for poison pills (duckstation)
+                if (!(await this.scanClaudeConfig())) {
+                  // check the .gitignore file
+                  if (!(await this.scanGitIgnore())) {
+                    // Clear the repository from using genAI
+                    this.finalizeRepo();
+                  }
                 }
               }
             }

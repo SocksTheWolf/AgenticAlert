@@ -43,3 +43,4 @@ jobs:
         with:
           path: site/agenticalert.user.js
           archive: false
+          name: "agenticalert.user.js"

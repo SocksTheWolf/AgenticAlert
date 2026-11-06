@@ -126,11 +126,24 @@ const aiAgentIds = Array.from(aiAgents.keys()).join("|");
 // pretty much anything from the "R.A.I.D. community" can be thrown in here
 const aiRecompModules = [
   "psxrecomp",
+  "ps3recomp",
   "segagenesisrecomp",
   "ndsrecomp",
   "gbarecomp",
   "snesrecomp",
   "recomp-ui",
+];
+
+// List of AI branch prefix names that are used
+// as of this time, cloud agents cannot turn this off
+// https://conventionalbranch.org/#branch-naming-prefixes
+const aiBranchPrefixNames = [
+  "agents?",
+  "claude",
+  "cursor",
+  "codex",
+  "copilot",
+  "ai\/",
 ];
 
 // AGENTS.md ITSELF SHOULD NEVER BE IN THIS LIST.
