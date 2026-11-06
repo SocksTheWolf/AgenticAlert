@@ -5,3 +5,4 @@
     color: black;
   }
 }
+.zoomCaption { position: relative; left: 0; top: 80%; margin-bottom: 2rem; user-select: none; }
