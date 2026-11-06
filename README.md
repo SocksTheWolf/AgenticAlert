@@ -6,6 +6,9 @@
 [![Website](https://img.shields.io/website?logo=cloudflare&color=teal&cacheSeconds=7200&down_color=red&url=https%3A%2F%2Fagenticalert.download)](https://agenticalert.download)
 [![GitHub Repo stars](https://img.shields.io/github/stars/socksthewolf/agenticalert)](https://github.com/SocksTheWolf/AgenticAlert/stargazers)
 
+[![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/ilpgadplglhdoeoaoibkjfncinoonajc?logo=chromewebstore&logoColor=white&label=web%20store%20version)](https://agenticalert.download/chrome)
+[![Mozilla Add-on Version](https://img.shields.io/amo/v/agenticalert?logo=firefox&logoColor=white&label=firefox%20addons%20version&color=orange)](https://agenticalert.download/firefox)
+
 A robust extension that scans and alerts you if a GitHub repo uses genAI. Can be installed in pretty much everything.
 
 ## Install
@@ -46,7 +49,7 @@ AgenticAlert has a few advantages over other alternatives:
 * Scans `.gitignore`, git data and GitHub metadata without user input
 * Comprehensive deep search
 
-> **NOTE**: you should continue to use your eyes if something is marked as "potentially safe", as there's always the chance of new genAI agents we don't detect yet.
+> **NOTE**: you should continue to use your eyes if something is marked as "potentially safe", as there's always the chance of new genAI agents we don't detect yet. If this is the case, please [open an issue](https://agenticalert.download/issue).
 
 However, if something is marked as slop, it's very likely slop.
 
@@ -56,7 +59,7 @@ However, if something is marked as slop, it's very likely slop.
 
 **Highlights**:
 
-> * Over 90+ AI LLM GPT Agents (including ones you cannot block on GitHub)
+> * Over 95+ AI LLM GPT Agents (including ones you cannot block on GitHub)
 > * 16 Slop Recomp Modules
 > * 125+ LLM file markers
 
@@ -82,7 +85,7 @@ However, if something is marked as slop, it's very likely slop.
   * Submodule genAI usage has to be completely based on a list of known slop modules. This won't be perfect, which is why it's a warning.
 * if genAI is used in previous/other branches, or purged commits, it will not be detected. _**Another limitation** of GitHub_.
   * We mitigate this by checking metadata, but it's not 100% perfect as metadata can be _incomplete due to **yet another** limitation of GitHub_.
-* copilot has some fun bs that only applies to it because of Microsoft's meddling. See [FAQ](https://github.com/SocksTheWolf/AgenticAlert/wiki/FAQ).
+* copilot has some oddities that only applies to it because of Microsoft's meddling. See [this section](#about-copilot).
 
 ## Bugs
 
@@ -120,12 +123,7 @@ Technically, we could attempt to calculate genAI usage stats in a repo. A couple
 * This process is slower (did not bench), and requires more processing, but it's doable.
 * I think this will incentivize sloppers to try to commit garbage worthless data to lower their percentages.
 * We'd have to reprocess the repo data twice, as GitHub is funky like that.
-
-This will not be a mainline change, but if you like statistics and math for quantification, you can [install this version instead](https://github.com/SocksTheWolf/AgenticAlert/raw/refs/heads/amount/agenticalert.user.js). This branch will not update further.
-
-It looks like this:
-
-![Statistics](/site/screenshots/usage.jpg?raw=true)
+* The data is very unreliable. Github will often only return partial commit data, so percentages could be wildly off.
 
 ---
 
