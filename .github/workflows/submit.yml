@@ -62,15 +62,20 @@ jobs:
           archive: false
           name: "WebPackedExt"
 
-      - name: Push to Stores
+      - name: Push to Chrome
+        uses: cssnr/webstore-publish-action@9c4e7ae29beb517bf2d22f32d849455d178cbca6
+        with:
+          extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
+          publisher_id: ${{ secrets.CHROME_PUBLISHER_ID }}
+          #zip_file: "ext/extension.zip"
+          publish: default
+          json_data: ${{ secrets.CHROME_AUTH }}
+
+
+      - name: Push to Firefox
+        if: ${{ false }}
         uses: creeperkatze/extension-publish@67710e469fb1db85eac50c0cfe18779f9de5bdfb
         with:
-          chrome-client-id:     ${{ secrets.CHROME_CLIENT_ID }}
-          chrome-client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          chrome-refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          chrome-publisher-id:  ${{ secrets.CHROME_PUBLISHER_ID }}
-          chrome-extension-id:  ${{ secrets.CHROME_EXTENSION_ID }}
-          chrome-zip-path:      "ext/extension.zip"
           firefox-xpi-path:     "ext/extension.zip"
           firefox-license:      "GPL-3.0-only"
           firefox-api-key:      ${{ secrets.FIREFOX_API_KEY }}
