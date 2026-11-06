@@ -63,6 +63,13 @@ if (document.getElementById("SAATNAV")) {
   });
 }
 
+function showScreenshots() {
+  if (document.location.pathname === "/features") {
+    document.location.pathname = "/screenshots";
+    return;
+  }
+}
+
 addBackToTop({
   diameter: 56,
   backgroundColor: '#ffb300',
