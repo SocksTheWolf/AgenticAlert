@@ -1,4 +1,4 @@
-name: Build Extension
+name: Build & Submit Extension
 on:
   workflow_run:
     workflows: [Release Completed]
