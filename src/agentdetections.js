@@ -130,6 +130,7 @@ const aiAgentIds = Array.from(aiAgents.keys()).join("|");
 // from claiming their repo doesn't use genAI, when it's completely based in it.
 // pretty much anything from the "R.A.I.D. community" can be thrown in here
 const aiRecompModules = [
+  // base modules, mostly system bases
   "psxrecomp",
   "recomp-ui",
   "ps3recomp",
@@ -145,10 +146,12 @@ const aiRecompModules = [
   "xboxlle",
   "cdirecomp",
   "gb-?recompiled",
-  "snowboardkids2?-decomp",
   "xboxrecomp",
-  "smstrikers-decomp",
-  "mscharged-decomp",
+  // decomp game modules that use genai
+  "snowboardkids2?-decomp",
+  "smstrikers-decomp", // used claude hard
+  "mscharged-decomp", // see issue, was built from smstrikers
+  "hm64-decomp", // has claude files
 ];
 
 // List of AI branch prefix names that are used
