@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.11
+// @version      1.4.12
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -398,7 +398,7 @@ class AgenticAlertScan {
       return true;
     } else if (hasGetModules && this.repo.branchName !== undefined) {
       updateAILabelElement("text", "Fetching Submodule Configuration");
-      const gitModulesContents = await this.fetchGithub(`raw/refs/heads/${this.repo.branchName}/.gitmodules`,
+      const gitModulesContents = await this.fetchGithub(`raw/${this.repo.branchName}/.gitmodules`,
         {method: "GET", headers: {}});
       if (gitModulesContents !== null) {
         updateAILabelElement("text", "Parsing Submodule Configuration");
@@ -490,7 +490,7 @@ class AgenticAlertScan {
     }
     updateAILabelElement("text", "Fetching .claude settings for poison");
     // Attempt to grab the claude config file
-    const claudeConfig = await this.fetchGithub(`raw/refs/heads/${this.repo.branchName}/.claude/settings.json`,
+    const claudeConfig = await this.fetchGithub(`raw/${this.repo.branchName}/.claude/settings.json`,
       {method: "GET", headers: {}}, 2, 6000);
     if (claudeConfig !== null) {
       // don't bother processing if anything is "allowed"/"ask"
@@ -534,7 +534,7 @@ class AgenticAlertScan {
     updateAILabelElement("text", "Checking for hidden AI markers");
     if (this.repo.hasIgnore && this.repo.branchName !== undefined) {
       // the cool thing about this endpoint is that it avoids CORS all together, and works with permissions!
-      const gitIgnoreContents = await this.fetchGithub(`raw/refs/heads/${this.repo.branchName}/.gitignore`,
+      const gitIgnoreContents = await this.fetchGithub(`raw/${this.repo.branchName}/.gitignore`,
         {method: "GET", headers: {}});
 
       if (gitIgnoreContents !== null) {
