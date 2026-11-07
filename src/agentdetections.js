@@ -119,7 +119,8 @@ const aiAgents = new Map([
   [220660587, {name: "ironclaw work bot"}],
   [160964065, {i: 837875, name: "mentatbot pr"}],
   [206114724, {i: 1203049, name: "posthog ai"}],
-  [253579861, {name: "shelly ai"}]
+  [253579861, {name: "shelly ai"}],
+  [230265278, {name: "codebuff ai"}],
 ]);
 
 // helpful pre-transfer of ids to regexian style string
