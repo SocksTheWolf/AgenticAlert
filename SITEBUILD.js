@@ -80,13 +80,25 @@ async function buildSite() {
 
   // for sitemap, literally stolen from skyscheduler lmao
   const SITE_URL = "https://agenticalert.download";
+  const currentYear = (new Date()).getFullYear();
+
+  // things that can be replaced in the section code
+  const sectionFiller = new Map([
+    ["{HASH}", scriptHash],
+    ["{VERSION}", scriptVersion],
+    ["{DEFHASH}", defHash],
+    ["{DATE}", currentYear]
+  ])
 
   // build out the HTML replacement code from each section file
   // keys are the filenames all uppercased
   for await (const sectionFile of glob("site/sections/*")) {
     const fileKey = sectionFile.replace(/(site\\sections\\|site\/sections\/|index|\.html)/g, "").toUpperCase();
-    const fileContents = await readFile(sectionFile, {encoding: "utf-8"});
-    sections.set(fileKey, fileContents.replace("{HASH}", scriptHash).replace("{VERSION}", scriptVersion).replace("{DEFHASH}", defHash));
+    let fileContents = await readFile(sectionFile, {encoding: "utf-8"});
+    sectionFiller.forEach((value, key) => {
+      fileContents = fileContents.replace(key, value);
+    });
+    sections.set(fileKey, fileContents);
   }
 
   const skipSitemapRegex = new RegExp(`(${skipSitemapPages.map((itm) => itm.replace(/(\.|\/)/g, "\\$1").replace(/(\*\*)/, ".*")).join("|")})`, "i");
