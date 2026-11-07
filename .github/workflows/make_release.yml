@@ -57,7 +57,8 @@ jobs:
           fail_on_unmatched_files: true
           generate_release_notes: false
           files: |
-            - site/*.js
+            - **/site/agenticalert.user.js
+            - **/site/agentdetections.js
 
   extension:
     name: "Submit Extensions"
