@@ -1,13 +1,14 @@
 # AgenticAlert
 
 [![GitHub Created At](https://img.shields.io/github/created-at/socksthewolf/agenticalert?logo=github&logoColor=white)](https://github.com/socksthewolf/agenticalert)
-[![GitHub License](https://img.shields.io/github/license/socksthewolf/agenticalert?logo=gplv3&logoColor=yellow&color=green)](https://github.com/SocksTheWolf/AgenticAlert?tab=GPL-3.0-1-ov-file)
+[![GitHub License](https://img.shields.io/github/license/socksthewolf/agenticalert?logo=gplv3&logoColor=white&color=yellow)](https://github.com/SocksTheWolf/AgenticAlert?tab=GPL-3.0-1-ov-file)
 [![GitHub script size](https://img.shields.io/github/size/socksthewolf/agenticalert/src/agenticalert.js?logo=javascript)](https://agenticalert.download/get)
 [![Website](https://img.shields.io/website?logo=cloudflare&color=teal&cacheSeconds=7200&down_color=red&url=https%3A%2F%2Fagenticalert.download)](https://agenticalert.download)
 [![GitHub Repo stars](https://img.shields.io/github/stars/socksthewolf/agenticalert)](https://github.com/SocksTheWolf/AgenticAlert/stargazers)
 
-[![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/ilpgadplglhdoeoaoibkjfncinoonajc?logo=chromewebstore&logoColor=white&label=web%20store%20version)](https://agenticalert.download/chrome)
+[![Current Script Version](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FSocksTheWolf%2FAgenticAlert%2Frefs%2Fheads%2Fmain%2Fsrc%2Fagenticalert.js&search=%5C%2F%5C%2F%20%5C%40version%5Cs*(%5B0-9%5D*%5C.%5B0-9%5D*%5C.%5B0-9%5D*)&replace=v%241&label=current%20version&color=green)](https://agenticalert.download/script)
 [![Mozilla Add-on Version](https://img.shields.io/amo/v/agenticalert?logo=firefox&logoColor=white&label=firefox%20addons%20version&color=orange)](https://agenticalert.download/firefox)
+[![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/ilpgadplglhdoeoaoibkjfncinoonajc?logo=chromewebstore&logoColor=white&label=web%20store%20version)](https://agenticalert.download/chrome)
 
 A robust extension that scans and alerts you if a GitHub repo uses genAI. Can be installed in pretty much everything.
 
