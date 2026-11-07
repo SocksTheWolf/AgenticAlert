@@ -1,10 +1,10 @@
 name: Build & Submit Extension
 on:
-  workflow_run:
-    workflows: [Release Completed]
-    types:
-      - completed
-
+  workflow_call: {}
+#  workflow_run:
+#    workflows: [Release Completed]
+#    types:
+#      - completed
   workflow_dispatch: {}
 
 permissions:
