@@ -60,7 +60,7 @@ However, if something is marked as slop, it's very likely slop.
 **Highlights**:
 
 > * Over 95+ AI LLM GPT Agents (including ones you cannot block on GitHub)
-> * 22 Slop Recomp Modules
+> * 23 Slop Recomp Modules
 > * 125+ LLM file markers
 
 ## Screenshots
