@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.14
+// @version      1.4.15
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -269,9 +269,9 @@ class AgenticAlertScan {
     }
     if (gotData) {
       if (fetchOptions.output === "json") {
-        return await data.json();
+        return (await data.json()) ?? {};
       }
-      return await data.text();
+      return (await data.text()) ?? "";
     }
     return null;
   }
