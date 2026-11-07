@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.10
+// @version      1.4.11
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -127,7 +127,6 @@ class AgenticAlertScan {
       // hasIgnore: undefined|true
       // hasClaudeDir: undefined|true
       // hasAgents: undefined|true
-      // hasGitModules: undefined|true
       // branchName: undefined|string
     };
     this.output = {
@@ -164,6 +163,45 @@ class AgenticAlertScan {
     propertiesDefined.forEach((prop) => {
       updateAILabelElement(prop, this.output[prop]);
     });
+  }
+
+  contentJudge(content) {
+    const results = {
+      items: content.match(aiFileNameRegex) ?? [],
+      count: 0,
+      color: "warning",
+      hasAgents: false,
+      hasClaudeDir: false,
+      hasZed: false
+    };
+    // snapshot of the results before we add special items
+    results.count = results.items.length;
+    // determine if we should elevate the response
+    if (results.count >= 2) {
+      results.color = "danger";
+    }
+    // push our special detections if we have other markers
+    if ((/agents\.md/i).test(content)) {
+      results.items.push("AGENTS.md");
+      results.hasAgents = true;
+    }
+    if ((/^\.zed/im).test(content)) {
+      results.items.push(".zed");
+      results.hasZed = true;
+    }
+    if ((/^\.claude/im).test(content)) {
+      results.hasClaudeDir = true;
+    }
+    // if you have both special flags, that's a massive red flag
+    if (results.hasZed && results.hasAgents) {
+      results.color = "danger";
+      results.count += 2;
+    }
+    return results;
+  }
+
+  countJudge(resultNum) {
+    return resultNum >= 2 ? "danger" : "warning";
   }
 
   isValid() {
@@ -340,6 +378,7 @@ class AgenticAlertScan {
     const submoduleMatches = [];
     const recompDetectionStr = aiRegexSafeArray(aiRecompModules).join("|");
     const submoduleRegex = new RegExp(`^(${recompDetectionStr})`, 'i');
+    const hasGetModules = document.querySelector(".react-directory-filename-cell a[title='.gitmodules']") !== null;
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.user}/${this.project}"]) span`);
     submodules.forEach((itm) => {
       if (submoduleRegex.test(itm.innerText)) {
@@ -351,12 +390,13 @@ class AgenticAlertScan {
         }
       }
     });
-    if (submoduleMatches.length > 0) {
-      this.updateOutput("status", "warning");
-      this.updateOutput("title", "This isn't perfect because it has to check name data, which can be inaccurate");
-      this.updateOutput("text", `Detected: Potential ${this.countResults(submoduleMatches, "genAI submodule")} - ${submoduleMatches.join(", ")}`);
+    const submoduleCount = submoduleMatches.length;
+    if (submoduleCount > 0) {
+      this.updateOutput("status", this.countJudge(submoduleCount));
+      this.updateOutput("title", "This project has links to known slop modules");
+      this.updateOutput("text", `Detected: Link to known ${this.countResults(submoduleMatches, "genAI submodule")} - ${submoduleMatches.join(", ")}`);
       return true;
-    } else if (this.repo.hasGitModules && this.repo.branchName !== undefined) {
+    } else if (hasGetModules && this.repo.branchName !== undefined) {
       updateAILabelElement("text", "Fetching Submodule Configuration");
       const gitModulesContents = await this.fetchGithub(`raw/refs/heads/${this.repo.branchName}/.gitmodules`,
         {method: "GET", headers: {}});
@@ -364,14 +404,15 @@ class AgenticAlertScan {
         updateAILabelElement("text", "Parsing Submodule Configuration");
         const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(${recompDetectionStr})`, 'igm');
         const gitModuleMatches = [...gitModulesContents.matchAll(gitmodulesRegex)].map((itm) => itm[1]);
-        if (gitModuleMatches.length > 0) {
-          this.updateOutput("status", "warning");
-          this.updateOutput("title", "This isn't perfect because it has to check name data, which can be inaccurate");
-          this.updateOutput("text", `Detected: Potential ${this.countResults(gitModuleMatches, "genAI submodule")} - ${gitModuleMatches.join(", ")}`);
+        const modNumbers = gitModuleMatches.length;
+        if (modNumbers > 0) {
+          this.updateOutput("status", this.countJudge(modNumbers));
+          this.updateOutput("title", ".gitmodules points to a known genAI slop submodule name");
+          this.updateOutput("text", `Detected: Includes known ${this.countResults(gitModuleMatches, "genAI submodule")} - ${gitModuleMatches.join(", ")}`);
           return true;
         }
       } else {
-        console.warn(`AgenticAlert: No branches were detected, object was potentially invalid.`);
+        console.warn(`AgenticAlert: No response when trying to fetch .gitmodules`);
         this.repo.networkError = true;
       }
     }
@@ -399,7 +440,7 @@ class AgenticAlertScan {
             nameMatches = nameMatches.slice(0, max_results);
             nameMatches.push("...");
           }
-          this.updateOutput("status", (matchCount >= 2) ? "danger" : "warning");
+          this.updateOutput("status", this.countJudge(matchCount));
           this.updateOutput("title", `Many cloud agents will fingerprint their branch names. Results are truncated to ${max_results} values`);
           this.updateOutput("text", `Detected: ${this.countResults(matchCount, "genAI branch prefix", "es")} - ${nameMatches.join(", ")}`);
           return true;
@@ -410,43 +451,6 @@ class AgenticAlertScan {
       this.repo.networkError = true;
     }
     return false;
-  }
-  contentJudge(content) {
-    const results = {
-      items: content.match(aiFileNameRegex) ?? [],
-      count: 0,
-      color: "warning",
-      hasAgents: false,
-      hasClaudeDir: false,
-      hasZed: false
-    };
-    // snapshot of the results before we add special items
-    results.count = results.items.length;
-    // determine if we should elevate the response
-    if (results.count >= 2) {
-      results.color = "danger";
-    }
-    // push our special detections if we have other markers
-    if ((/agents\.md/i).test(content)) {
-      results.items.push("AGENTS.md");
-      results.hasAgents = true;
-    }
-    if ((/^\.zed/im).test(content)) {
-      results.items.push(".zed");
-      results.hasZed = true;
-    }
-    if ((/^\.claude/im).test(content)) {
-      results.hasClaudeDir = true;
-    }
-    if ((/^\.gitmodules/im).test(content)) {
-      this.repo.hasGitModules = true;
-    }
-    // if you have both special flags, that's a massive red flag
-    if (results.hasZed && results.hasAgents) {
-      results.color = "danger";
-      results.count += 2;
-    }
-    return results;
   }
   scanFiles() {
     // this title write will be deleted if/when we get to finalizeRepo
@@ -625,10 +629,10 @@ class AgenticAlertScan {
         if (!(await this.scanMetadata())) {
           // scan branch prefix names
           if (!(await this.scanBranchPrefixes())) {
-            // check files
-            if (!this.scanFiles()) {
-              // check submodules
-              if (!(await this.scanSubModules())) {
+            // check submodules
+            if (!(await this.scanSubModules())) {
+              // check files
+              if (!this.scanFiles()) {
                 // check .claude settings config for poison pills (duckstation)
                 if (!(await this.scanClaudeConfig())) {
                   // check the .gitignore file

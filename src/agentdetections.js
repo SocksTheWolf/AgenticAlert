@@ -130,6 +130,7 @@ const aiAgentIds = Array.from(aiAgents.keys()).join("|");
 // pretty much anything from the "R.A.I.D. community" can be thrown in here
 const aiRecompModules = [
   "psxrecomp",
+  "recomp-ui",
   "ps3recomp",
   "ps2xRecomp",
   "ps2recomp",
@@ -144,7 +145,7 @@ const aiRecompModules = [
   "cdirecomp",
   "gb-?recompiled",
   "snowboardkids2?-decomp",
-  "recomp-ui",
+  "xboxrecomp",
 ];
 
 // List of AI branch prefix names that are used
