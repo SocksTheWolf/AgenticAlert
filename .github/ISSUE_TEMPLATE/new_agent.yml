@@ -51,3 +51,8 @@ body:
         This is advanced so do not worry if you don't have it, someone will be able to find it.
         Issues with metadata included will be processed faster.
         (you can get this from `https://api.github.com/users/USERNAME` and verify with `https://api.github.com/user/ID`)
+
+  - type: textarea
+    attributes:
+      label: Other Comments?
+      description: Evidence, proof of slop, or anything else can go here

@@ -26,3 +26,8 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    attributes:
+      label: Other Comments?
+      description: Evidence, proof of slop, or anything else can go here
+
