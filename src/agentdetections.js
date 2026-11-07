@@ -244,6 +244,7 @@ const aiFileMarkers = [
   ".conductor",
   ".?crushrc",
   ".crush",
+  ".traycer",
   ".herenow",
   ".roo(?:ignore|mote)?",
   ".commandcode",
@@ -270,10 +271,11 @@ const aiFileMarkers = [
   "orca.ya?ml",
   ".bito.ya?ml",
   "bito-cra(?:.properties)?",
+  "trae_config.(?:ya?ml|json)",
   // fairly loose rules, these guys are sure-fires
-  ".?(trae|grok|gemini|claude|qoder)(?:-plugin)?",
+  ".?(grok|gemini|claude|qoder)(?:-plugin)?",
   // like the above rules but a bit tighter, to prevent false positives
-  ".(augment|cursor|codex)(?:-plugin)?",
+  ".(trae|augment|cursor|orchids|codex)(?:-plugin)?",
 ].map((itm) => `^${itm}`);
 
 // words that can be matched anywhere
