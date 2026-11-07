@@ -146,6 +146,8 @@ const aiRecompModules = [
   "gb-?recompiled",
   "snowboardkids2?-decomp",
   "xboxrecomp",
+  "smstrikers-decomp",
+  "mscharged-decomp",
 ];
 
 // List of AI branch prefix names that are used
