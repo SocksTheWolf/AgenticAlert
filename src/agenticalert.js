@@ -57,7 +57,7 @@ const ghElements = {
   files: ".react-directory-filename-cell a",
   fork: `span[data-testid="fork-parent"]`,
   branchName: "#ref-picker-repos-header-ref-selector * span:last-of-type",
-  sidebar: "p[class^='SidebarAbout']",
+  description: "p[class^='SidebarAbout']",
 }
 
 function updateAILabelElement(tag, value) {
@@ -131,6 +131,7 @@ class AgenticAlertScan {
     this.debug = {
       skipContrib: false,
       skipMetadata: false,
+      skipDescription: false,
     };
     this.repo = {
       // networkError: undefined|true
@@ -343,9 +344,9 @@ class AgenticAlertScan {
       return false;
     }
     updateAILabelElement("text", "Checking Github Metadata");
-    const sidebarData = await this.fetchGithub(`commits/deferred_commit_contributors`);
+    const metadataData = await this.fetchGithub(`commits/deferred_commit_contributors`);
 
-    if (sidebarData !== null) {
+    if (metadataData !== null) {
       updateAILabelElement("text", "Calculating Integration Ids...");
       // Github Bot Integration Ids -> Agents
       // Used for metadata as a quicker way to do reverse lookup
@@ -362,7 +363,7 @@ class AgenticAlertScan {
       const metadataRegex = new RegExp(`u\/(${aiAgentIds})|in\/(${integrationIDs})\\?v=`, 'ig');
       let execRes, names = [], copilotCount = 0, nonCopilot = 0;
       // loop through regex matches
-      while ((execRes = metadataRegex.exec(sidebarData)) !== null) {
+      while ((execRes = metadataRegex.exec(metadataData)) !== null) {
         // cleanup bad entries
         execRes = execRes.filter((itm) => itm !== undefined);
         // our match will always be in index 1
@@ -562,7 +563,8 @@ class AgenticAlertScan {
 
       if (gitIgnoreContents !== null) {
         // just the nastiest of manipulations
-        const globCleanedIgnore = gitIgnoreContents.replace(/^[\/|\*]+/gm, "").replace(/\?/g, "").replace(/\[!.*\]/g, "");
+        const ignoreFileRegex = new RegExp(`^(?:\\*+\\.(?:${ignoreAIFileMarkers.join("|")})|[\\/|\\*]+)`, "igm");
+        const globCleanedIgnore = gitIgnoreContents.replace(ignoreFileRegex, "").replace(/\[!.*\]|\?/g, "");
         const matches = this.contentJudge(globCleanedIgnore);
         // for the .gitignore, if you have any sus files, then initiate judgement
         if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
@@ -577,20 +579,54 @@ class AgenticAlertScan {
     }
     return false;
   }
+  extractPhraseData(contentText) {
+    const results = {
+      weakMatches: [],
+      strongMatches: [],
+      uniqueMatches: []
+    };
+    // take the text and normalize the devil out of it.
+    const cleanedContent = contentText.replace(/[\n|\s]+/g, " ");
+    [...cleanedContent.matchAll(combinedAIPhraseRegex)].forEach((itm) => {
+      let matchStr = "";
+      if (itm.groups.strong !== undefined) {
+        matchStr = itm.groups.strong;
+        results.strongMatches.push(itm.groups.strong);
+      } else {
+        matchStr = itm.groups.weak;
+        results.weakMatches.push(itm.groups.weak);
+      }
+      if (!results.uniqueMatches.includes(matchStr)) {
+        results.uniqueMatches.push(matchStr);
+      }
+    });
+    return results;
+  }
+  scanSidebar() {
+    if (this.debug.skipDescription) {
+      return false;
+    }
+    const sidebarDescription = document.querySelector(ghElements.description);
+    if (sidebarDescription !== null) {
+      updateAILabelElement("text", "Scanning repository description");
+      const { uniqueMatches } = this.extractPhraseData(sidebarDescription.textContent);
+      updateAILabelElement("text", "Parsing repository phrase results");
+      if (uniqueMatches.length >= 1) {
+        this.updateOutput("status", "danger");
+        this.updateOutput("title", `Description mentions genAI phrases: ${uniqueMatches.join(", ")}`);
+        this.updateOutput("text", `Detected: Description contains ${this.pluralize(uniqueMatches, "reference", "s")} to genAI - ${uniqueMatches.join(", ")}`);
+        return true;
+      }
+    } else {
+      console.warn(`AgenticAlert: missing sidebar description element`);
+    }
+    return false;
+  }
   scanReadme() {
     const readmeContainer = document.querySelector(ghElements.readme);
     if (readmeContainer !== null) {
       updateAILabelElement("text", "Scanning README text");
-      // take the text and normalize the devil out of it.
-      const readmeContent = readmeContainer.textContent.replace(/[\n|\s]+/g, " ");
-      const strongMatches = [], weakMatches = [];
-      [...readmeContent.matchAll(combinedAIPhraseRegex)].forEach((itm) => {
-        if (itm.groups.weak !== undefined) {
-          weakMatches.push(itm.groups.weak);
-        } else {
-          strongMatches.push(itm.groups.strong);
-        }
-      });
+      const { strongMatches, weakMatches, uniqueMatches } = this.extractPhraseData(readmeContainer.textContent);
       updateAILabelElement("text", "Parsing README results");
 
       // for determination
@@ -599,10 +635,11 @@ class AgenticAlertScan {
       // for printing count
       const resultTotal = weakMatches.length + strongMatchCount;
       if (resultCount >= 1 || strongMatchCount > 0) {
-        let resultsStr = "";
+        let resultsStr = "", prefix = "";
         if (strongMatchCount > 0) {
           this.updateOutput("status", this.countJudge(resultCount));
           resultsStr += `${strongMatchCount} strong`;
+          prefix = "Detected";
         } else {
           // if we have an agents file, direct the user to go look at that
           // instead if we have a small number of results (~3)
@@ -610,6 +647,7 @@ class AgenticAlertScan {
             console.warn(`AgenticAlert: Dropping README scan. count was ${resultCount} and we have AGENTS`);
             return false;
           }
+          prefix = "Warning";
           this.updateOutput("status", "info");
         }
         // this is the dumbest formatter ever, I could have 1 lined this
@@ -619,16 +657,9 @@ class AgenticAlertScan {
           }
           resultsStr += `${weakMatches.length} potential`;
         }
-        // ugh
-        const resultDeduped = [];
-        [...strongMatches, ...weakMatches].forEach((itm) => {
-          if (!resultDeduped.includes(itm)) {
-            resultDeduped.push(itm);
-          }
-        });
         this.updateOutput("focus", "readme");
-        this.updateOutput("title", `README mentions genAI phrases: ${resultDeduped.join(", ")}`);
-        this.updateOutput("text", `Warning: README contains ${resultsStr} ${this.pluralize(resultTotal, "reference", "s", true)} to genAI.`);
+        this.updateOutput("title", `README mentions genAI phrases: ${uniqueMatches.join(", ")}`);
+        this.updateOutput("text", `${prefix}: README contains ${resultsStr} ${this.pluralize(resultTotal, "reference", "s", true)} to genAI.`);
         return true;
       }
     }
@@ -706,7 +737,7 @@ class AgenticAlertScan {
     try {
       // check contribs
       if (!(await this.scanContribData())) {
-        // check sidebar metadata
+        // check contrib metadata
         if (!(await this.scanMetadata())) {
           // scan branch prefix names
           if (!(await this.scanBranchPrefixes())) {
@@ -718,10 +749,13 @@ class AgenticAlertScan {
                 if (!(await this.scanClaudeConfig())) {
                   // check the .gitignore file
                   if (!(await this.scanGitIgnore())) {
-                    // check the readme of anything
-                    if (!this.scanReadme()) {
-                      // Clear the repository from using genAI
-                      this.finalizeRepo();
+                    // check the sidebar of stuff
+                    if (!this.scanSidebar()) {
+                      // check the readme of anything
+                      if (!this.scanReadme()) {
+                        // Clear the repository from using genAI
+                        this.finalizeRepo();
+                      }
                     }
                   }
                 }

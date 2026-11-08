@@ -145,6 +145,7 @@ const aiRecompModules = [
   "cdirecomp",
   "gb-?recompiled",
   "xboxrecomp",
+  "NWiiRecomp",
   // decomp game modules that use genai
   "snowboardkids2?-decomp",
   "smstrikers-decomp", // used claude hard
@@ -255,7 +256,7 @@ const aiFileMarkers = [
   "evlog.config.m?t?j?s$",
   // this is not an official git file, and is used by claude et. al for worktree spawns
   // very low chance of false positive
-  "^.worktreeinclude",
+  ".worktreeinclude",
   ".herdr",
   ".pochi",
   ".forge",
@@ -275,6 +276,12 @@ const aiFileMarkers = [
   // like the above rules but a bit tighter, to prevent false positives
   ".(trae|augment|cursor|orchids|codex)(?:-plugin)?",
 ].map((itm) => `^${itm}`);
+
+// file markers from above in here will be explicitly ignored during .gitignore scans
+// all of these are automatically have a \*+\. added to the front of them.
+const ignoreAIFileMarkers = [
+  "fx"
+];
 
 // words that can be matched anywhere
 const matchAnywhereAIRule = [
@@ -297,15 +304,19 @@ const defAIPhrases = [
   "Claude\\sCode\\ssession",
   // this one is kinda just bs
   "(?:AI|LLM)[\\s|\\W](?:wave[\\s|\\W]agents?|agents?\\swave)",
-  // definitive claim
-  "was\\sdeveloped\\s(?:with|using)\\sAI[\\s|\\W]?assistance",
-  "Model Context Protocol",
+  // definitive claims
+  "was\\sdeveloped\\s(?:with|using)\\sAI[\\s|\\W]?assist",
+  "had\\sAI[\\s|\\W]?assist",
+  // phrases that no one who is making legit stuff would say
+  "Model\\sContext\\sProtocol",
+  "R.A.I.D.\\scommunity"
 ];
 
 // Cases that are more widespread and could have false positives.
 const susAIPhrases = [
-  "(?:LLM|AI)[\\s|\\W]?(?:code|coding|assist|provide|architect)",
+  "(?:LLM|AI)[\\s|\\W]?(?:code|coding|assist|power|provide|architect)",
   "(?:your|AI)[\\s|\\W]?(?:coding|code)?\\s?agent",
+  "natural[\\s|\\W]?language\\sprompt",
   "AI\\sis\\sa\\stool",
 ];
 
@@ -324,6 +335,9 @@ const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   // then join the entire array with OR gates, and that builds our regex.
 .join("|")}).*)`, "igm");
 
-const strongAIPhraseRegex = new RegExp(`(${aiRegexSafeArray([...defAIPhrases, ...aiRecompModules]).join("|")})`, "igm");
-const weakAIPhraseRegex = new RegExp(`(${aiRegexSafeArray([...susAIPhrases]).join("|")})`, "igm");
-const combinedAIPhraseRegex = new RegExp(`(?<strong>${aiRegexSafeArray([...defAIPhrases, ...aiRecompModules]).join("|")})|(?<weak>${aiRegexSafeArray([...susAIPhrases]).join("|")})`, "igm");
+
+const combinedAIPhraseRegex = new RegExp(`(?<strong>${
+    aiRegexSafeArray([...defAIPhrases, ...aiRecompModules]).join("|")
+  })|(?<weak>${
+    aiRegexSafeArray([...susAIPhrases]).join("|")
+  })`, "igm");
