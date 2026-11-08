@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.1
+// @version      1.5.2
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -417,7 +417,7 @@ class AgenticAlertScan {
     if (submoduleCount > 0) {
       this.updateOutput("status", this.countJudge(submoduleCount));
       this.updateOutput("title", "This project has links to known slop modules");
-      this.updateOutput("text", `Detected: Link to known ${this.pluralize(submoduleMatches, "genAI submodule")} - ${submoduleMatches.join(", ")}`);
+      this.updateOutput("text", `Detected: Link to ${this.pluralize(submoduleMatches, "known genAI submodule")} - ${submoduleMatches.join(", ")}`);
       return true;
     } else if (hasGitModules && this.repo.branchName !== undefined) {
       updateAILabelElement("text", "Fetching Submodule Configuration");
@@ -431,7 +431,7 @@ class AgenticAlertScan {
         if (modNumbers > 0) {
           this.updateOutput("status", this.countJudge(modNumbers));
           this.updateOutput("title", ".gitmodules points to a known genAI slop submodule name");
-          this.updateOutput("text", `Detected: Includes known ${this.pluralize(gitModuleMatches, "genAI submodule")} - ${gitModuleMatches.join(", ")}`);
+          this.updateOutput("text", `Detected: Includes ${this.pluralize(gitModuleMatches, "known genAI submodule")} - ${gitModuleMatches.join(", ")}`);
           return true;
         }
       } else {
