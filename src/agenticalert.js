@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.17
+// @version      1.5.1
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -49,6 +49,17 @@ let aiLabelElement = null;
 // this is our scan class, and we use it for evil.
 let scanCheck = null;
 
+// List of github elements, for easy of maintaining and updating later :)
+const ghElements = {
+  readme: ".markdown-body",
+  title: "repo-title-component",
+  gitModule: ".react-directory-filename-cell a[title='.gitmodules']",
+  files: ".react-directory-filename-cell a",
+  fork: `span[data-testid="fork-parent"]`,
+  branchName: "#ref-picker-repos-header-ref-selector * span:last-of-type",
+  sidebar: "p[class^='SidebarAbout']",
+}
+
 function updateAILabelElement(tag, value) {
   const shouldRemove = (value === null);
   const activeElement = document.getElementById("agenticAlertLabel") ?? aiLabelElement;
@@ -72,7 +83,7 @@ function addAILabelElement(watchMutation) {
   if (watchMutation) {
     aiMutationObservation.disconnect();
   }
-  const titleComp = document.getElementById("repo-title-component");
+  const titleComp = document.getElementById(ghElements.title);
   if (titleComp) {
     titleComp.firstChild.appendChild(aiLabelElement);
   }
@@ -92,7 +103,7 @@ const aiMutationObservation = new MutationObserver(async (_mutations) => {
   }
   // if a repo title element still exists, then we should check to see
   // if we should run the scan; this fights react reflow bs from GitHub
-  if (document.getElementById("repo-title-component") && scanCheck !== null) {
+  if (document.getElementById(ghElements.title) && scanCheck !== null) {
     await scanCheck.shouldRunScan(document.location.href);
   }
 });
@@ -204,18 +215,22 @@ class AgenticAlertScan {
     return resultNum >= 2 ? "danger" : "warning";
   }
 
+  // pluralizes words
+  pluralize(items, word, multiple="s", noNumber=false) {
+    const number = items.length ?? items;
+    return `${!noNumber ? number: ""} ${word}${number>1?multiple:""}`;
+  }
+
+  compactRegexResult(content, regex) {
+    return [...content.matchAll(regex)].map((itm) => itm[1]);
+  }
+
   isValid() {
     return this.user !== undefined && this.project !== undefined;
   }
 
   makeGithubLink(path) {
     return `https://github.com/${this.user}/${this.project}/${path}`;
-  }
-
-  // pluralizes words
-  countResults(items, word, multiple="s") {
-    const number = items.length ?? items;
-    return `${number} ${word}${number>1?multiple:""}`;
   }
 
   async fetchGithub(url, fetchOptions={}, max_attempts=5, timeout=13000) {
@@ -313,7 +328,7 @@ class AgenticAlertScan {
           return false;
         } else {
           this.updateOutput("status", "danger");
-          this.updateOutput("title", `Git contribution data shows the usage of ${this.countResults(matchResults, "genAI agent")}`);
+          this.updateOutput("title", `Git contribution data shows the usage of ${this.pluralize(matchResults, "genAI agent")}`);
           this.updateOutput("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
         }
         return true;
@@ -371,7 +386,7 @@ class AgenticAlertScan {
           return false;
         } else {
           this.updateOutput("status", "danger");
-          this.updateOutput("title", `Github metadata shows the usage of ${this.countResults(names, "genAI agent")}`);
+          this.updateOutput("title", `Github metadata shows the usage of ${this.pluralize(names, "genAI agent")}`);
           this.updateOutput("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
         }
         return true;
@@ -386,7 +401,7 @@ class AgenticAlertScan {
     const submoduleMatches = [];
     const recompDetectionStr = aiRegexSafeArray(aiRecompModules).join("|");
     const submoduleRegex = new RegExp(`^(${recompDetectionStr})`, 'i');
-    const hasGetModules = document.querySelector(".react-directory-filename-cell a[title='.gitmodules']") !== null;
+    const hasGitModules = document.querySelector(ghElements.gitModule) !== null;
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.user}/${this.project}"]) span`);
     submodules.forEach((itm) => {
       if (submoduleRegex.test(itm.innerText)) {
@@ -402,21 +417,21 @@ class AgenticAlertScan {
     if (submoduleCount > 0) {
       this.updateOutput("status", this.countJudge(submoduleCount));
       this.updateOutput("title", "This project has links to known slop modules");
-      this.updateOutput("text", `Detected: Link to known ${this.countResults(submoduleMatches, "genAI submodule")} - ${submoduleMatches.join(", ")}`);
+      this.updateOutput("text", `Detected: Link to known ${this.pluralize(submoduleMatches, "genAI submodule")} - ${submoduleMatches.join(", ")}`);
       return true;
-    } else if (hasGetModules && this.repo.branchName !== undefined) {
+    } else if (hasGitModules && this.repo.branchName !== undefined) {
       updateAILabelElement("text", "Fetching Submodule Configuration");
       const gitModulesContents = await this.fetchGithub(`raw/${this.repo.branchName}/.gitmodules`,
         {method: "GET", headers: {}});
       if (gitModulesContents !== null) {
         updateAILabelElement("text", "Parsing Submodule Configuration");
         const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(${recompDetectionStr})`, 'igm');
-        const gitModuleMatches = [...gitModulesContents.matchAll(gitmodulesRegex)].map((itm) => itm[1]);
+        const gitModuleMatches = this.compactRegexResult(gitModulesContents, gitmodulesRegex);
         const modNumbers = gitModuleMatches.length;
         if (modNumbers > 0) {
           this.updateOutput("status", this.countJudge(modNumbers));
           this.updateOutput("title", ".gitmodules points to a known genAI slop submodule name");
-          this.updateOutput("text", `Detected: Includes known ${this.countResults(gitModuleMatches, "genAI submodule")} - ${gitModuleMatches.join(", ")}`);
+          this.updateOutput("text", `Detected: Includes known ${this.pluralize(gitModuleMatches, "genAI submodule")} - ${gitModuleMatches.join(", ")}`);
           return true;
         }
       } else {
@@ -450,7 +465,7 @@ class AgenticAlertScan {
           }
           this.updateOutput("status", this.countJudge(matchCount));
           this.updateOutput("title", `Many cloud agents will fingerprint their branch names. Results are truncated to ${max_results} values`);
-          this.updateOutput("text", `Detected: ${this.countResults(matchCount, "genAI branch prefix", "es")} - ${nameMatches.join(", ")}`);
+          this.updateOutput("text", `Detected: ${this.pluralize(matchCount, "genAI branch prefix", "es")} - ${nameMatches.join(", ")}`);
           return true;
         }
       }
@@ -464,7 +479,7 @@ class AgenticAlertScan {
     // this title write will be deleted if/when we get to finalizeRepo
     this.updateOutput("title", `Due to optimization, "duplicates" are actually multiple instances, but we only print what we match`);
     updateAILabelElement("text", "Checking for AI files");
-    const fileElements = document.querySelectorAll(".react-directory-filename-cell a"), filesList = [];
+    const fileElements = document.querySelectorAll(ghElements.files), filesList = [];
     // dedupe the element list, as github will give us duplicates
     fileElements.forEach((itm) => {
       const fileName = itm.innerText;
@@ -478,7 +493,7 @@ class AgenticAlertScan {
     const matches = this.contentJudge(filesList.join("\n"));
     if (matches.count > 0) {
       this.updateOutput("status", matches.color);
-      this.updateOutput("text", `Detected ${this.countResults(matches.items, "genAI file marker")}: ${matches.items.join(", ")}`);
+      this.updateOutput("text", `Detected ${this.pluralize(matches.items, "genAI file marker")}: ${matches.items.join(", ")}`);
       if (matches.hasClaudeDir && matches.count <= 2) {
         this.repo.hasClaudeDir = true;
         return false;
@@ -552,12 +567,64 @@ class AgenticAlertScan {
         // for the .gitignore, if you have any sus files, then initiate judgement
         if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
           this.updateOutput("status", matches.color);
-          this.updateOutput("text", `Detected ${this.countResults(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
+          this.updateOutput("text", `Detected ${this.pluralize(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
           return true;
         }
       } else {
         console.warn(`AgenticAlert: Could not get .gitignore file data, no data returned`);
         this.repo.networkError = true;
+      }
+    }
+    return false;
+  }
+  scanReadme() {
+    const readmeContainer = document.querySelector(ghElements.readme);
+    if (readmeContainer !== null) {
+      updateAILabelElement("text", "Scanning README text");
+      // take the text and normalize the devil out of it.
+      const readmeContent = readmeContainer.textContent.replace(/[\n|\s]+/g, " ");
+      // Scan the text twice, while we could use named capture groups, matchAll doesn't use them.
+      const strongMatches = this.compactRegexResult(readmeContent, strongAIPhraseRegex);
+      const weakMatches = this.compactRegexResult(readmeContent, weakAIPhraseRegex);
+      updateAILabelElement("text", "Parsing README results");
+
+      // for determination
+      const strongMatchCount = strongMatches.length;
+      const resultCount = weakMatches.length*0.5 + strongMatchCount;
+      // for printing count
+      const resultTotal = weakMatches.length + strongMatchCount;
+      if (resultCount >= 1 || strongMatchCount > 0) {
+        let resultsStr = "";
+        if (strongMatchCount > 0) {
+          this.updateOutput("status", this.countJudge(resultCount));
+          resultsStr += `${strongMatchCount} strong`;
+        } else {
+          // if we have an agents file, direct the user to go look at that
+          // instead if we have a small number of results (~3)
+          if (this.repo.hasAgents && resultCount < 2) {
+            console.warn(`AgenticAlert: Dropping README scan. count was ${resultCount} and we have AGENTS`);
+            return false;
+          }
+          this.updateOutput("status", "info");
+        }
+        // this is the dumbest formatter ever, I could have 1 lined this
+        if (weakMatches.length > 0) {
+          if (resultsStr.length > 0) {
+            resultsStr += ` and `;
+          }
+          resultsStr += `${weakMatches.length} potential`;
+        }
+        // ugh
+        const resultDeduped = [];
+        [...strongMatches, ...weakMatches].forEach((itm) => {
+          if (!resultDeduped.includes(itm)) {
+            resultDeduped.push(itm);
+          }
+        });
+        this.updateOutput("focus", "readme");
+        this.updateOutput("title", `README mentions genAI phrases: ${resultDeduped.join(", ")}`);
+        this.updateOutput("text", `Warning: README contains ${resultsStr} ${this.pluralize(resultTotal, "reference", "s", true)} to genAI.`);
+        return true;
       }
     }
     return false;
@@ -595,7 +662,7 @@ class AgenticAlertScan {
     }
 
     // fork check!!!!!!
-    const checkFork = document.querySelector("span[data-testid=\"fork-parent\"]");
+    const checkFork = document.querySelector(ghElements.fork);
     if (checkFork !== null) {
       this.updateOutput("text", "Potentially Safe: Parent repo may use AI, but this fork has no genAI additions");
     } else {
@@ -612,13 +679,14 @@ class AgenticAlertScan {
     // reset all attributes from label
     updateAILabelElement("title", null);
     updateAILabelElement("link", null);
+    updateAILabelElement("focus", null);
 
     // set initial scan label data
     updateAILabelElement("status", "none");
     updateAILabelElement("text", "Scanning for genAI...");
 
     // capture the branch name
-    const branchPicker = document.querySelector("#ref-picker-repos-header-ref-selector * span:last-of-type");
+    const branchPicker = document.querySelector(ghElements.branchName);
     if (branchPicker) {
       this.repo.branchName = branchPicker.textContent.trim();
       console.log(`AgenticAlert: Got branch as ${this.repo.branchName}`);
@@ -645,8 +713,11 @@ class AgenticAlertScan {
                 if (!(await this.scanClaudeConfig())) {
                   // check the .gitignore file
                   if (!(await this.scanGitIgnore())) {
-                    // Clear the repository from using genAI
-                    this.finalizeRepo();
+                    // check the readme of anything
+                    if (!this.scanReadme()) {
+                      // Clear the repository from using genAI
+                      this.finalizeRepo();
+                    }
                   }
                 }
               }
@@ -690,7 +761,7 @@ class AgenticAlertScan {
 // The main function that kicks off everything
 async function runAgenticAlert() {
   // inject our style to persist between gh renders if there's no injection like it so far
-  if (!document.querySelector("style[id^=\"agenticAlertStyle-\"]")) {
+  if (!document.querySelector(`style[id^="agenticAlertStyle-"]`)) {
     const agenticAlertStyle = document.createElement("style");
     agenticAlertStyle.setAttribute("id",
       `agenticAlertStyle-${btoa(crypto.getRandomValues(new Uint32Array(5)).join(""))}`);
@@ -711,7 +782,7 @@ async function runAgenticAlert() {
     document.head.appendChild(agenticAlertStyle);
   }
 
-  const hasRepoTitle = document.getElementById("repo-title-component");
+  const hasRepoTitle = document.getElementById(ghElements.title);
   // Create results object
   const resultLabel = document.getElementById("agenticAlertLabel");
   // do not create the element if it's already been injected (development case)
@@ -747,6 +818,12 @@ async function runAgenticAlert() {
     if (hasLink && linkData !== "") {
       window.open(linkData);
       return;
+    }
+    if (ev.target.hasAttribute("focus")) {
+      const scrollTarget = document.querySelector(ghElements[ev.target.getAttribute("focus")]);
+      if (scrollTarget !== null) {
+        scrollTarget.scrollIntoView();
+      }
     }
   });
 

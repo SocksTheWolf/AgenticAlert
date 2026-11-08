@@ -122,9 +122,7 @@ const aiAgents = new Map([
   [253579861, {name: "shelly ai"}],
   [230265278, {name: "codebuff ai"}],
 ]);
-
-// helpful pre-transfer of ids to regexian style string
-const aiAgentIds = Array.from(aiAgents.keys()).join("|");
+const aiAgentIds = Array.from(aiAgents.keys()).join("|"); // helpful pre-transfer of ids to regexian style string
 
 // these are submodule names of known submodules that were made with genAI, prevents owners
 // from claiming their repo doesn't use genAI, when it's completely based in it.
@@ -289,6 +287,28 @@ const matchAnywhereAIRule = [
   "LLAMA_CPP_VERSION",
 ];
 
+// Strong cases for genAI usage (why would you be talking about this)
+const defAIPhrases = [
+  "Claude\\s(?:Opus)",
+  "GPT[\\W|\\s]?\\d\.?\\d?",
+  "Anthropic's\\s(?:AI|Claude)",
+  "OpenAI\\sGPT",
+  "mcp[\\s|\\W](?:server|tool)",
+  "Claude\\sCode\\ssession",
+  // this one is kinda just bs
+  "(?:AI|LLM)[\\s|\\W](?:wave[\\s|\\W]agents?|agents?\\swave)",
+  // definitive claim
+  "was\\sdeveloped\\s(?:with|using)\\sAI[\\s|\\W]?assistance",
+  "Model Context Protocol",
+];
+
+// Cases that are more widespread and could have false positives.
+const susAIPhrases = [
+  "(?:LLM|AI)[\\s|\\W]?(?:code|coding|assist|provide|architect)",
+  "(?:your|AI)[\\s|\\W]?(?:coding|code)?\\s?agent",
+  "AI\\sis\\sa\\stool",
+];
+
 // Claude config rules (good lord)
 const claudeDenyConfigDirectives = ["Read","Edit","Write","MultiEdit","NotebookEdit","NotebookRead","Bash",
   "BashOutput","KillBash","Glob","Grep","WebFetch","WebSearch","Task","SlashCommand"];
@@ -303,3 +323,6 @@ const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   aiRegexSafeArray([...aiFileMarkers, ...aiRecompModules, ...matchAnywhereAIRule])
   // then join the entire array with OR gates, and that builds our regex.
 .join("|")}).*)`, "igm");
+
+const strongAIPhraseRegex = new RegExp(`(${aiRegexSafeArray([...defAIPhrases, ...aiRecompModules]).join("|")})`, "igm");
+const weakAIPhraseRegex = new RegExp(`(${aiRegexSafeArray([...susAIPhrases]).join("|")})`, "igm");
