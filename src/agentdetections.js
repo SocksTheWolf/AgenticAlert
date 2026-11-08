@@ -326,3 +326,4 @@ const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
 
 const strongAIPhraseRegex = new RegExp(`(${aiRegexSafeArray([...defAIPhrases, ...aiRecompModules]).join("|")})`, "igm");
 const weakAIPhraseRegex = new RegExp(`(${aiRegexSafeArray([...susAIPhrases]).join("|")})`, "igm");
+const combinedAIPhraseRegex = new RegExp(`(?<strong>${aiRegexSafeArray([...defAIPhrases, ...aiRecompModules]).join("|")})|(?<weak>${aiRegexSafeArray([...susAIPhrases]).join("|")})`, "igm");
