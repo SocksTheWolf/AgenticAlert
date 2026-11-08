@@ -47,7 +47,7 @@ AgenticAlert has a few advantages over other alternatives:
 * Can check for genAI GitHub integrations that you cannot block on GitHub
 * Checks a lot of different file markers/recomp modules very quickly
 * Can detect some intentional LLM poison pill tricks (intentional flags to harm an LLM)
-* Scans `.gitignore`, git data and GitHub metadata without user input
+* Scans invisible `.gitignore`, project, git and GitHub metadata automatically
 * Comprehensive deep search
 
 > **NOTE**: you should continue to use your eyes if something is marked as "potentially safe", as there's always the chance of new genAI agents we don't detect yet. If this is the case, please [open an issue](https://agenticalert.download/issue).
