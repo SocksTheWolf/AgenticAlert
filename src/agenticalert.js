@@ -131,7 +131,7 @@ class AgenticAlertScan {
     this.debug = {
       skipContrib: false,
       skipMetadata: false,
-      skipDescription: false,
+      skipDescription: true, // NOTE: this skips for the time being until determination is locked in.
     };
     this.repo = {
       // networkError: undefined|true
