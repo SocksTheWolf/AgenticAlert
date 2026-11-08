@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.4.16
+// @version      1.4.17
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -254,6 +254,14 @@ class AgenticAlertScan {
           // we have hit a rate limit, so we're going to just break out
           // it's unlikely this will happen to anyone
           break;
+        } else if (data.status === 400) {
+          const errData = (await data.text()) ?? "";
+          // if the contrib data is absolute garbage, do not continue
+          // trying to fetch, instead get out immediately.
+          if (errData === `{"unusable":true}`) {
+            console.warn(`AgenticAlert: fetch returned explicit unusable JSON structure`);
+            break;
+          }
         } else if (data.status >= 500) {
           // github is down, break out.
           break;
