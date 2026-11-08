@@ -583,9 +583,14 @@ class AgenticAlertScan {
       updateAILabelElement("text", "Scanning README text");
       // take the text and normalize the devil out of it.
       const readmeContent = readmeContainer.textContent.replace(/[\n|\s]+/g, " ");
-      // Scan the text twice, while we could use named capture groups, matchAll doesn't use them.
-      const strongMatches = this.compactRegexResult(readmeContent, strongAIPhraseRegex);
-      const weakMatches = this.compactRegexResult(readmeContent, weakAIPhraseRegex);
+      const strongMatches = [], weakMatches = [];
+      [...readmeContent.matchAll(combinedAIPhraseRegex)].forEach((itm) => {
+        if (itm.groups.weak !== undefined) {
+          weakMatches.push(itm.groups.weak);
+        } else {
+          strongMatches.push(itm.groups.strong);
+        }
+      });
       updateAILabelElement("text", "Parsing README results");
 
       // for determination
