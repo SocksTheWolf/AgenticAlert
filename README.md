@@ -61,7 +61,7 @@ However, if something is marked as slop, it's very likely slop.
 **Highlights**:
 
 > * Over 95+ AI LLM GPT Agents (including ones you cannot block on GitHub)
-> * 23 Slop Recomp Modules
+> * 24 Slop Recomp Modules
 > * 125+ LLM file markers
 
 ## Screenshots
@@ -75,6 +75,7 @@ However, if something is marked as slop, it's very likely slop.
 | Potential Copilot Usage | ![Example of a repo that maybe has Copilot](/site/screenshots/screenshot4.jpg?raw=true) |
 | genAI branches | ![genAI branch usage](/site/screenshots/screenshot9.jpg?raw=true) |
 | genAI phrasing and keywords in `README` files | ![genAI phrasing in README files, with weighted results](/site/screenshots/screenshot10.jpg?raw=true) |
+| genAI phrasing in GitHub description | ![genAI phrasing in descriptions](/site/screenshots/screenshot11.jpg?raw=true) |
 | Detection of only `AGENTS.md` | ![Detection of ONLY AGENTS.md](/site/screenshots/screenshot7.jpg?raw=true) |
 | Detection of LLM poison pills | ![Detection of LLM poison pills](/site/screenshots/screenshot8.jpg?raw=true) |
 | Safe Repo | ![Example of a safe repo](/site/screenshots/screenshot3.jpg?raw=true) |
