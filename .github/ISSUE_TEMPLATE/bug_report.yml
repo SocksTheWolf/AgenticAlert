@@ -1,5 +1,5 @@
 name: Bug report
-description: Create a report to help fix issues
+description: Create a report to help fix issues or false positives
 title: '[BUG]: '
 labels: ["bug"]
 

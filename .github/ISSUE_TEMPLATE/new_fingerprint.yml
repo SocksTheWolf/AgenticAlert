@@ -1,12 +1,12 @@
-name: Add a new file fingerprint
-description: For adding new file structures that known LLMs create/use
-title: '[FILE]: '
+name: Add a new fingerprint
+description: For adding genAI markers (files/folders/phrases) that known LLMs create/use
+title: '[FINGERPRINT]: '
 labels: ['fingerprinting']
 
 body:
   - type: textarea
     attributes:
-      label: What are the file/files/directories that should be added?
+      label: What are the file/files/directories/phrases that should be added?
       description: |
         Please make sure that we are not already tracking them.
     validations:
@@ -14,15 +14,13 @@ body:
 
   - type: input
     attributes:
-      label: What agent makes these files?
-      description: Please provide name/link to said agent
-    validations:
-      required: true
+      label: What agent uses these?
+      description: Please provide name/link to said agent (if file/directory)
 
   - type: textarea
     attributes:
-      label: Where can we see these folders in use?
-      description: Please list links to repositories that demonstrate this file structure.
+      label: Where can these be found?
+      description: Please list links to repositories that have these markers.
     validations:
       required: true
 
