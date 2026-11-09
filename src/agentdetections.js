@@ -304,7 +304,7 @@ const matchAnywhereAIRule = [
 ];
 
 // Strong cases for genAI usage (why would you be talking about this)
-const defAIPhrases = aiRegexReplaceSpace([
+const defAIPhrases = aiRegexSafeArray(aiRegexReplaceSpace([
   "Claude (?:Opus|Fable)",
   `GPT${optSpace}\\d\.?\\d?`,
   "Anthropic's (?:AI|Claude|Fable)",
@@ -319,22 +319,19 @@ const defAIPhrases = aiRegexReplaceSpace([
   // phrases that no one who is making legit stuff would say
   "Model Context Protocol",
   "R.A.I.D. community"
-]);
+])).join("|");
 
 // prefixes that negate AI phrases
-const negatePrefixes = [
-  "without",
-  "no"
-];
-const negatePhraseRule = `(?<!(?:${negatePrefixes.join("|")})[\\s|\\W])`;
+const negatePrefixes = ["without", "no"].join("|");
+const negatePhraseRule = `(?<!(?:${negatePrefixes})[\\s|\\W])`;
 
 // Cases that are more widespread and could have false positives.
-const susAIPhrases = aiRegexReplaceSpace([
+const susAIPhrases = aiRegexSafeArray(aiRegexReplaceSpace([
   `${negatePhraseRule}(?:LLM|AI)${optSpace}(?:code|helped|driven|coding|assist|power|provide|architect)`,
   `${negatePhraseRule}(?:your|AI)${optSpace}(?:coding|code)?${optSpace}agent`,
   "natural language prompt",
   "AI is a tool",
-]);
+])).join("|");
 
 // Claude config rules (good lord)
 const claudeDenyConfigDirectives = ["Read","Edit","Write","MultiEdit","NotebookEdit","NotebookRead","Bash",
@@ -351,9 +348,4 @@ const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   // then join the entire array with OR gates, and that builds our regex.
 .join("|")}|${recompDetectionStr}).*)`, "igm");
 
-
-const combinedAIPhraseRegex = new RegExp(`(?<strong>${
-    aiRegexSafeArray(defAIPhrases).join("|")
-  }|${recompDetectionStr})|(?<weak>${
-    aiRegexSafeArray([...susAIPhrases]).join("|")
-  })`, "igm");
+const combinedAIPhraseRegex = new RegExp(`(?<strong>${defAIPhrases}|${recompDetectionStr})|(?<weak>${susAIPhrases})`, "igm");
