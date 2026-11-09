@@ -63,13 +63,21 @@ jobs:
           archive: false
           name: "WebPackedExt"
 
+      - name: Cancel Pending Chrome Submission
+        continue-on-error: true
+        uses: cssnr/webstore-publish-action@9c4e7ae29beb517bf2d22f32d849455d178cbca6
+        with:
+          extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
+          publisher_id: ${{ secrets.CHROME_PUBLISHER_ID }}
+          cancel: true
+          json_data: ${{ secrets.CHROME_AUTH }}
+
       - name: Push to Chrome
         uses: cssnr/webstore-publish-action@9c4e7ae29beb517bf2d22f32d849455d178cbca6
         with:
           extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
           publisher_id: ${{ secrets.CHROME_PUBLISHER_ID }}
           zip_file: "ext/extension.zip"
-          cancel: true
           publish: default
           json_data: ${{ secrets.CHROME_AUTH }}
 
