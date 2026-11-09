@@ -28,7 +28,7 @@ summary { user-select: none; }
   h5 {
     margin-bottom: 5px; margin-top: 0.3rem;
   }
-  span {margin-left: 0.3rem; }
+  span { margin-left: 0.5rem; }
   code { word-break: break-all; }
 }
 
