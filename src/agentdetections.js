@@ -6,6 +6,10 @@
 const aiRegexSafeArray = (arr) => {
   return arr.map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"));
 }
+const aiRegexReplaceSpace = (arr) => {
+  return arr.map((itm) => itm.replace(/\s/g, "[\\s|\\W]"));
+}
+const optSpace = "[\\s|\\W]?";
 
 // GitHub account ids -> {integration id/agent names}
 const aiAgents = new Map([
@@ -295,30 +299,37 @@ const matchAnywhereAIRule = [
 ];
 
 // Strong cases for genAI usage (why would you be talking about this)
-const defAIPhrases = [
-  "Claude\\s(?:Opus)",
-  "GPT[\\W|\\s]?\\d\.?\\d?",
-  "Anthropic's\\s(?:AI|Claude)",
-  "OpenAI\\sGPT",
-  "mcp[\\s|\\W](?:server|tool)",
-  "Claude\\sCode\\ssession",
+const defAIPhrases = aiRegexReplaceSpace([
+  "Claude (?:Opus)",
+  `GPT${optPhraseSpace}\\d\.?\\d?`,
+  "Anthropic's (?:AI|Claude)",
+  "OpenAI GPT",
+  "mcp (?:server|tool)",
+  "Claude Code session",
   // this one is kinda just bs
-  "(?:AI|LLM)[\\s|\\W](?:wave[\\s|\\W]agents?|agents?\\swave)",
+  "(?:AI|LLM) (?:wave agents?|agents? wave)",
   // definitive claims
-  "was\\sdeveloped\\s(?:with|using)\\sAI[\\s|\\W]?assist",
-  "had\\sAI[\\s|\\W]?assist",
+  "was developed (?:with|using) AI assist",
+  "had AI assist",
   // phrases that no one who is making legit stuff would say
-  "Model\\sContext\\sProtocol",
-  "R.A.I.D.\\scommunity"
+  "Model Context Protocol",
+  "R.A.I.D. community"
+]);
+
+// prefixes that negate AI phrases
+const negatePrefixes = [
+  "without",
+  "no"
 ];
+const negatePhraseRule = `(?<!(?:${negatePrefixes.join("|")})[\\s|\\W])`;
 
 // Cases that are more widespread and could have false positives.
-const susAIPhrases = [
-  "(?:LLM|AI)[\\s|\\W]?(?:code|coding|assist|power|provide|architect)",
-  "(?:your|AI)[\\s|\\W]?(?:coding|code)?\\s?agent",
-  "natural[\\s|\\W]?language\\sprompt",
-  "AI\\sis\\sa\\stool",
-];
+const susAIPhrases = aiRegexReplaceSpace([
+  `${negatePhraseRule}(?:LLM|AI)${optSpace}(?:code|driven|coding|assist|power|provide|architect)`,
+  `${negatePhraseRule}(?:your|AI)${optSpace}(?:coding|code)?${optSpace}agent`,
+  "natural language prompt",
+  "AI is a tool",
+]);
 
 // Claude config rules (good lord)
 const claudeDenyConfigDirectives = ["Read","Edit","Write","MultiEdit","NotebookEdit","NotebookRead","Bash",

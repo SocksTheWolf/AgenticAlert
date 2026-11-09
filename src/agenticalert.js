@@ -335,6 +335,7 @@ class AgenticAlertScan {
         return true;
       }
     } else {
+      console.warn(`AgenticAlert: Git Contrib data was empty`);
       this.repo.networkError = true;
     }
     return false;
@@ -393,6 +394,7 @@ class AgenticAlertScan {
         return true;
       }
     } else {
+      console.warn(`AgenticAlert: Metadata was empty`);
       this.repo.networkError = true;
     }
     return false;
