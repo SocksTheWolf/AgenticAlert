@@ -606,7 +606,8 @@ class AgenticAlertScan {
       const { uniqueMatches } = this.extractPhraseData(sidebarDescription.textContent);
       updateAILabelElement("text", "Parsing repository phrase results");
       if (uniqueMatches.length >= 1) {
-        this.updateOutput("status", "danger");
+        // TODO: Consider making this a danger, it's pretty fucking accurate now.
+        this.updateOutput("status", "warning");
         this.updateOutput("title", `Description mentions genAI phrases: ${uniqueMatches.join(", ")}`);
         this.updateOutput("text", `Detected: Description contains ${pluralize(uniqueMatches, "reference", "s")} to genAI - ${uniqueMatches.join(", ")}`);
         return true;
