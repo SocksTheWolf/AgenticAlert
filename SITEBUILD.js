@@ -32,6 +32,7 @@ async function buildSite() {
   const skipBuildPages = [];
   const skipSitemapPages = ["**/404.html"];
   const IN_DEV = process.env["IS_DEV"] === 'true';
+  const TEST_USERSCRIPT = process.env["TEST"] === 'true';
 
   // touch the file, we'll check mod times later
   // use the sync so we don't have to worry about flushing as much
@@ -58,7 +59,7 @@ async function buildSite() {
   }
 
   // modify the userscript once moved to change the resource file and add the SRI hash
-  // TODO: MAKE THIS BETTER
+  // TODO: MAKE THIS MODULAR
   {
     let userScriptFile = await readFile(scriptFinalLocation, {encoding: "utf-8"});
     const definitionsKey = "// {-DEFINITIONS-}", utilsKey = "// {-UTILS-}";
@@ -72,6 +73,7 @@ async function buildSite() {
     const utilsFile = await readFile(utilsFinalLocation, {encoding: "utf-8"});
     utilHash = createHash('sha256').update(utilsFile).digest('hex');
 
+    // TODO: if TEST_USERSCRIPT is flagged, replace domain
     const getDeclare = (scriptName, hash) => {
       return `// @require      https://agenticalert.download/${scriptVersion}/${scriptName}.js#sha256=${hash}`;
     }
