@@ -3,14 +3,6 @@
 //
 // Licensed under GPL: https://agenticalert.download/LICENSE.txt
 
-const aiRegexSafeArray = (arr) => {
-  return arr.map((itm) => itm.replace(/(\*|\.|\-)/g, "\\$1"));
-}
-const aiRegexReplaceSpace = (arr) => {
-  return arr.map((itm) => itm.replace(/\s/g, "[\\s|\\W]"));
-}
-const optSpace = "[\\s|\\W]?";
-
 // GitHub account ids -> {integration id/agent names}
 const aiAgents = new Map([
   [199161495, {name: "cursor"}],
@@ -301,7 +293,7 @@ const matchAnywhereAIRule = [
 // Strong cases for genAI usage (why would you be talking about this)
 const defAIPhrases = aiRegexReplaceSpace([
   "Claude (?:Opus)",
-  `GPT${optPhraseSpace}\\d\.?\\d?`,
+  `GPT${optSpace}\\d\.?\\d?`,
   "Anthropic's (?:AI|Claude)",
   "OpenAI GPT",
   "mcp (?:server|tool)",

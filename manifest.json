@@ -20,6 +20,7 @@
         "https://www.github.com/*/*"
       ],
       "js": [
+        "src/agentutils.js",
         "src/agentdetections.js",
         "src/agenticalert.js"
       ],

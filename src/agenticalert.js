@@ -9,6 +9,7 @@
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
+// @addutils
 // @adddef
 // @icon         https://agenticalert.download/icon.png
 // @iconURL      https://agenticalert.download/icon.png
@@ -40,6 +41,7 @@
 
   Home: https://github.com/socksthewolf/agenticalert
 */
+// {-UTILS-}
 // {-DEFINITIONS-}
 /*************************************************/
 // Label and Reflow Prevention
@@ -131,7 +133,7 @@ class AgenticAlertScan {
     this.debug = {
       skipContrib: false,
       skipMetadata: false,
-      skipDescription: true, // NOTE: this skips for the time being until determination is locked in.
+      skipDescription: false,
     };
     this.repo = {
       // networkError: undefined|true
@@ -214,16 +216,6 @@ class AgenticAlertScan {
 
   countJudge(resultNum) {
     return resultNum >= 2 ? "danger" : "warning";
-  }
-
-  // pluralizes words
-  pluralize(items, word, multiple="s", noNumber=false) {
-    const number = items.length ?? items;
-    return `${!noNumber ? number: ""} ${word}${number>1?multiple:""}`;
-  }
-
-  compactRegexResult(content, regex) {
-    return [...content.matchAll(regex)].map((itm) => itm[1]);
   }
 
   isValid() {
@@ -329,7 +321,7 @@ class AgenticAlertScan {
           return false;
         } else {
           this.updateOutput("status", "danger");
-          this.updateOutput("title", `Git contribution data shows the usage of ${this.pluralize(matchResults, "genAI agent")}`);
+          this.updateOutput("title", `Git contribution data shows the usage of ${pluralize(matchResults, "genAI agent")}`);
           this.updateOutput("text", `Uses AI: ${matchResults.join(", ").toLowerCase()}`);
         }
         return true;
@@ -388,7 +380,7 @@ class AgenticAlertScan {
           return false;
         } else {
           this.updateOutput("status", "danger");
-          this.updateOutput("title", `Github metadata shows the usage of ${this.pluralize(names, "genAI agent")}`);
+          this.updateOutput("title", `Github metadata shows the usage of ${pluralize(names, "genAI agent")}`);
           this.updateOutput("text", `Uses AI: ${names.join(", ").toLowerCase()}`);
         }
         return true;
@@ -420,7 +412,7 @@ class AgenticAlertScan {
     if (submoduleCount > 0) {
       this.updateOutput("status", this.countJudge(submoduleCount));
       this.updateOutput("title", "This project has links to known slop modules");
-      this.updateOutput("text", `Detected: Link to ${this.pluralize(submoduleMatches, "known genAI submodule")} - ${submoduleMatches.join(", ")}`);
+      this.updateOutput("text", `Detected: Link to ${pluralize(submoduleMatches, "known genAI submodule")} - ${submoduleMatches.join(", ")}`);
       return true;
     } else if (hasGitModules && this.repo.branchName !== undefined) {
       updateAILabelElement("text", "Fetching Submodule Configuration");
@@ -429,12 +421,12 @@ class AgenticAlertScan {
       if (gitModulesContents !== null) {
         updateAILabelElement("text", "Parsing Submodule Configuration");
         const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(${recompDetectionStr})`, 'igm');
-        const gitModuleMatches = this.compactRegexResult(gitModulesContents, gitmodulesRegex);
+        const gitModuleMatches = compactRegexResult(gitModulesContents, gitmodulesRegex);
         const modNumbers = gitModuleMatches.length;
         if (modNumbers > 0) {
           this.updateOutput("status", this.countJudge(modNumbers));
           this.updateOutput("title", ".gitmodules points to a known genAI slop submodule name");
-          this.updateOutput("text", `Detected: Includes ${this.pluralize(gitModuleMatches, "known genAI submodule")} - ${gitModuleMatches.join(", ")}`);
+          this.updateOutput("text", `Detected: Includes ${pluralize(gitModuleMatches, "known genAI submodule")} - ${gitModuleMatches.join(", ")}`);
           return true;
         }
       } else {
@@ -468,7 +460,7 @@ class AgenticAlertScan {
           }
           this.updateOutput("status", this.countJudge(matchCount));
           this.updateOutput("title", `Many cloud agents will fingerprint their branch names. Results are truncated to ${max_results} values`);
-          this.updateOutput("text", `Detected: ${this.pluralize(matchCount, "genAI branch prefix", "es")} - ${nameMatches.join(", ")}`);
+          this.updateOutput("text", `Detected: ${pluralize(matchCount, "genAI branch prefix", "es")} - ${nameMatches.join(", ")}`);
           return true;
         }
       }
@@ -496,7 +488,7 @@ class AgenticAlertScan {
     const matches = this.contentJudge(filesList.join("\n"));
     if (matches.count > 0) {
       this.updateOutput("status", matches.color);
-      this.updateOutput("text", `Detected ${this.pluralize(matches.items, "genAI file marker")}: ${matches.items.join(", ")}`);
+      this.updateOutput("text", `Detected ${pluralize(matches.items, "genAI file marker")}: ${matches.items.join(", ")}`);
       if (matches.hasClaudeDir && matches.count <= 2) {
         this.repo.hasClaudeDir = true;
         return false;
@@ -571,7 +563,7 @@ class AgenticAlertScan {
         // for the .gitignore, if you have any sus files, then initiate judgement
         if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
           this.updateOutput("status", matches.color);
-          this.updateOutput("text", `Detected ${this.pluralize(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
+          this.updateOutput("text", `Detected ${pluralize(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
           return true;
         }
       } else {
@@ -616,7 +608,7 @@ class AgenticAlertScan {
       if (uniqueMatches.length >= 1) {
         this.updateOutput("status", "danger");
         this.updateOutput("title", `Description mentions genAI phrases: ${uniqueMatches.join(", ")}`);
-        this.updateOutput("text", `Detected: Description contains ${this.pluralize(uniqueMatches, "reference", "s")} to genAI - ${uniqueMatches.join(", ")}`);
+        this.updateOutput("text", `Detected: Description contains ${pluralize(uniqueMatches, "reference", "s")} to genAI - ${uniqueMatches.join(", ")}`);
         return true;
       }
     } else {
@@ -661,7 +653,7 @@ class AgenticAlertScan {
         }
         this.updateOutput("focus", "readme");
         this.updateOutput("title", `README mentions genAI phrases: ${uniqueMatches.join(", ")}`);
-        this.updateOutput("text", `${prefix}: README contains ${resultsStr} ${this.pluralize(resultTotal, "reference", "s", true)} to genAI.`);
+        this.updateOutput("text", `${prefix}: README contains ${resultsStr} ${pluralize(resultTotal, "reference", "s", true)} to genAI.`);
         return true;
       }
     }

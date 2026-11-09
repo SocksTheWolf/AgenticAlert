@@ -27,7 +27,7 @@ async function buildSite() {
     return;
   }
 
-  let scriptHash = "", scriptVersion = "", defHash = "";
+  let scriptHash = "", scriptVersion = "", defHash = "", utilHash = "";
   const sections = new Map();
   const skipBuildPages = [];
   const skipSitemapPages = ["**/404.html"];
@@ -39,11 +39,13 @@ async function buildSite() {
 
   const scriptFinalLocation = "site/agenticalert.user.js";
   const defFinalLocation = "site/agentdetections.js";
+  const utilsFinalLocation = "site/agentutils.js";
 
   // copying file rules
   const copyFileInstructions = [
     {source: "src/agenticalert.js", dest: scriptFinalLocation},
     {source: "src/agentdetections.js", dest: defFinalLocation},
+    {source: "src/agentutils.js", dest: utilsFinalLocation},
     {source: "icon64.png", dest: "site/icon.png"},
   ];
 
@@ -56,23 +58,33 @@ async function buildSite() {
   }
 
   // modify the userscript once moved to change the resource file and add the SRI hash
+  // TODO: MAKE THIS BETTER
   {
     let userScriptFile = await readFile(scriptFinalLocation, {encoding: "utf-8"});
-    const definitionsKey = "// {-DEFINITIONS-}";
+    const definitionsKey = "// {-DEFINITIONS-}", utilsKey = "// {-UTILS-}";
     // Figure out the version number
     scriptVersion = (/^\/\/\s+\@version\s+(.*)$/im.exec(userScriptFile))[1];
 
-    // Get the hash
+    // Get the def hash
     const definitionsFile = await readFile(defFinalLocation, {encoding: "utf-8"});
     defHash = createHash('sha256').update(definitionsFile).digest('hex');
-    const defDeclare = `// @require      https://agenticalert.download/${scriptVersion}/agentdetections.js#sha256=${defHash}`;
+
+    const utilsFile = await readFile(utilsFinalLocation, {encoding: "utf-8"});
+    utilHash = createHash('sha256').update(utilsFile).digest('hex');
+
+    const getDeclare = (scriptName, hash) => {
+      return `// @require      https://agenticalert.download/${scriptVersion}/${scriptName}.js#sha256=${hash}`;
+    }
 
     // if in dev, write the definitions into the script for ez testing
     if (IN_DEV) {
-      userScriptFile = userScriptFile.replace("// {-DEFINITIONS-}", definitionsFile);
+      userScriptFile = userScriptFile.replace(definitionsKey, definitionsFile);
+      userScriptFile = userScriptFile.replace(utilsKey, utilsFile);
     } else {
-      userScriptFile = userScriptFile.replace("// @adddef", defDeclare);
+      userScriptFile = userScriptFile.replace("// @adddef", getDeclare("agentdetections", defHash));
+      userScriptFile = userScriptFile.replace("// @addutils", getDeclare("agentutils", utilHash))
       userScriptFile = userScriptFile.replace(definitionsKey, "");
+      userScriptFile = userScriptFile.replace(utilsKey, "");
     }
     await writeFile(scriptFinalLocation, userScriptFile);
     scriptHash = createHash('sha256').update(userScriptFile).digest('hex');
@@ -86,6 +98,7 @@ async function buildSite() {
   const sectionFiller = new Map([
     ["{HASH}", scriptHash],
     ["{VERSION}", scriptVersion],
+    ["{UTILHASH}", utilHash],
     ["{DEFHASH}", defHash],
     ["{DATE}", currentYear]
   ])

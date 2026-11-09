@@ -60,6 +60,7 @@ jobs:
           files: |
             agenticalert.user.js
             agentdetections.js
+            agentutils.js
 
   extension:
     name: "Submit Extensions"
