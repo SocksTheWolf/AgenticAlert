@@ -59,7 +59,7 @@ const ghElements = {
   files: ".react-directory-filename-cell a",
   fork: `span[data-testid="fork-parent"]`,
   branchName: "#ref-picker-repos-header-ref-selector * span:last-of-type",
-  description: "p[class^='SidebarAbout']",
+  description: "p[class*='description']",
 }
 
 function updateAILabelElement(tag, value) {
