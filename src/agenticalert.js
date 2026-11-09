@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.4
+// @version      1.5.5
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -394,7 +394,6 @@ class AgenticAlertScan {
   async scanSubModules() {
     updateAILabelElement("text", "Checking for AI Submodules");
     const submoduleMatches = [];
-    const recompDetectionStr = aiRegexSafeArray(aiRecompModules).join("|");
     const submoduleRegex = new RegExp(`^(${recompDetectionStr})`, 'i');
     const hasGitModules = document.querySelector(ghElements.gitModule) !== null;
     const submodules = document.querySelectorAll(`.react-directory-truncate a:not([href^="/${this.user}/${this.project}"]) span`);

@@ -123,6 +123,8 @@ const aiAgentIds = Array.from(aiAgents.keys()).join("|"); // helpful pre-transfe
 // these are submodule names of known submodules that were made with genAI, prevents owners
 // from claiming their repo doesn't use genAI, when it's completely based in it.
 // pretty much anything from the "R.A.I.D. community" can be thrown in here
+//
+// Do not put pcrecomp or netrecomp in here, there's too much noise 4 false positives, that requires better filtering
 const aiRecompModules = [
   // base modules, mostly system bases
   "psxrecomp",
@@ -142,12 +144,23 @@ const aiRecompModules = [
   "gb-?recompiled",
   "xboxrecomp",
   "NWiiRecomp",
+  "vbrecomp",
+  "apple2recomp",
+  "vic20recomp",
+  "model[2|3]recomp",
+  "zxrecomp",
+  "macrecomp",
+  "gmrecomp",
+  "systemes3recomp",
+  "lindberghrecomp",
+  "ps[p|2]-web-recomp",
   // decomp game modules that use genai
   "snowboardkids2?-decomp",
   "smstrikers-decomp", // used claude hard
   "mscharged-decomp", // see issue, was built from smstrikers
   "hm64-decomp", // has claude files
 ];
+const recompDetectionStr = aiRegexSafeArray(aiRecompModules).join("|");
 
 // List of AI branch prefix names that are used
 // as of this time, cloud agents cannot turn this off
@@ -292,9 +305,9 @@ const matchAnywhereAIRule = [
 
 // Strong cases for genAI usage (why would you be talking about this)
 const defAIPhrases = aiRegexReplaceSpace([
-  "Claude (?:Opus)",
+  "Claude (?:Opus|Fable)",
   `GPT${optSpace}\\d\.?\\d?`,
-  "Anthropic's (?:AI|Claude)",
+  "Anthropic's (?:AI|Claude|Fable)",
   "OpenAI GPT",
   "mcp (?:server|tool)",
   "Claude Code session",
@@ -317,7 +330,7 @@ const negatePhraseRule = `(?<!(?:${negatePrefixes.join("|")})[\\s|\\W])`;
 
 // Cases that are more widespread and could have false positives.
 const susAIPhrases = aiRegexReplaceSpace([
-  `${negatePhraseRule}(?:LLM|AI)${optSpace}(?:code|driven|coding|assist|power|provide|architect)`,
+  `${negatePhraseRule}(?:LLM|AI)${optSpace}(?:code|helped|driven|coding|assist|power|provide|architect)`,
   `${negatePhraseRule}(?:your|AI)${optSpace}(?:coding|code)?${optSpace}agent`,
   "natural language prompt",
   "AI is a tool",
@@ -334,13 +347,13 @@ const claudeSafeMatchAmt = Math.floor(claudeDenyConfigDirectives.length * .7);
 // good luck understanding how this works, I'm not going to bother explaining it in much detail
 const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   // dynamically escape any ., * and - characters so they are the literals
-  aiRegexSafeArray([...aiFileMarkers, ...aiRecompModules, ...matchAnywhereAIRule])
+  aiRegexSafeArray([...aiFileMarkers, ...matchAnywhereAIRule])
   // then join the entire array with OR gates, and that builds our regex.
-.join("|")}).*)`, "igm");
+.join("|")}|${recompDetectionStr}).*)`, "igm");
 
 
 const combinedAIPhraseRegex = new RegExp(`(?<strong>${
-    aiRegexSafeArray([...defAIPhrases, ...aiRecompModules]).join("|")
-  })|(?<weak>${
+    aiRegexSafeArray(defAIPhrases).join("|")
+  }|${recompDetectionStr})|(?<weak>${
     aiRegexSafeArray([...susAIPhrases]).join("|")
   })`, "igm");
