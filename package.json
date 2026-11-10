@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "web-ext": "^10.8.0",
-    "wrangler": "^4.156.0"
+    "wrangler": "^4.160.0"
   },
   "overrides": {
     "@actions/github": {
@@ -20,9 +20,6 @@
     },
     "typescript-eslint": {
       "minimatch": "^11.0.1"
-    },
-    "miniflare": {
-      "undici": "^7.30.1"
     }
   }
 }
