@@ -43,6 +43,10 @@ function handleSatNav() {
     case "screenshots":
       lookupName = "screenshots";
     break;
+    case "sent":
+    case "contact":
+      lookupName = "contact";
+    break;
     default:
       lookupName = "/";
     break;

@@ -1,0 +1,46 @@
+<section class="contact-section">
+  <div class="contact-intro">
+    <p class="contact-description">
+        All fields are required.
+    </p>
+  </div>
+  <form class="contact-form" action="https://agenticalert.download/sendmail" method="POST">
+    <input type="hidden" name="to" value="75826ca7-6fe5-43bb-b8dc-9e2516abb49f" />
+
+    <div class="form-group-container">
+      <div class="form-group">
+        <label for="name" class="form-label">Name</label>
+        <input id="name" name="name" class="form-input" placeholder="Your name" type="text" required maxlength="100" />
+      </div>
+      <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input id="email" name="from" class="form-input" placeholder="Your email" type="email" required />
+      </div>
+      <div class="form-group">
+        <label for="subject" class="form-label">Subject (new detections, false positives, etc)</label>
+        <input id="subject" name="subject" placeholder="Subject line" class="form-input" maxlength="150" type="text" required />
+      </div>
+      <div class="form-group">
+        <label for="message" class="form-label">Message</label>
+        <textarea class="form-textarea" id="message" name="message" minlength="50" maxlength="5000" placeholder="Your message" required></textarea>
+      </div>
+      <small class="form-group">
+        <div>
+          <input id="sendcopy" class="form-check" name="sendcopy" type="checkbox" />
+          <label for="sendcopy" class="form-label">Send a copy to yourself?</label>
+        </div>
+      </small>
+      <br />
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFY-enVjus-sbL2c"></div>
+    </div>
+    <input type="hidden" name="dest" value="https://agenticalert.download/sent" />
+    <button class="form-submit" type="submit">Send Message</button>
+    <button type="reset">Reset</button>
+  </form>
+</section>
+
+<script
+	src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+	async
+	defer
+></script>

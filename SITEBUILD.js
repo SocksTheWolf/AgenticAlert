@@ -30,7 +30,7 @@ async function buildSite() {
   let scriptHash = "", scriptVersion = "", defHash = "", utilHash = "";
   const sections = new Map();
   const skipBuildPages = [];
-  const skipSitemapPages = ["**/404.html"];
+  const skipSitemapPages = ["**/404.html", "**/sent.html"];
   const IN_DEV = process.env["IS_DEV"] === 'true';
   const TEST_USERSCRIPT = process.env["TEST"] === 'true';
 
