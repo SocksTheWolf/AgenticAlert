@@ -11,7 +11,7 @@ routes = [
 
 [build]
 command = "npm run build"
-watch_dir = ["site", "src", "SITEBUILD.js"]
+watch_dir = ["site", "src", "SITEBUILD.js", ".env"]
 
 [cache]
 enabled = true
