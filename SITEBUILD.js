@@ -47,7 +47,7 @@ async function buildSite() {
     {source: "src/agenticalert.js", dest: scriptFinalLocation},
     {source: "src/agentdetections.js", dest: defFinalLocation},
     {source: "src/agentutils.js", dest: utilsFinalLocation},
-    {source: "icon64.png", dest: "site/icon.png"},
+    {source: "icon128.png", dest: "site/icon.png"},
   ];
 
   for (const fileCopy of copyFileInstructions) {

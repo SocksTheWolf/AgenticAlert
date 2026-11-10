@@ -1,6 +1,6 @@
 # Stupid images
-.github/collage.jpg
 *.pdn
+phone.jpg
 
 # Node and wrangler crap
 node_modules/
