@@ -22,7 +22,7 @@ function viewFullscreenImage(img_el) {
 	fsi_close.setAttribute("title", "Click to close");
 	fsi_close.addEventListener("click", closeImagePopOver);
 
-	const fsi_caption = document.createElement('center'); // greatest hack ever
+	const fsi_caption = document.createElement('div');
 	fsi_caption.classList.add("zoomCaption");
 	fsi_caption.textContent = altText;
 
