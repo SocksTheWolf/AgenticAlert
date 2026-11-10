@@ -309,6 +309,7 @@ const defAIPhrases = aiRegexSafeArray(aiRegexReplaceSpace([
   `GPT${optSpace}\\d\.?\\d?`,
   "Anthropic's (?:AI|Claude|Fable)",
   "OpenAI GPT",
+  `Gemini${optSpace}\\d`,
   "mcp (?:server|tool)",
   "Claude Code session",
   // this one is kinda just bs
