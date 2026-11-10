@@ -1,10 +1,12 @@
 /script /agenticalert.user.js
-/source https://github.com/socksthewolf/agenticalert/
-/issue https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose
 
 # Badges
 /badge-fx https://img.shields.io/amo/v/agenticalert?logo=firefox&logoColor=white&label=firefox%20addons&color=orange
 /badge-chrome https://img.shields.io/chrome-web-store/v/ilpgadplglhdoeoaoibkjfncinoonajc?logo=chromewebstore&logoColor=white&label=web%20store
+
+# Github links
+/source https://github.com/socksthewolf/agenticalert/
+/issue https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose
 
 # Github Wiki stuff
 /faq https://github.com/SocksTheWolf/AgenticAlert/wiki/FAQ
