@@ -270,6 +270,7 @@ const aiFileMarkers = [
   ".pochi",
   ".forge",
   "warp.md",
+  ".lore.md",
   "agents.local.md",
   "agents.override.md",
   ".?agenthistory.json",
@@ -305,10 +306,10 @@ const matchAnywhereAIRule = [
 
 // Strong cases for genAI usage (why would you be talking about this)
 const defAIPhrases = aiRegexSafeArray(aiRegexReplaceSpace([
-  "Claude (?:Opus|Fable)",
+  `Claude (?:Opus|Fable|Sonnet|Haiku)`,
   `GPT${optSpace}\\d\.?\\d?`,
-  "Anthropic's (?:AI|Claude|Fable)",
-  "OpenAI GPT",
+  "Anthropic(?:'s)? (?:AI|Claude|Fable|Sonnet)",
+  "OpenAI(?:'s)? (?:chat)?GPT",
   `Gemini${optSpace}\\d`,
   "mcp (?:server|tool)",
   "Claude Code session",
