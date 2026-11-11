@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.10
+// @version      1.5.11
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -759,17 +759,17 @@ class AgenticAlertScan {
       if (!(await this.scanContribData())) {
         // check contrib metadata
         if (!(await this.scanMetadata())) {
-          // scan branch prefix names
-          if (!(await this.scanBranchPrefixes())) {
-            // check submodules
-            if (!(await this.scanSubModules())) {
-              // check files
-              if (!this.scanFiles()) {
-                // check .claude settings config for poison pills (duckstation)
-                if (!(await this.scanClaudeConfig())) {
-                  // check the .gitignore file
-                  if (!(await this.scanGitIgnore())) {
-                    // check the sidebar of stuff
+          // check submodules
+          if (!(await this.scanSubModules())) {
+            // check files
+            if (!this.scanFiles()) {
+              // check .claude settings config for poison pills (duckstation)
+              if (!(await this.scanClaudeConfig())) {
+                // check the .gitignore file
+                if (!(await this.scanGitIgnore())) {
+                  // scan branch prefix names
+                  if (!(await this.scanBranchPrefixes())) {
+                  // check the sidebar of stuff
                     if (!this.scanSidebar()) {
                       // check the readme of anything
                       if (!this.scanReadme()) {
