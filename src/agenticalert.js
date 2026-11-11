@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.9
+// @version      1.5.10
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
