@@ -254,6 +254,7 @@ const aiFileMarkers = [
   ".crush",
   ".traycer",
   ".herenow",
+  ".poolside",
   ".roo(?:ignore|mote)?",
   ".commandcode",
   ".zencoder",

@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.8
+// @version      1.5.9
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -134,6 +134,8 @@ class AgenticAlertScan {
       skipContrib: false,
       skipMetadata: false,
       skipDescription: false,
+      skipGitIgnore: false,
+      skipREADME: false,
     };
     this.repo = {
       // networkError: undefined|true
@@ -141,6 +143,7 @@ class AgenticAlertScan {
       // hasIgnore: undefined|true
       // hasClaudeDir: undefined|true
       // hasAgents: undefined|true
+      // hasLLMs: undefined|true
       // branchName: undefined|string
     };
     this.output = {
@@ -185,6 +188,7 @@ class AgenticAlertScan {
       count: 0,
       color: "warning",
       hasAgents: false,
+      hasLLMs: false,
       hasClaudeDir: false,
       hasZed: false
     };
@@ -198,6 +202,10 @@ class AgenticAlertScan {
     if ((/agents\.md/i).test(content)) {
       results.items.push("AGENTS.md");
       results.hasAgents = true;
+    }
+    if ((/llms?\.txt/i).test(content)) {
+      results.items.push("llms.txt");
+      results.hasLLMs = true;
     }
     if ((/^\.zed/im).test(content)) {
       results.items.push(".zed");
@@ -497,6 +505,9 @@ class AgenticAlertScan {
     if (matches.hasAgents) { // make sure to save if we found AGENTS.md
       this.repo.hasAgents = true;
     }
+    if (matches.hasLLMs) {
+      this.repo.hasLLMs = true;
+    }
     return false;
   }
   // This is so much work for so little gain.
@@ -548,6 +559,9 @@ class AgenticAlertScan {
     return true;
   }
   async scanGitIgnore() {
+    if (this.debug.skipGitIgnore) {
+      return false;
+    }
     updateAILabelElement("text", "Checking for hidden AI markers");
     if (this.repo.hasIgnore && this.repo.branchName !== undefined) {
       // the cool thing about this endpoint is that it avoids CORS all together, and works with permissions!
@@ -560,7 +574,7 @@ class AgenticAlertScan {
         const globCleanedIgnore = gitIgnoreContents.replace(ignoreFileRegex, "").replace(/\[!.*\]|\?/g, "");
         const matches = this.contentJudge(globCleanedIgnore);
         // for the .gitignore, if you have any sus files, then initiate judgement
-        if (matches.count > 0 || matches.hasAgents || matches.hasZed) {
+        if (matches.count > 0 || matches.hasAgents || matches.hasZed || matches.hasLLMs) {
           this.updateOutput("status", matches.color);
           this.updateOutput("text", `Detected ${pluralize(matches.items, "hidden genAI file marker")}: ${matches.items.join(", ")}`);
           return true;
@@ -617,6 +631,9 @@ class AgenticAlertScan {
     return false;
   }
   scanReadme() {
+    if (this.debug.skipREADME) {
+      return false;
+    }
     const readmeContainer = document.querySelector(ghElements.readme);
     if (readmeContainer !== null) {
       updateAILabelElement("text", "Scanning README text");
@@ -637,7 +654,7 @@ class AgenticAlertScan {
         } else {
           // if we have an agents file, direct the user to go look at that
           // instead if we have a small number of results (~3)
-          if (this.repo.hasAgents && resultCount < 2) {
+          if ((this.repo.hasAgents || this.repo.hasLLMs) && resultCount < 2) {
             console.warn(`AgenticAlert: Dropping README scan. count was ${resultCount} and we have AGENTS`);
             return false;
           }
@@ -678,6 +695,15 @@ class AgenticAlertScan {
       }
       this.updateOutput("title", "Many repos use AGENTS.md to clarify their stance on genAI usage, but it can also used for LLMs.");
       this.updateOutput("text", `Potentially Safe: However, an AGENTS.md file was detected. ${agentsAction}`);
+      return;
+    }
+
+    // llms.txt handling
+    if (this.repo.hasLLMs) {
+      this.updateOutput("status", "info");
+      this.updateOutput("title",
+        "Some repos use llms.txt to clarify their stance on genAI usage, but it can also be used to direct local LLM usage.");
+      this.updateOutput("text", "Potentially Safe: However, a llms.txt file was detected. A manual review is needed.")
       return;
     }
 
