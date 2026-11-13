@@ -195,7 +195,7 @@ const aiFileMarkers = [
   ".amazonq",
   ".plandex",
   ".cortex",
-  ".factory",
+  ".factory$",
   ".superpowers",
   ".omb-scratch",
   "docs\/superpowers",
