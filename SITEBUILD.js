@@ -27,12 +27,14 @@ async function buildSite() {
     return;
   }
 
+  // for sitemap, literally stolen from skyscheduler lmao
+  const SITE_URL = "https://agenticalert.download";
+
   let scriptHash = "", scriptVersion = "", defHash = "", utilHash = "";
   const sections = new Map();
   const skipBuildPages = [];
   const skipSitemapPages = ["**/404.html", "**/sent.html"];
   const IN_DEV = process.env["IS_DEV"] === 'true';
-  const TEST_USERSCRIPT = process.env["TEST"] === 'true';
 
   // touch the file, we'll check mod times later
   // use the sync so we don't have to worry about flushing as much
@@ -73,9 +75,8 @@ async function buildSite() {
     const utilsFile = await readFile(utilsFinalLocation, {encoding: "utf-8"});
     utilHash = createHash('sha256').update(utilsFile).digest('hex');
 
-    // TODO: if TEST_USERSCRIPT is flagged, replace domain
     const getDeclare = (scriptName, hash) => {
-      return `// @require      https://agenticalert.download/${scriptVersion}/${scriptName}.js#sha256=${hash}`;
+      return `// @require      ${SITE_URL}/${scriptVersion}/${scriptName}.js#sha256=${hash}`;
     }
 
     // if in dev, write the definitions into the script for ez testing
@@ -92,8 +93,6 @@ async function buildSite() {
     scriptHash = createHash('sha256').update(userScriptFile).digest('hex');
   }
 
-  // for sitemap, literally stolen from skyscheduler lmao
-  const SITE_URL = "https://agenticalert.download";
   const currentYear = (new Date()).getFullYear();
 
   // things that can be replaced in the section code

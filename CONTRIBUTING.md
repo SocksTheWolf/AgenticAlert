@@ -6,6 +6,7 @@ I'm looking for:
 * known slop recomp modules
 * files that genAI agents/bots/tools leave in the file/folder structure
 * ideas for how to improve the script's judgement
+* any false positives that happening
 
 If you find one, [open an issue](https://github.com/SocksTheWolf/AgenticAlert/issues/new/choose).
 
