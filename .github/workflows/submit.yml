@@ -96,7 +96,7 @@ jobs:
 
 
       - name: Push to Firefox
-        uses: creeperkatze/extension-publish@67710e469fb1db85eac50c0cfe18779f9de5bdfb
+        uses: creeperkatze/extension-publish@797030bc8a9f26541989b92ee174151f36e12975
         with:
           firefox-xpi-path:     "ext/extension.zip"
           firefox-license:      "GPL-3.0-only"
