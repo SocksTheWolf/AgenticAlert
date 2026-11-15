@@ -117,6 +117,9 @@ const aiAgents = new Map([
   [206114724, {i: 1203049, name: "posthog ai"}],
   [253579861, {name: "shelly ai"}],
   [230265278, {name: "codebuff ai"}],
+  [220374863, {name: "mistral ai"}],
+  [218710178, {name: "pochi agent"}],
+  [148880201, {i: 413034, name: "kody ai"}],
 ]);
 const aiAgentIds = Array.from(aiAgents.keys()).join("|"); // helpful pre-transfer of ids to regexian style string
 
@@ -204,6 +207,7 @@ const aiFileMarkers = [
   ".vibe",
   ".kode",
   ".iflow",
+  "iflow.md",
   ".goose",
   ".agents?",
   "agent.ya?ml",
@@ -278,6 +282,8 @@ const aiFileMarkers = [
   ".herdr",
   ".pochi",
   "warp.md",
+  "kodus-config.yml",
+  ".kody-rules",
   ".lore.md",
   "agents.local.md",
   "agents.override.md",
@@ -299,7 +305,8 @@ const aiFileMarkers = [
 // file markers that need to be even tighter, but still capture tricksters
 const tightAIFileMarkers = [
   "factory", "double", "melty", "relay", "tabby", "void", "lemon",
-  "sketch", "context", "vibe", "forge", "air", "bolt", "mux"
+  "sketch", "context", "vibe", "forge", "air", "bolt", "mux",
+  "crush"
 ];
 
 // file markers from above in here will be explicitly ignored during .gitignore scans
