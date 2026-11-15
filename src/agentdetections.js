@@ -195,7 +195,6 @@ const aiFileMarkers = [
   ".amazonq",
   ".plandex",
   ".cortex",
-  ".factory$",
   ".superpowers",
   ".omb-scratch",
   "docs\/superpowers",
@@ -218,7 +217,6 @@ const aiFileMarkers = [
   ".antigravity",
   ".ona",
   ".junie",
-  ".mux",
   ".rp1",
   ".fx",
   ".aieditoragent",
@@ -237,13 +235,13 @@ const aiFileMarkers = [
   ".macroscope",
   ".?openclaw",
   "openclaw.mjs",
+  ".kata(?:.local)?.toml",
   ".braxis.ya?ml",
   ".?coderabbit.ya?ml",
   ".?cubic.ya?ml",
   ".?kimi(?:-code)?",
   ".?kilo(?:code)?",
   ".fleet",
-  ".air",
   ".senpi",
   ".superset",
   ".?openai",
@@ -267,6 +265,7 @@ const aiFileMarkers = [
   ".roo(?:ignore|mote)?",
   ".commandcode",
   ".zencoder",
+  ".zenflow",
   ".neovate",
   ".codebase-memory",
   ".cbmignore$",
@@ -278,7 +277,6 @@ const aiFileMarkers = [
   ".worktreeinclude",
   ".herdr",
   ".pochi",
-  ".forge",
   "warp.md",
   ".lore.md",
   "agents.local.md",
@@ -289,6 +287,7 @@ const aiFileMarkers = [
   ".sprite$",
   "orca.ya?ml",
   ".bito.ya?ml",
+  ".voidrules",
   "bito-cra(?:.properties)?",
   "trae_config.(?:ya?ml|json)",
   // fairly loose rules, these guys are sure-fires
@@ -296,6 +295,12 @@ const aiFileMarkers = [
   // like the above rules but a bit tighter, to prevent false positives
   ".(trae|augment|cursor|orchids|codex)(?:-plugin)?",
 ].map((itm) => `^${itm}`);
+
+// file markers that need to be even tighter, but still capture tricksters
+const tightAIFileMarkers = [
+  "factory", "double", "melty", "relay", "tabby", "void", "lemon",
+  "sketch", "context", "vibe", "forge", "air", "bolt", "mux"
+];
 
 // file markers from above in here will be explicitly ignored during .gitignore scans
 // all of these are automatically have a \*+\. added to the front of them.
@@ -357,7 +362,7 @@ const claudeSafeMatchAmt = Math.floor(claudeDenyConfigDirectives.length * .7);
 const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   // dynamically escape any ., * and - characters so they are the literals
   aiRegexSafeArray([...aiFileMarkers, ...matchAnywhereAIRule])
-  // then join the entire array with OR gates, and that builds our regex.
-.join("|")}|${recompDetectionStr}).*)`, "igm");
+  // then join the entire array with OR gates, and that builds our base file regex.
+.join("|")}|^\\.(?:${tightAIFileMarkers.join("|")})(?:\\/.*)?$|${recompDetectionStr}).*)`, "igm");
 
 const combinedAIPhraseRegex = new RegExp(`(?<strong>${defAIPhrases}|${recompDetectionStr})|(?<weak>${susAIPhrases})`, "igm");
