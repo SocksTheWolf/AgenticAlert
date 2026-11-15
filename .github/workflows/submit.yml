@@ -31,9 +31,22 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version-file: ".node-version"
-          package-manager-cache: true
+          package-manager-cache: false
           cache-dependency-path: "package-lock.json"
           cache: "npm"
+
+      - name: Get Cache Information
+        shell: bash
+        id: cacheinfo
+        run: |-
+          echo "arch=$(echo '${{ runner.arch }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "path=$(npm config get cache)" >> $GITHUB_OUTPUT
+
+      - name: Restore Node cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ steps.cacheinfo.outputs.path }}
+          key: node-cache-${{ runner.os }}-${{ steps.cacheinfo.outputs.arch }}-npm-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install Packages
         run: npm ci
