@@ -1,11 +1,11 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "npx wrangler dev --live-reload",
+    "dev": "wrangler dev --live-reload",
     "build": "node --env-file-if-exists=.env SITEBUILD.js",
-    "extbuild": "npx web-ext build",
-    "extrun": "npx web-ext run",
-    "extlint": "npx web-ext lint"
+    "extbuild": "web-ext build",
+    "extrun": "web-ext run",
+    "extlint": "web-ext lint"
   },
   "devDependencies": {
     "web-ext": "^10.8.0",
