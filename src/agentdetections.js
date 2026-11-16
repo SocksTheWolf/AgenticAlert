@@ -133,9 +133,9 @@ const aiRecompModules = [
   "psxrecomp",
   "recomp-ui",
   "ps3recomp",
-  "ps2xRecomp",
+  "ps2xrecomp",
   "ps2recomp",
-  "ps2xRuntime",
+  "ps2xruntime",
   "segagenesisrecomp",
   "smsggrecomp",
   "ndsrecomp",
@@ -146,7 +146,7 @@ const aiRecompModules = [
   "cdirecomp",
   "gb-?recompiled",
   "xboxrecomp",
-  "NWiiRecomp",
+  "nwiirecomp",
   "vbrecomp",
   "apple2recomp",
   "vic20recomp",
@@ -164,6 +164,13 @@ const aiRecompModules = [
   "hm64-decomp", // has claude files
 ];
 const recompDetectionStr = aiRegexSafeArray(aiRecompModules).join("|");
+
+// This is a list of recomp modules that should they exist in a .gitmodules
+// we can check who is the owner of said module, to prevent false positives.
+// all of these must be lowercase, and should not be frequently updated.
+const safeRecompModuleNames = new Map([
+  ["xboxrecomp", ["foxworkshop"]]
+]);
 
 // List of AI branch prefix names that are used
 // as of this time, cloud agents cannot turn this off

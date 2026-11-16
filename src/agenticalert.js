@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.15
+// @version      1.5.16
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -426,14 +426,22 @@ class AgenticAlertScan {
       const gitModulesContents = await this.fetchGithub(`raw/${this.repo.branchName}/.gitmodules`,
         {method: "GET", headers: {}});
       if (gitModulesContents !== null) {
-        updateAILabelElement("text", "Parsing Submodule Configuration");
-        const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(${recompDetectionStr})(?:\\.git)?$`, 'igm');
-        const gitModuleMatches = compactRegexResult(gitModulesContents, gitmodulesRegex);
+        updateAILabelElement("text", "Parsing Submodule Configuration Data");
+        const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(?<user>[a-z\-0-9]{1,39})\\/(?<module>${recompDetectionStr})(?:\\.git)?$`, 'igm');
+        const gitModuleMatches = [...gitModulesContents.matchAll(gitmodulesRegex)]
+          .map((itm) => [itm.groups.user.toLowerCase(), itm.groups.module])
+          .filter((itm) => {
+            // lower these for strict map checking
+            const moduleKey = itm[1].toLowerCase(), ownerKey = itm[0];
+            return !(safeRecompModuleNames.has(moduleKey) && safeRecompModuleNames.get(moduleKey).includes(ownerKey));
+          });
         const modNumbers = gitModuleMatches.length;
         if (modNumbers > 0) {
           this.updateOutput("status", this.countJudge(modNumbers));
           this.updateOutput("title", ".gitmodules points to a known genAI slop submodule name");
-          this.updateOutput("text", `Detected: Includes ${pluralize(gitModuleMatches, "known genAI submodule")} - ${gitModuleMatches.join(", ")}`);
+          // only output the module name, not the source name
+          const modulesFoundStr = gitModuleMatches.map((itm) => itm[1]).join(", ");
+          this.updateOutput("text", `Detected: Includes ${pluralize(gitModuleMatches, "known genAI submodule")} - ${modulesFoundStr}`);
           return true;
         }
       } else {

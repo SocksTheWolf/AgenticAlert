@@ -10,10 +10,6 @@ const aiRegexReplaceSpace = (arr) => {
   return arr.map((itm) => itm.replace(/\s/g, "[\\s|\\W]"));
 }
 
-const compactRegexResult = (content, regex) => {
-  return [...content.matchAll(regex)].map((itm) => itm[1]);
-}
-
 // pluralizes words
 const pluralize = (items, word, multiple="s", noNumber=false) => {
   const number = items.length ?? items;
