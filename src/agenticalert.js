@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.14
+// @version      1.5.15
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -427,7 +427,7 @@ class AgenticAlertScan {
         {method: "GET", headers: {}});
       if (gitModulesContents !== null) {
         updateAILabelElement("text", "Parsing Submodule Configuration");
-        const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(${recompDetectionStr})`, 'igm');
+        const gitmodulesRegex = new RegExp(`^\\s+?url\\s+?=\\s+?.*\\/(${recompDetectionStr})(?:\\.git)?$`, 'igm');
         const gitModuleMatches = compactRegexResult(gitModulesContents, gitmodulesRegex);
         const modNumbers = gitModuleMatches.length;
         if (modNumbers > 0) {
