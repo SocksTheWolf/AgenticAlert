@@ -1,0 +1,54 @@
+name: Report False Positive
+description: For reporting false positives
+title: '[FALSE POSITIVE]: '
+labels: ['bug']
+assignees: 'socksthewolf'
+
+body:
+  - type: input
+    attributes:
+      label: Repository
+      description: Please provide a link to the repository that was flagged incorrectly
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: What flagged the repository?
+      description: Hovering over the result will explain the reason in detail
+      options:
+        - Contributors
+        - Submodules (File)
+        - Submodules (.gitmodules)
+        - Files
+        - Gitignore
+        - Branch Names
+        - GH Description
+        - GH Readme
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What is AgenticAlert's output?
+      description: Please provide the result data from AgenticAlert.
+
+  - type: textarea
+    attributes:
+      label: How is this a false positive?
+      description: |
+        This question does feel very loaded, but please realize that many slop projects
+        are hellbent on deceiving their audiences for fame/fortune/likes/internet points.
+
+        We will take what you say in good faith, but we'll also do due dilligience
+        as well.
+
+        You don't have to write a lot here either, I just give you the space to write more
+        if you want.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Other Comments?
+      description: Anything else can go here
