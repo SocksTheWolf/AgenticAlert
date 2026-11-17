@@ -189,16 +189,7 @@ const aiBranchPrefixNames = [
 
 // AGENTS.md ITSELF SHOULD NEVER BE IN THIS LIST.
 const aiFileMarkers = [
-  "soul.md",
-  "copilot-instructions.md",
-  "adal.md",
-  "sweep.md",
-  "autosde.ya?ml",
-  "qwen.md",
-  "cursor.md",
-  "codex.md",
   "agent_docs",
-  "install_for_agents.md",
   ".codebuddy",
   ".workbuddy",
   ".tabnine",
@@ -214,15 +205,11 @@ const aiFileMarkers = [
   ".hermes",
   ".adal",
   ".zcode",
-  ".vibe",
   ".kode",
   ".iflow",
-  "iflow.md",
   ".goose",
   ".agents?",
-  "agent.ya?ml",
-  ".aider.conf.ya?ml",
-  ".cline(?:rules)?",
+  ".cline",
   ".continue",
   ".kiro",
   ".openhands",
@@ -237,12 +224,11 @@ const aiFileMarkers = [
   ".deepagents",
   ".qwen",
   ".chatgpt",
-  ".codebuffignore",
-  ".?cursorrules",
   ".devin",
   ".serena",
   ".?opencode",
   ".windsurf",
+  ".agavrc",
   ".strix",
   ".ori$",
   ".metabob",
@@ -250,9 +236,6 @@ const aiFileMarkers = [
   ".?openclaw",
   "openclaw.mjs",
   ".kata(?:.local)?.toml",
-  ".braxis.ya?ml",
-  ".?coderabbit.ya?ml",
-  ".?cubic.ya?ml",
   ".?kimi(?:-code)?",
   ".?kilo(?:code)?",
   ".fleet",
@@ -260,8 +243,6 @@ const aiFileMarkers = [
   ".superset",
   ".?openai",
   ".langgraph_api",
-  ".?langgraph.json",
-  ".?greptile.json",
   ".omc",
   ".omo",
   ".omp",
@@ -272,18 +253,16 @@ const aiFileMarkers = [
   ".conductor",
   ".?crushrc",
   ".?mimocode",
-  ".crush",
   ".traycer",
   ".herenow",
   ".poolside",
-  ".roo(?:ignore|mote)?",
+  ".roomote",
   ".commandcode",
   ".zencoder",
   ".zenflow",
   ".neovate",
   ".opencodereview",
   ".codebase-memory",
-  ".cbmignore$",
   ".ai-context",
   ".evlog",
   "evlog.config.m?t?j?s$",
@@ -292,36 +271,36 @@ const aiFileMarkers = [
   ".worktreeinclude",
   ".herdr",
   ".pochi",
-  "warp.md",
-  "kodus-config.yml",
-  ".kody-rules",
-  ".lore.md",
-  "agents.local.md",
-  "agents.override.md",
-  ".?agenthistory.json",
   ".?graphify",
   ".orca",
-  ".sprite$",
-  "orca.ya?ml",
-  ".bito.ya?ml",
-  ".voidrules",
   "bito-cra(?:.properties)?",
   "trae_config.(?:ya?ml|json)",
+  // json files
+  ".?(agenthistory|langgraph|greptile|junie).json",
+  // md files
+  ".?(lore|agents(?:.local|.override)|warp|iflow|soul|adal|install_for_agents|codex|agav|cursor|qwen|sweep|copilot-instructions).md",
+  // yaml files
+  ".?(autosde|orca|bito|kodus-config|cubic|coderabbit|braxis|aider.conf|agent).ya?ml",
+  // rules
+  ".?(void|kody-|cline|cursor)rules?$",
+  // ignores
+  ".(codebuff|roo|crush|cbm)ignore$",
   // fairly loose rules, these guys are sure-fires
   ".?(grok|gemini|claude|qoder)(?:-plugin)?",
-  // like the above rules but a bit tighter, to prevent false positives
+  // like the above rules but requires a . start to prevent false positives
   ".(trae|augment|cursor|orchids|codex)(?:-plugin)?",
 ].map((itm) => `^${itm}`);
 
 // file markers that need to be even tighter, but still capture tricksters
+// each one of these gets a free \. added to the start of them
 const tightAIFileMarkers = [
   "factory", "double", "melty", "relay", "tabby", "void", "lemon",
   "sketch", "context", "vibe", "forge", "air", "bolt", "mux",
-  "crush"
+  "crush", "sprite", "roo"
 ];
 
 // file markers from above in here will be explicitly ignored during .gitignore scans
-// all of these are automatically have a \*+\. added to the front of them.
+// all of these are automatically have a \*+\. prefixed
 const ignoreAIFileMarkers = [
   "fx"
 ];
@@ -333,7 +312,6 @@ const matchAnywhereAIRule = [
   // this one is a stretch but in testing turned out to be fairly solid
   "skills?",
   "llms-full.txt",
-  "junie.local.json",
   "LLAMA_CPP_VERSION",
 ];
 
@@ -375,12 +353,10 @@ const claudeDenyConfigDirectives = ["Read","Edit","Write","MultiEdit","NotebookE
 // still subject to other rules
 const claudeSafeMatchAmt = Math.floor(claudeDenyConfigDirectives.length * .7);
 
-// dynamic regex of the above, global because it's used in two places with no changes.
-// good luck understanding how this works, I'm not going to bother explaining it in much detail
+// dynamic regex of the top, global because it's used in a few places with no changes.
+// good luck understanding how this works, I'm not going to bother explaining it
 const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
-  // dynamically escape any ., * and - characters so they are the literals
   aiRegexSafeArray([...aiFileMarkers, ...matchAnywhereAIRule])
-  // then join the entire array with OR gates, and that builds our base file regex.
 .join("|")}|^\\.(?:${tightAIFileMarkers.join("|")})(?:\\/.*)?$|${recompDetectionStr}).*)`, "igm");
 
 const combinedAIPhraseRegex = new RegExp(`(?<strong>${defAIPhrases})|\\b(?<module>${recompDetectionStr})\\b|(?<weak>${susAIPhrases})`, "igm");
