@@ -382,4 +382,4 @@ const aiFileNameRegex = new RegExp(`(^[^#\\s]*(?:${
   // then join the entire array with OR gates, and that builds our base file regex.
 .join("|")}|^\\.(?:${tightAIFileMarkers.join("|")})(?:\\/.*)?$|${recompDetectionStr}).*)`, "igm");
 
-const combinedAIPhraseRegex = new RegExp(`(?<strong>${defAIPhrases}|\\b(${recompDetectionStr})\\b)|(?<weak>${susAIPhrases})`, "igm");
+const combinedAIPhraseRegex = new RegExp(`(?<strong>${defAIPhrases})|\\b(?<module>${recompDetectionStr})\\b|(?<weak>${susAIPhrases})`, "igm");

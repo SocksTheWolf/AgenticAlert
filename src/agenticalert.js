@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.17
+// @version      1.5.18
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -615,13 +615,18 @@ class AgenticAlertScan {
     const cleanedContent = contentText.replace(/[\n|\s]+/g, " ");
     [...cleanedContent.matchAll(combinedAIPhraseRegex)].forEach((itm) => {
       let matchStr = "";
-      if (itm.groups.strong !== undefined) {
-        matchStr = itm.groups.strong;
-        // check if the name has potential false positives and check against
-        // our potential false positive list
+      if (itm.groups.module !== undefined) {
+        matchStr = itm.groups.module;
+        // check for module collision here (small optimization)
         if (this.isModuleCollision(this.user, matchStr)) {
           return;
         }
+        // modules go in the strong hole
+        results.strongMatches.push(itm.groups.module);
+      } else if (itm.groups.strong !== undefined) {
+        matchStr = itm.groups.strong;
+        // check if the name has potential false positives and check against
+        // our potential false positive list
         results.strongMatches.push(itm.groups.strong);
       } else {
         matchStr = itm.groups.weak;
