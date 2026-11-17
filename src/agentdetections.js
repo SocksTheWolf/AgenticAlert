@@ -168,6 +168,9 @@ const recompDetectionStr = aiRegexSafeArray(aiRecompModules).join("|");
 // This is a list of recomp modules that should they exist in a .gitmodules
 // we can check who is the owner of said module, to prevent false positives.
 // all of these must be lowercase, and should not be frequently updated.
+//
+// These will also check against files + readme contents if the user matches
+// the source module
 const safeRecompModuleNames = new Map([
   ["xboxrecomp", ["foxworkshop"]]
 ]);

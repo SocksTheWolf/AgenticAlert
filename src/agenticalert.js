@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.16
+// @version      1.5.17
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -156,7 +156,7 @@ class AgenticAlertScan {
 
   create(url) {
     this.reset();
-    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/([a-z0-9_-]+)\/([\w\.\-]+)/i;
+    const githubURIRegex = /https:\/\/(?:www\.)?github\.com\/([a-z0-9_\-]{1,39})\/([\w\.\-]+)/i;
     const match = githubURIRegex.exec(url);
     if (match !== null && match.length === 3) {
       this.user = match[1];
@@ -220,6 +220,15 @@ class AgenticAlertScan {
       results.count += 2;
     }
     return results;
+  }
+
+  // checks for common module collision faults.
+  isModuleCollision(user, module) {
+    if (user === undefined) {
+      return false;
+    }
+    const lowerUser = user.toLowerCase(), moduleLower = module.toLowerCase();
+    return (safeRecompModuleNames.has(moduleLower) && safeRecompModuleNames.get(moduleLower).includes(lowerUser));
   }
 
   countJudge(resultNum) {
@@ -431,9 +440,8 @@ class AgenticAlertScan {
         const gitModuleMatches = [...gitModulesContents.matchAll(gitmodulesRegex)]
           .map((itm) => [itm.groups.user.toLowerCase(), itm.groups.module])
           .filter((itm) => {
-            // lower these for strict map checking
-            const moduleKey = itm[1].toLowerCase(), ownerKey = itm[0];
-            return !(safeRecompModuleNames.has(moduleKey) && safeRecompModuleNames.get(moduleKey).includes(ownerKey));
+            // return false to remove from filter
+            return !(this.isModuleCollision(itm[0], itm[1]));
           });
         const modNumbers = gitModuleMatches.length;
         if (modNumbers > 0) {
@@ -487,12 +495,15 @@ class AgenticAlertScan {
   }
   scanFiles() {
     // this title write will be deleted if/when we get to finalizeRepo
-    this.updateOutput("title", `Due to optimization, "duplicates" are actually multiple instances, but we only print what we match`);
+    this.updateOutput("title", `Due to optimization, "duplicates" are actually multiple instances, but we only output matches`);
     updateAILabelElement("text", "Checking for AI files");
     const fileElements = document.querySelectorAll(ghElements.files), filesList = [];
     // dedupe the element list, as github will give us duplicates
     fileElements.forEach((itm) => {
       const fileName = itm.innerText;
+      if (this.isModuleCollision(this.user, fileName)) {
+        return;
+      }
       if (!filesList.includes(fileName)) {
         filesList.push(fileName);
       }
@@ -606,6 +617,11 @@ class AgenticAlertScan {
       let matchStr = "";
       if (itm.groups.strong !== undefined) {
         matchStr = itm.groups.strong;
+        // check if the name has potential false positives and check against
+        // our potential false positive list
+        if (this.isModuleCollision(this.user, matchStr)) {
+          return;
+        }
         results.strongMatches.push(itm.groups.strong);
       } else {
         matchStr = itm.groups.weak;
