@@ -281,6 +281,7 @@ const aiFileMarkers = [
   ".zencoder",
   ".zenflow",
   ".neovate",
+  ".opencodereview",
   ".codebase-memory",
   ".cbmignore$",
   ".ai-context",
