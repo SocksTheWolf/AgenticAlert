@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.19
+// @version      1.5.20
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -466,7 +466,7 @@ class AgenticAlertScan {
     if (branchNameFetch != null && branchNameFetch.refs !== undefined) {
       if (branchNameFetch.refs.length > 0) {
         updateAILabelElement("text", "Scanning branch names");
-        const aiBranchPrefixRegex = new RegExp(`^(${aiBranchPrefixNames.join("|")})`, "im");
+        const aiBranchPrefixRegex = new RegExp(`^(${aiBranchPrefixNames.join("|")})\\/`, "im");
         let nameMatches = [];
         branchNameFetch.refs.forEach((name) => {
           if (aiBranchPrefixRegex.test(name)) {

@@ -184,7 +184,7 @@ const aiBranchPrefixNames = [
   "cursor",
   "codex",
   "copilot",
-  "ai\/",
+  "ai",
 ];
 
 // AGENTS.md ITSELF SHOULD NEVER BE IN THIS LIST.
