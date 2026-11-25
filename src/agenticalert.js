@@ -5,7 +5,7 @@
 // @copyright    SocksTheWolf
 // @homepage     https://agenticalert.download/
 // @run-at       document-end
-// @version      1.5.20
+// @version      1.5.21
 // @description  Detects if genAI was used in a GitHub project repository
 // @tag          utilities
 // @grant        none
@@ -224,7 +224,7 @@ class AgenticAlertScan {
 
   // checks for common module collision faults.
   isModuleCollision(user, module) {
-    if (user === undefined) {
+    if (user === undefined || safeRecompModuleNames.size == 0) {
       return false;
     }
     const lowerUser = user.toLowerCase(), moduleLower = module.toLowerCase();

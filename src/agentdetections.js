@@ -157,6 +157,7 @@ const aiRecompModules = [
   "systemes3recomp",
   "lindberghrecomp",
   "ps[p|2]-web-recomp",
+  "wiicompiled",
   // decomp game modules that use genai
   "snowboardkids2?-decomp",
   "smstrikers-decomp", // used claude hard
