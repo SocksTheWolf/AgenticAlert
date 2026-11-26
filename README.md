@@ -36,7 +36,7 @@ You can download either:
 * [ViolentMonkey](https://violentmonkey.github.io/get-it/) (supported)
 * a similar userscript runner for your browser (most should work, but some are weird and ymmv)
 
-**NOTE**: Certain Chrominium browsers (like Vivaldi), will also need to [enable userscripts](https://www.tampermonkey.net/faq.php?q=Q209#Q209). This is not done on install for you automatically. Once the option is turned on, **_you must_** disable and reenable your extension. You'll only need to do this once.
+> **NOTE**: Certain Chrominium browsers (like Vivaldi), will also need to [enable userscripts](https://www.tampermonkey.net/faq.php?q=Q209#Q209). This is not done on install for you automatically. Once the option is turned on, **_you must_** disable and reenable your extension. You'll only need to do this once.
 
 #### STEP TWO
 
