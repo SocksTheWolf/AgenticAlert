@@ -28,13 +28,15 @@ Chrome based browsers can [go here to install](https://agenticalert.download/chr
 
 #### STEP ONE
 
-Get an userscript runner. You can download either:
+Get an userscript runner. Skip this if you already have an userscript runner.
+
+You can download either:
 
 * [TamperMonkey](https://www.tampermonkey.net/) (supported)
 * [ViolentMonkey](https://violentmonkey.github.io/get-it/) (supported)
 * a similar userscript runner for your browser (most should work, but some are weird and ymmv)
 
-Skip this if you already have an userscript runner.
+**NOTE**: Certain Chrominium browsers (like Vivaldi), will also need to [enable userscripts](https://www.tampermonkey.net/faq.php?q=Q209#Q209). This is not done on install for you automatically. Once the option is turned on, **_you must_** disable and reenable your extension. You'll only need to do this once.
 
 #### STEP TWO
 

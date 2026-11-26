@@ -12,6 +12,7 @@ if (document.getElementById("getAA")) {
   let browserTag = "dl-script";
   if (window.chrome !== undefined) { // chrome browsers
     browserTag = "dl-chrome";
+    document.querySelectorAll(".vivaldiStep").forEach((el) => el.removeAttribute("hidden"));
   } else if (window.mozInnerScreenX !== undefined) { // firefox browsers
     browserTag = "dl-fx";
   }
